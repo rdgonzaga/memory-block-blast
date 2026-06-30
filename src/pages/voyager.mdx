@@ -17,10 +17,14 @@ import MemoryMinigame from '../components/MemoryMinigame.tsx';
 {`
   html {
     background: #050505 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   body {
     background: transparent !important;
     color: #F8F8FF !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .article h1:first-of-type,
   .article :global(h1:first-of-type) {
@@ -37,6 +41,9 @@ import MemoryMinigame from '../components/MemoryMinigame.tsx';
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
   }
   .article h2, .article h3, .article h4, .article h5, .article h6 {
     font-family: inherit !important;
@@ -45,13 +52,18 @@ import MemoryMinigame from '../components/MemoryMinigame.tsx';
   .content {
     background: transparent !important;
     padding: 0 !important;
-    max-width: 100% !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
     display: block !important;
   }
   .content__block {
     display: block !important;
     flex: unset !important;
     gap: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
   }
   footer {
     background-color: #090909 !important;

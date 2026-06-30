@@ -99,7 +99,7 @@ export default function MemoryMinigame() {
               )}
 
               {/* Playfield grid */}
-              <div className="mx-auto grid max-w-[440px] grid-cols-8 gap-1.5">
+              <div className="mx-auto grid max-w-[440px] grid-cols-8 gap-1.5 rounded-xl border border-white/10 bg-black/40 p-5 shadow-2xl backdrop-blur-md">
                 {Array.from({ length: SLOTS }).map((_, slot) => {
                   const isCorrupt = CORRUPT_SLOTS.includes(slot);
                   const block = slotMap.get(slot);
@@ -110,8 +110,8 @@ export default function MemoryMinigame() {
                       onDrop={() => handleDrop(slot)}
                       className={[
                         'flex aspect-square items-center justify-center rounded-[3px] border font-mono text-[8px] transition-colors',
-                        isCorrupt ? 'border-alert/60 bg-alert/15 text-alert/70'
-                          : block ? 'border-crt bg-crt/20 text-crt'
+                        isCorrupt ? '!border-dashed !border-alert bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(230,57,70,.15)_2px,rgba(230,57,70,.15)_5px)] !text-alert shadow-[0_0_10px_rgba(230,57,70,.4)]'
+                          : block ? '!border-solid !border-crt bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.15)_2px,rgba(51,255,102,.15)_5px)] !text-crt shadow-[0_0_10px_rgba(51,255,102,.4)]'
                           : 'border-crt/25 bg-crt/[0.04] text-crt/40',
                       ].join(' ')}
                     >
@@ -129,7 +129,7 @@ export default function MemoryMinigame() {
                     draggable
                     onDragStart={() => setDragging(b.id)}
                     onDragEnd={() => setDragging(null)}
-                    className="cursor-grab rounded border border-crt bg-crt/15 px-2.5 py-1.5 font-mono text-[10px] font-bold text-crt active:cursor-grabbing"
+                    className="cursor-grab rounded border border-crt bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.15)_2px,rgba(51,255,102,.15)_5px)] px-2.5 py-1.5 font-mono text-[10px] font-bold text-crt shadow-[0_0_10px_rgba(51,255,102,.4)] active:cursor-grabbing"
                   >
                     {b.addr}
                   </div>

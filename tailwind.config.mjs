@@ -22,7 +22,7 @@ export default {
         blink:    { '0%,49%': { opacity: '1' }, '50%,100%': { opacity: '0' } },
         scanline: { from: { transform: 'translateY(-100%)' }, to: { transform: 'translateY(100%)' } },
         flicker:  { '0%,100%': { opacity: '.96' }, '50%': { opacity: '.88' } },
-        drift:    { from: { backgroundPosition: '0 0, 0 0, 0 0' }, to: { backgroundPosition: '-600px 900px, 400px -700px, 200px 300px' } },
+        drift:    { from: { backgroundPosition: '0 0, 0 0, 0 0' }, to: { backgroundPosition: '-400px 400px, 300px -300px, -200px -200px' } },
         pulse2:   { '0%,100%': { opacity: '.55' }, '50%': { opacity: '1' } },
       },
       animation: {

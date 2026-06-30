@@ -34,14 +34,14 @@ const CELL_CLASS: Record<CellState, string> = {
   idle:      'border-orange/20 bg-white/[0.02] text-ash/40',
   scanned:   'border-orange/45 bg-orange/15 text-orange',
   active:    'border-orange bg-orange text-space shadow-[0_0_18px_rgba(250,102,2,.7)]',
-  corrupt:   'border-alert bg-alert/20 text-alert shadow-[0_0_12px_rgba(230,57,70,.45)]',
+  corrupt:   'border border-dashed border-alert bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(230,57,70,.15)_2px,rgba(230,57,70,.15)_5px)] text-alert shadow-[0_0_10px_rgba(230,57,70,.4)]',
   freed:     'border-white/10 bg-white/[0.02] text-ash/20',
-  relocated: 'border-crt bg-crt/20 text-crt shadow-[0_0_12px_rgba(51,255,102,.4)]',
+  relocated: 'border border-crt bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.15)_2px,rgba(51,255,102,.15)_5px)] text-crt shadow-[0_0_10px_rgba(51,255,102,.4)]',
 };
 
 function MemoryGrid({ states }: { states: CellState[] }) {
   return (
-    <div className="grid grid-cols-8 gap-1.5 font-mono">
+    <div className="grid grid-cols-8 gap-1.5 rounded-xl border border-white/10 bg-black/40 p-5 font-mono shadow-2xl backdrop-blur-md">
       {Array.from({ length: GRID }).map((_, i) => (
         <div
           key={i}
@@ -170,17 +170,34 @@ export default function VoyagerScrollyTelling() {
 
   return (
     <div ref={root} className="relative font-sans text-ghost">
-      {/* ===== Starfield (fixed, behind everything) ===== */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 animate-drift"
-        style={{
-          backgroundColor: '#050505',
-          backgroundImage:
-            'radial-gradient(1px 1px at 20% 30%,rgba(248,248,255,.9),transparent),radial-gradient(1px 1px at 70% 60%,rgba(248,248,255,.7),transparent),radial-gradient(1.5px 1.5px at 40% 80%,rgba(248,248,255,.8),transparent),radial-gradient(1px 1px at 88% 18%,rgba(211,211,211,.7),transparent)',
-          backgroundSize: '700px 700px,900px 900px,500px 500px',
-        }}
-      />
+      {/* ===== Galaxy Background (fixed, behind everything) ===== */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-space">
+        {/* Nebula clouds */}
+        <div
+          className="absolute inset-0 opacity-[0.35] mix-blend-screen"
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.4), transparent 45%),
+              radial-gradient(circle at 85% 30%, rgba(15, 118, 110, 0.5), transparent 55%),
+              radial-gradient(circle at 50% 80%, rgba(153, 27, 27, 0.3), transparent 50%),
+              radial-gradient(circle at 70% 90%, rgba(20, 40, 120, 0.4), transparent 40%),
+              radial-gradient(circle at 30% 10%, rgba(150, 60, 20, 0.3), transparent 45%)
+            `
+          }}
+        />
+        {/* Drifting Stars - Parallax Layers */}
+        <div
+          className="absolute inset-0 animate-drift opacity-80"
+          style={{
+            backgroundImage: `
+              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Ccircle cx='50' cy='50' r='1.5' fill='%23fff' opacity='0.8'/%3E%3Ccircle cx='250' cy='150' r='2' fill='%23fff' opacity='0.6'/%3E%3Ccircle cx='100' cy='300' r='1' fill='%23fff' opacity='0.4'/%3E%3Ccircle cx='350' cy='350' r='1.5' fill='%23fff' opacity='0.9'/%3E%3Ccircle cx='150' cy='100' r='1' fill='%23fff' opacity='0.7'/%3E%3Ccircle cx='300' cy='50' r='2.5' fill='%23fff' opacity='0.3'/%3E%3Ccircle cx='50' cy='250' r='1' fill='%23fff' opacity='0.5'/%3E%3Ccircle cx='250' cy='300' r='0.5' fill='%23fff' opacity='0.8'/%3E%3Ccircle cx='350' cy='150' r='1.5' fill='%23fff' opacity='0.6'/%3E%3Ccircle cx='100' cy='150' r='2' fill='%23fff' opacity='0.4'/%3E%3C/svg%3E"),
+              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Ccircle cx='30' cy='80' r='1' fill='%23fff' opacity='0.7'/%3E%3Ccircle cx='180' cy='40' r='1.5' fill='%23fff' opacity='0.5'/%3E%3Ccircle cx='250' cy='200' r='1' fill='%23fff' opacity='0.8'/%3E%3Ccircle cx='90' cy='250' r='0.5' fill='%23fff' opacity='0.6'/%3E%3Ccircle cx='150' cy='160' r='1' fill='%23fff' opacity='0.9'/%3E%3Ccircle cx='280' cy='90' r='2' fill='%23fff' opacity='0.2'/%3E%3Ccircle cx='60' cy='180' r='1' fill='%23fff' opacity='0.4'/%3E%3Ccircle cx='210' cy='280' r='0.5' fill='%23fff' opacity='0.7'/%3E%3C/svg%3E"),
+              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='0.5' fill='%23fff' opacity='0.5'/%3E%3Ccircle cx='40' cy='150' r='0.5' fill='%23fff' opacity='0.4'/%3E%3Ccircle cx='160' cy='30' r='1' fill='%23fff' opacity='0.6'/%3E%3Ccircle cx='10' cy='90' r='0.5' fill='%23fff' opacity='0.3'/%3E%3Ccircle cx='180' cy='180' r='1' fill='%23fff' opacity='0.7'/%3E%3Ccircle cx='120' cy='40' r='0.5' fill='%23fff' opacity='0.8'/%3E%3C/svg%3E")
+            `,
+            backgroundSize: '400px 400px, 300px 300px, 200px 200px',
+          }}
+        />
+      </div>
 
       <MissionHud />
 
