@@ -8,7 +8,4 @@ export default defineConfig({
   integrations: [mdx(), react(), icon(), tailwind()],
   site: 'https://jrgo7.github.io',
   base: 'virtual-exhibit-template',
-  redirects: {
-    '/': '/voyager'
-  }
 });
