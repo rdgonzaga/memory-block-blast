@@ -1,0 +1,93 @@
+---
+layout: ../layouts/ExhibitLayout.astro
+title: "The 2024 Voyager 1 FDS Memory Rescue"
+description: "Reallocating Voyager 1's Fragmented Memory Map"
+author: "Gonzaga, Rainer D.; Gonzales, Aaron James S.; Manalang, Kennese Ross F.; Marcaida, Duncan Joseph B.; Ramos, Richmond Jose G."
+readingTime: "10 minute read"
+---
+
+import VoyagerScrollyTelling from '../components/VoyagerScrollyTelling.tsx';
+import MemoryMinigame from '../components/MemoryMinigame.tsx';
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+<style>
+{`
+  html {
+    background: #050505 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body {
+    background: transparent !important;
+    color: #F8F8FF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .article h1:first-of-type,
+  .article :global(h1:first-of-type) {
+    display: block !important;
+  }
+  .header {
+    display: none !important;
+  }
+  .content__titlemeta {
+    display: none !important;
+  }
+  .article {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .article h2, .article h3, .article h4, .article h5, .article h6 {
+    font-family: inherit !important;
+    border-bottom: none !important;
+  }
+  .content {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    display: block !important;
+  }
+  .content__block {
+    display: block !important;
+    flex: unset !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  footer {
+    background-color: #090909 !important;
+    color: #D3D3D3 !important;
+    border-top: 1px solid rgba(250, 102, 2, 0.35) !important;
+    margin-top: 6rem !important;
+  }
+`}
+</style>
+
+{/*
+  Memory Block Blast — single-page scrollytelling exhibit.
+
+  The locked ExhibitLayout.astro provides the sticky Mission-Control HUD, the
+  page <title>/<author>/<readingTime> chrome, and loads Tailwind + fonts.
+  Everything below is interactive, so it lives in hydrated React islands:
+
+    • <VoyagerScrollyTelling client:load />  — hydrate immediately; it owns the
+      fixed starfield + all scroll-linked (GSAP ScrollTrigger) animation, so it
+      must be measuring scroll from first paint.
+    • <MemoryMinigame client:visible />      — defer hydration until the CRT
+      finale scrolls into view (it's far down the page and self-contained).
+*/}
+
+<VoyagerScrollyTelling client:load />
+
+<MemoryMinigame client:visible />
