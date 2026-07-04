@@ -13,7 +13,7 @@ export default {
         crt:    '#33ff66', // Phosphor green — terminal / mini-game screen
       },
       fontFamily: {
-        display: ['"Archivo Black"', 'system-ui', 'sans-serif'],
+        display: ['"Monumento"', 'system-ui', 'sans-serif'],
         sans:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
         mono:    ['"Roboto Mono"', 'ui-monospace', 'monospace'],
         term:    ['"Share Tech Mono"', '"Roboto Mono"', 'monospace'],
