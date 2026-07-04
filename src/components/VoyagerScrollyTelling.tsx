@@ -168,7 +168,7 @@ export default function VoyagerScrollyTelling() {
   const lost = Math.floor(mapP * FRAG.length);
   const ptr = Math.floor(Math.min(addrP, 0.999) * GRID);
 
-  return (
+  return (    
     <div ref={root} className="relative font-sans text-ghost">
       {/* ===== Galaxy Background (fixed, behind everything) ===== */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-space">
@@ -202,114 +202,194 @@ export default function VoyagerScrollyTelling() {
       <MissionHud />
 
       {/* ===== HERO ===== */}
-      <section className="mx-auto max-w-[1100px] px-7 pt-20 pb-8">
-        <div data-reveal="up" className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px]">
-          <div className="pointer-events-none absolute inset-0 opacity-50" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px)', backgroundSize: '6px 6px' }} />
-          <div role="heading" aria-level={1} data-reveal="mask" className="m-0 !font-display text-[clamp(58px,9vw,128px)] font-bold uppercase leading-[.86] tracking-[-.02em] text-orange">
+      <section className="relative mx-auto max-w-[1800px] px-2 pt-20 pb-52">
+        <div 
+        data-parallax 
+        data-speed="-8" 
+        className="absolute right-0 top-1/2 -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
+        >
+        {/* orange gradient */}
+        <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
+        
+        <img 
+            src="src/assets/jupiter.png" 
+            alt="Jupiter" 
+            className="w-full h-auto object-contain"
+            style={{
+                WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+                maskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+            }}
+        />
+        </div>
+
+        <div 
+        data-reveal="up" 
+        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px]flex flex-col items-start text-left">
+          
+          <div 
+          role="heading" 
+          aria-level={1} 
+          data-reveal="mask" 
+          className="m-0 !font-display text-[clamp(65px,9vw,9vw)] font-bold uppercase leading-[.86] tracking-[-.02em] text-orange">
             Memory<br />Block<br />Blast
           </div>
-          <p className="mt-6 font-term text-[clamp(15px,2.1vw,24px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
-          <p className="mt-5 max-w-[560px] font-term text-[13px] leading-relaxed text-ash/60">
-            [ insert here a short description on what to expect and what to learn throughout the exhibit — NASA's Voyager 1, the FDS failure, and the technical architecture behind it all ]
+          <p className="mt-6 font-term text-[clamp(20px,3vw,34px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
+          <p className="mt-5 m-0 max-w-[940px] font-term text-[28px] leading-relaxed text-ash/60">
+          Discover how NASA engineers leveraged 1970s hardware constraints, analyzed primitive memory maps, and executed a remote software reallocating workaround to rescue humanity's most distant emissary.
           </p>
         </div>
 
-        <div className="mx-auto mt-9 flex max-w-[430px] flex-col gap-4">
-          <a href="#finale" className="rounded-[10px] border border-white/20 bg-black/60 px-5 py-[18px] text-center font-term text-[15px] tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Launch Operations Mini-Game</a>
-          <a href="#what-is" className="flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-[18px] font-term text-[15px] tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline <span className="text-lg leading-none">⌄</span></a>
+          {/**Nav Buttons */}
+        <div className="mx-auto mt-28 flex max-w-[800px] flex-col gap-4">
+          <a href="#finale" 
+          className="
+          no-underline rounded-[10px] 
+          border border-white/20 bg-black/60 px-5 py-[18px] 
+          text-center font-term text-[28px] tracking-wide text-ghost transition-colors 
+          hover:border-orange hover:bg-orange/10 hover:text-orange">Launch Operations Mini-Game</a>
+          <a href="#what-is" 
+          className="no-underline flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-[18px] font-term text-[28px] tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline </a>
         </div>
       </section>
 
-      {/* Jupiter rising (parallax + pixel overlay) */}
-      <div className="relative h-[560px] overflow-hidden">
-        <div data-parallax data-speed="-14" className="absolute left-1/2 top-[140px] h-[1180px] w-[1180px] -translate-x-1/2 rounded-full"
-          style={{ background: 'radial-gradient(circle at 42% 30%,rgba(255,240,210,.55),transparent 42%),repeating-linear-gradient(0deg,#e7a86a 0 10px,#c87c40 10px 22px,#a85e2c 22px 30px,#d98f50 30px 44px,#8f4a26 44px 52px,#e7b67d 52px 66px),radial-gradient(circle at 50% 50%,transparent 52%,rgba(5,5,5,.85))', boxShadow: 'inset -40px -30px 120px rgba(5,5,5,.9),0 0 120px rgba(250,102,2,.22)' }} />
-        <div data-parallax data-speed="-14" className="pointer-events-none absolute left-1/2 top-[140px] h-[1180px] w-[1180px] -translate-x-1/2 rounded-full mix-blend-multiply"
-          style={{ backgroundImage: 'linear-gradient(rgba(5,5,5,.32) 1px,transparent 1px),linear-gradient(90deg,rgba(5,5,5,.32) 1px,transparent 1px)', backgroundSize: '8px 8px' }} />
-      </div>
-
       {/* ===== WHAT IS VOYAGER 1 ===== */}
-      <section id="what-is" className="mx-auto max-w-[1080px] scroll-mt-20 px-7 pt-10 pb-[90px]">
-        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,4.4vw,52px)] font-bold uppercase text-orange">What is Voyager 1?</h2>
-        <p data-reveal="up" className="m-0 mb-9 font-term text-[12px] text-ash/60">[ insert here the learning points about Voyager 1 ]</p>
+      <section id="what-is" className="mx-auto max-w-[1800px] scroll-mt-20  px-2 pt-10 pb-[90px]">
+        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,5vw,80px)] font-bold uppercase text-orange px-14">What is Voyager 1?</h2>
+        <p data-reveal="up" className="m-0 mb-9 font-term text-[24px] text-ash/60 px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
 
-        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 px-14">
+
           <div data-reveal="left" className="flex flex-col gap-5">
-            <p className="m-0 text-[13px] leading-[1.8] text-ash">Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            <p className="m-0 text-[13px] leading-[1.8] text-ash/60">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+
+            <p className="m-0 text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched a 722-kilogram aluminum chassis packed with 1970s-era silicon into the dark. No one who bolted it together expected to still be listening to it nearly half a century later.</p>
+
+            <p className="m-0 text-[24px] leading-[1.8] text-ash/60">They are still listening.</p>
+
+            <p className="m-0 text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched a 722-kilogram aluminum chassis packed with 1970s-era silicon into the dark. No one who bolted it together expected to still be listening to it nearly half a century later.</p>
+
           </div>
 
-          {/* Voyager probe — CSS placeholder; swap in real imagery */}
-          <div className="relative min-h-[300px]">
-            <div data-reveal="right" className="absolute right-0 top-1.5 h-[200px] w-[230px]">
-              <div className="absolute right-2 top-0 h-32 w-32 rounded-full" style={{ background: 'radial-gradient(circle at 38% 34%,#f3e6c9,#cdb184 55%,#8a774b)', boxShadow: 'inset -10px -8px 22px rgba(0,0,0,.55),0 0 30px rgba(250,102,2,.18)', transform: 'rotate(-18deg)' }} />
-              <div className="absolute right-[60px] top-24 h-[30px] w-[54px] border border-black/40" style={{ background: 'linear-gradient(180deg,#d9c79a,#7d6c45)', transform: 'rotate(-18deg)' }} />
-              <div className="absolute -right-8 top-[150px] h-[3px] w-[240px] origin-right" style={{ background: 'linear-gradient(90deg,transparent,#b9a878)', transform: 'rotate(8deg)' }} />
-              <div className="absolute right-[46px] top-2 h-2 w-2 animate-pulse2 rounded-full bg-orange shadow-[0_0_12px_#fa6602]" />
+          {/* Voyager probe */}
+            <div className="relative flex justify-center items-center w-full min-h-[400px] lg:min-h-[500px]">
+                <div 
+                    data-reveal="right" 
+                    className="w-[85%] max-w-[550px] aspect-square"
+                    style={{
+                    animation: 'slowRotateClockwise 45s linear infinite'
+                    }}>
+
+                    <img
+                    src="src/assets/voyager1.png"
+                    alt="Voyager 1 Probe"
+                    className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
+                    />
+                </div>
             </div>
-          </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2 px-14">
           <div />
-          <p data-reveal="right" className="m-0 text-right text-[13px] leading-[1.8] text-ash/60">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          <p data-reveal="right" className="m-0 text-right text-[24px] leading-[1.8] text-ash/60">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
         </div>
+
+        {/** AHAHAHAHHAHAHA */}
+        <style>{`
+            @keyframes slowRotateClockwise {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `}</style>
+
       </section>
 
       {/* ===== IN 2023, SOMETHING WENT WRONG ===== */}
       <section className="flex min-h-[70vh] items-center justify-center px-7 py-16 text-center">
         <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert">In 2023,<br />Something Went Wrong...</h2>
       </section>
-      <div className="mx-auto max-w-[1080px] px-7">
-        <div data-reveal="up" className="h-[130px] rounded-t-[20px] border border-b-0 border-alert/30" style={{ background: 'linear-gradient(180deg,rgba(230,57,70,.05),transparent)' }} />
+
+      <div className="mx-auto max-w-[1080px] px-7">        
       </div>
 
-      {/* ===== WHAT GOES ON INSIDE (FDS) ===== */}
-      <section className="mx-auto max-w-[1080px] px-7 pt-[120px] pb-[90px]">
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[0.9fr_1.1fr]">
-          {/* Saturn */}
-          <div data-parallax data-speed="-10" className="relative h-[360px]">
-            <div className="absolute left-10 top-[90px] h-24 w-[340px] rounded-full" style={{ transform: 'rotate(-22deg)', background: 'linear-gradient(90deg,transparent 6%,rgba(220,180,120,.15) 14%,#caa46a 30%,#e7c896 50%,#b88a4e 70%,rgba(220,180,120,.15) 86%,transparent 94%)', boxShadow: '0 0 30px rgba(250,102,2,.12)' }} />
-            <div className="absolute left-[108px] top-[62px] h-[188px] w-[188px] rounded-full" style={{ background: 'radial-gradient(circle at 40% 32%,rgba(255,240,210,.5),transparent 44%),repeating-linear-gradient(0deg,#e0a866 0 8px,#c4823e 8px 16px,#a8632c 16px 22px,#d99250 22px 32px),radial-gradient(circle at 50% 50%,transparent 54%,rgba(5,5,5,.8))', boxShadow: 'inset -22px -18px 50px rgba(5,5,5,.85),0 0 70px rgba(250,102,2,.2)' }} />
-          </div>
 
-          <div className="text-right">
-            <p data-reveal="right" className="m-0 mb-2 text-[12px] text-ash/60">But why was this so difficult to fix?</p>
-            <h2 data-reveal="up" className="m-0 !font-display text-[clamp(26px,3.8vw,46px)] font-bold uppercase leading-[1.04] text-orange">What Goes On Inside<br />Voyager 1 (FDS)?</h2>
-            <p data-reveal="up" className="m-0 mb-6 mt-2.5 font-term text-[13px] text-ash">Understanding Computer Memory</p>
-            <p data-reveal="right" className="m-0 mb-[22px] text-[13px] leading-[1.8] text-ash/60">Engineers knew something had failed. But before understanding the solution, we first need to understand how a computer stores and retrieves information.</p>
-            <p data-reveal="right" className="m-0 text-[12px] text-ash/40">[ pano ba i-visualize hahaha ]</p>
-          </div>
+      {/* ===== WHAT GOES ON INSIDE (FDS) ===== */}
+        <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
+        
+        {/* SATURN */}
+        <div 
+            data-parallax 
+            data-speed="-6" 
+            className="absolute left-[-120px] top-1/2 -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
+        >
+            {/* gradient */}
+            <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
+            
+            <img 
+            src="src/assets/saturn.png" 
+            alt="Saturn" 
+            className="w-full h-auto object-contain scale-150 translate-x-24"
+            style={{
+                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+                maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
+            }}
+            />
         </div>
-      </section>
+
+        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
+            
+            <div className="hidden md:block pointer-events-none" />
+
+            {/* Right Column */}
+            <div className="text-right flex flex-col items-end relative z-10">
+            <p data-reveal="right" className="m-0 mb-2 text-[clamp(12px,1.5vw,24px)] text-ash/60">
+                But why was this so difficult to fix?
+            </p>
+            <h2 data-reveal="up" className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
+                What Goes On Inside Voyager 1?
+            </h2>
+            <p data-reveal="up" className="m-0 mb-6 mt-2.5 font-term text-[24px] text-ash">
+                Understanding Computer Memory
+            </p>
+            <p data-reveal="right" className="m-0 mb-[22px] max-w-[550px] text-[24px] leading-[1.8] text-ash/60">
+                Engineers knew something had failed. But before understanding the solution, we first need to understand how a computer stores and retrieves information.
+            </p>
+            <p data-reveal="right" className="m-0 text-[24px] text-ash/40 font-term">
+                additional info / visual?
+            </p>
+            </div>
+
+        </div>
+        </section>
 
       {/* ===== MEMORY ADDRESSING (pinned + scrubbed) ===== */}
-      <section id="addressing" className="relative">
-        <div data-stage className="flex h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[1080px] px-7">
-            <div className="mb-8 max-w-[520px]">
-              <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
-              <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
-            </div>
-            <div className="grid grid-cols-[1fr_auto] items-center gap-9">
-              <MemoryGrid states={addressingStates(addrP)} />
-              <div className="min-w-[190px] font-mono">
-                <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
-                <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
-                <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-                <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
-                <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
-                <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
-              </div>
-            </div>
-          </div>
+<section id="addressing" className="relative">
+  <div data-stage className="flex py-32 items-center overflow-hidden">
+    <div className="mx-auto w-full max-w-[900px] px-7">
+      
+      <div className="mb-6 max-w-[520px]">
+        <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
+        <h2 className="m-0 !font-display text-[clamp(24px,3.5vw,40px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
+      </div>
+      
+      <div className="grid grid-cols-[1fr_auto] items-center gap-9">
+        <MemoryGrid states={addressingStates(addrP)} />
+        <div className="min-w-[190px] font-mono">
+          <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
+          <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
+          <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
+          <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
+          <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
+          <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
         </div>
-      </section>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* ===== MEMORY MAPPING (pinned + scrubbed) ===== */}
       <section id="mapping" className="relative">
         <div data-stage className="flex h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[1080px] px-7 text-right">
+          <div className="mx-auto w-full max-w-[900px] px-7 text-right">
             <div className="mb-8 ml-auto max-w-[560px]">
               <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Every instruction has an address — but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
@@ -330,11 +410,11 @@ export default function VoyagerScrollyTelling() {
 
       {/* ===== NASA'S SOLUTION (pinned + scrubbed) ===== */}
       <section id="solution" className="relative">
-        <div data-stage className="flex h-screen items-center overflow-hidden">
+        <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
             <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
             <h2 className="m-0 mb-8 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
-            <div className="mx-auto max-w-[560px]"><MemoryGrid states={solutionStates(solP)} /></div>
+            <div className="mx-auto max-w-[750px]"><MemoryGrid states={solutionStates(solP)} /></div>
             <p className="mt-6 !font-display text-[22px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>✓ Code Reallocated</p>
           </div>
         </div>
