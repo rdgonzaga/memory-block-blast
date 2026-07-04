@@ -27,7 +27,7 @@ type Block = {
   revealed: boolean; // whether it's in the visible 3-piece tray yet
 };
 
-type GameState = 'playing' | 'transmitting' | 'success' | 'fail';
+type GameState = 'ready' | 'playing' | 'transmitting' | 'success' | 'fail';
 
 const GRID_COLUMNS = 9;
 const GRID_ROWS = 6;
@@ -202,8 +202,8 @@ export default function MemoryMinigame() {
   const [warningSlot, setWarningSlot] = useState<number | null>(null);
 
   const [signalStrength, setSignalStrength] = useState(INITIAL_TIME);
-  const [gameState, setGameState] = useState<GameState>('playing');
-  const [logMessage, setLogMessage] = useState('SYSTEM ONLINE. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
+  const [gameState, setGameState] = useState<GameState>('ready');
+  const [logMessage, setLogMessage] = useState('AWAITING CONNECTION...');
 
   // --- Pointer-based drag state (works for mouse + touch) ---
   const [drag, setDrag] = useState<{ id: string; shape: Shape; label: string; color: string; x: number; y: number } | null>(null);
@@ -524,7 +524,7 @@ export default function MemoryMinigame() {
 
       <p className="mb-12 font-term text-[14px] text-ash">Now it's your turn to solve the problem!</p>
 
-      <div className="relative mx-auto max-w-[760px]">
+      <div className="relative mx-auto max-w-[1024px]">
         {/* Phosphor glow */}
         <div
           className="pointer-events-none absolute -inset-10 rounded-full blur-[20px]"
@@ -545,10 +545,10 @@ export default function MemoryMinigame() {
             {/* Screen */}
             <div className="relative animate-flicker overflow-hidden rounded-lg px-[14px] pt-[20px] pb-[16px] sm:px-[20px]" style={{ background: 'radial-gradient(120% 120% at 50% 40%,#04140a,#020802)' }}>
               {/* Scanlines + sweep */}
-              <div className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px)' }} />
-              <div className="pointer-events-none absolute inset-x-0 h-[60px] animate-scanline" style={{ background: isDistressed ? 'linear-gradient(180deg,transparent,rgba(230,57,70,.1),transparent)' : 'linear-gradient(180deg,transparent,rgba(51,255,102,.06),transparent)' }} />
+              <div className="pointer-events-none absolute inset-0 z-20" style={{ backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px)' }} />
+              <div className="pointer-events-none absolute inset-x-0 z-20 h-[60px] animate-scanline" style={{ background: isDistressed ? 'linear-gradient(180deg,transparent,rgba(230,57,70,.1),transparent)' : 'linear-gradient(180deg,transparent,rgba(51,255,102,.06),transparent)' }} />
               {isDistressed && (
-                <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(circle,rgba(230,57,70,.18),transparent 70%)', animation: 'warnPulse 0.9s infinite' }} />
+                <div className="pointer-events-none absolute inset-0 z-20" style={{ background: 'radial-gradient(circle,rgba(230,57,70,.18),transparent 70%)', animation: 'warnPulse 0.9s infinite' }} />
               )}
 
               {/* Header pill strip */}
@@ -557,20 +557,47 @@ export default function MemoryMinigame() {
                   { label: 'LINK', ok: gameState !== 'fail' },
                   { label: 'DIAGNOSTIC', ok: !isDistressed },
                   { label: `BLOCKS ${placedCount}/${blocks.length}`, ok: true },
-                  { label: gameState === 'transmitting' ? 'TX ACTIVE' : gameState === 'success' ? 'CONFIRMED' : 'STANDBY', ok: gameState !== 'fail' },
+                  { label: gameState === 'ready' ? 'OFFLINE' : gameState === 'transmitting' ? 'TX ACTIVE' : gameState === 'success' ? 'CONFIRMED' : 'STANDBY', ok: gameState !== 'fail' },
                 ].map((pill) => (
                   <span
                     key={pill.label}
-                    className={`rounded-full border px-2.5 py-[3px] font-mono text-[8px] tracking-[.1em] ${pill.ok ? 'border-crt/40 text-crt/80 bg-crt/5' : 'border-alert/50 text-alert bg-alert/10'}`}
+                    className={`rounded-full border px-2.5 py-[3px] font-mono text-[10px] tracking-[.1em] ${pill.ok ? 'border-crt/40 text-crt/80 bg-crt/5' : 'border-alert/50 text-alert bg-alert/10'}`}
                   >
                     {pill.label}
                   </span>
                 ))}
               </div>
 
+              {gameState === 'ready' && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#020802]/85 px-[20px] pb-4 backdrop-blur-[3px]">
+                  <div className="font-display text-[clamp(24px,5vw,40px)] font-bold uppercase tracking-[.1em] text-crt" style={{ animation: 'matrixGlow 2s ease-in-out infinite' }}>
+                    FDS Memory Rescue
+                  </div>
+                  <div className="mx-auto mt-4 max-w-[440px] font-mono text-[11px] leading-relaxed text-crt/80 text-left">
+                    <p>&gt; UPLINK ESTABLISHED: <span className="text-crt">VOYAGER 1</span></p>
+                    <p>&gt; DISTANCE: <span className="text-crt">15 BILLION MILES</span></p>
+                    <p>&gt; STATUS: <span className="text-alert animate-pulse">MEMORY CORRUPTION DETECTED</span></p>
+                    <br/>
+                    <p>
+                      Cosmic radiation is actively destroying the Flight Data Subsystem.
+                      You must manually evacuate all ten essential code blocks to healthy memory sectors before the telemetry stream decays completely.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setGameState('playing');
+                      setLogMessage('SYSTEM ONLINE. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
+                    }}
+                    className="mt-8 animate-pulse rounded border border-crt bg-crt/10 px-8 py-3 font-display text-[14px] font-bold tracking-widest text-crt shadow-[0_0_15px_rgba(51,255,102,.2)] hover:bg-crt hover:text-[#0a0f0a] hover:shadow-[0_0_25px_rgba(51,255,102,.6)]"
+                  >
+                    INITIALIZE RECOVERY
+                  </button>
+                </div>
+              )}
+
               {gameState === 'success' ? (
-                <>
-                  <div className="font-display text-[clamp(22px,4vw,34px)] font-bold uppercase tracking-[.08em] text-crt" style={{ animation: 'matrixGlow 1.6s ease-in-out infinite' }}>
+                    <>
+                      <div className="font-display text-[clamp(22px,4vw,34px)] font-bold uppercase tracking-[.08em] text-crt" style={{ animation: 'matrixGlow 1.6s ease-in-out infinite' }}>
                     Mission Complete
                   </div>
                   <p className="mx-auto mb-3 mt-2 max-w-[420px] font-mono text-[11px] leading-relaxed text-crt/70">
@@ -593,9 +620,9 @@ export default function MemoryMinigame() {
                 </>
               ) : (
                 <>
-                  <div className="font-display text-[clamp(16px,3vw,22px)] font-bold uppercase tracking-[.08em] text-crt" style={{ textShadow: '0 0 14px rgba(51,255,102,.7)' }}>Reallocate Memory</div>
-                  <p className="mx-auto mb-3 mt-1 max-w-[440px] font-mono text-[10px] leading-relaxed text-crt/70">
-                    In 2024, engineers saved Voyager 1 by moving its code to healthy memory. Drag all ten blocks — dealt three at a time — onto free addresses before signal strength hits 0%. Avoid corrupted cells (✕) and spreading radiation (☢).
+                  <div className="font-display text-[clamp(16px,3vw,35px)] font-bold uppercase tracking-[.08em] text-crt" style={{ textShadow: '0 0 14px rgba(51,255,102,.7)' }}>FDS MEMORY RESCUE</div>
+                  <p className="mx-auto mb-3 mt-1 max-w-[500px] font-mono text-[12px] leading-relaxed text-crt/70">
+                  Drag all ten blocks onto free addresses before the signal strength hits 0%. Avoid corrupted cells and spreading radiation.
                   </p>
                 </>
               )}
@@ -608,9 +635,63 @@ export default function MemoryMinigame() {
                 />
               </div>
 
-              {/* AVAILABLE MEMORY grid */}
-              <div className="mx-auto max-w-[560px] rounded-lg border border-crt/25 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
-                <p className="mb-2 text-left font-mono text-[8px] tracking-[.14em] text-crt/50">DESTINATION: HEALTHY MEMORY BANK — {GRID_COLUMNS}×{GRID_ROWS}</p>
+              <div className="mx-auto flex min-w-0 w-full max-w-[920px] flex-col md:flex-row items-stretch justify-center gap-4">
+                {/* Left Sidebar: MEMORY BLOCKS Tray */}
+                <div className="relative flex w-full md:w-[150px] shrink-0 flex-col gap-2 overflow-hidden rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
+                  <svg className="pointer-events-none absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
+                    <polyline
+                      points="0,7 18,1 34,6 52,0 70,7 88,2 104,6 122,1 140,7 158,2 176,6 194,1 212,7 230,2 248,6 266,1 284,7 300,3"
+                      fill="none"
+                      stroke="#e63946"
+                      strokeWidth="1.4"
+                      opacity="0.65"
+                    />
+                  </svg>
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.06]"
+                    style={{ backgroundImage: 'repeating-linear-gradient(135deg, #e63946 0 8px, transparent 8px 16px)' }}
+                  />
+                  <div className="relative flex flex-col items-center justify-between gap-1.5 text-center">
+                    <p className="mb-0 pt-0 glitch-label font-mono text-[15px] font-bold text-alert">
+                      CORRUPTED MEMORY
+                    </p>
+                    <p className="mt-0 pt-0 glitch-label font-mono text-[25px] -mt-4 font-bold text-alert">
+                      BLOCKS
+                    </p>
+                  </div>
+                  <div className="relative flex flex-1 flex-row md:flex-col items-center justify-start gap-5">
+                    {gameState === 'playing' && tray.length > 0 ? (
+                      tray.map((b) => (
+                        <div
+                          key={b.id}
+                          onPointerDown={(e) => startDrag(e, b)}
+                          className={`mem-chip flex touch-none select-none flex-col items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-3 pt-3.5 pb-2.5 active:cursor-grabbing ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
+                          style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.05), 0 0 10px ${b.color}22` }}
+                        >
+                          <PieceIcon shape={b.shape} color={b.color} cellSize={35} />
+                          <span className="font-mono text-[15px] font-bold tracking-wide" style={{ color: b.color }}>{b.label}</span>
+                          <span className="font-mono text-[10px] tracking-[.08em] text-white/500">{b.shape.length} CELL{b.shape.length !== 1 ? 'S' : ''}</span>
+                        </div>
+                      ))
+                    ) : gameState === 'playing' && allDone ? (
+                      <button
+                        onClick={handleTransmit}
+                        className="animate-pulse rounded border-2 border-crt bg-crt px-5 py-2 font-display text-[12px] font-bold text-[#0a0f0a] hover:bg-[#aaffaa]"
+                      >
+                        TRANSMIT PATCH
+                      </button>
+                    ) : (
+                      <p className="font-mono text-[12px] text-crt/40 mt-4 text-center">
+                        {gameState === 'transmitting' ? 'IN FLIGHT…' : gameState === 'playing' ? 'DEALING NEXT BATCH…' : 'STANDING BY'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex min-w-0 w-full max-w-[684px] flex-1 flex-col items-center gap-2.5">
+                  {/* AVAILABLE MEMORY grid */}
+                  <div className="w-full min-w-0 overflow-hidden rounded-lg border border-crt/25 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
+                <p className="mb-2 mt-0 text-left font-mono text-[12px] tracking-[.14em] text-crt/60">DESTINATION: HEALTHY MEMORY BANK — {GRID_COLUMNS}×{GRID_ROWS}</p>
                 <div className="grid gap-[5px]" style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0,1fr))` }}>
                   {Array.from({ length: SLOTS }).map((_, slot) => {
                     const isCorrupt = corruptSlots.includes(slot);
@@ -621,7 +702,7 @@ export default function MemoryMinigame() {
 
                     let content: JSX.Element | string = '';
                     let extraStyle: React.CSSProperties = {};
-                    let cellClass = 'relative flex aspect-square items-center justify-center rounded-[4px] border transition-colors overflow-hidden';
+                    let cellClass = 'relative w-full h-full min-w-0 min-h-0 flex aspect-square items-center justify-center rounded-[4px] border transition-colors overflow-hidden';
                     let addressColor = 'rgba(255,255,255,.32)';
                     const showAddress = !isWarning && !isCorrupt && !isRadiation;
 
@@ -654,99 +735,47 @@ export default function MemoryMinigame() {
                         {showAddress && (
                           <span
                             className="pointer-events-none absolute left-[3px] top-[2px] font-mono font-bold leading-none"
-                            style={{ fontSize: 8, color: addressColor, textShadow: occupant ? '0 1px 2px rgba(0,0,0,.6)' : 'none' }}
+                            style={{ fontSize: 10, color: addressColor, textShadow: occupant ? '0 1px 2px rgba(0,0,0,.6)' : 'none' }}
                           >
                             {toHex(slot)}
                           </span>
                         )}
-                        <span className="font-mono text-[7px] text-alert">{content}</span>
+                        <span className="font-mono text-[40px] text-alert">{content}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* MEMORY BLOCKS tray — pulled live off a failing donor chip.
-                  Styled as visibly damaged hardware (cracked edge, hazard
-                  stripes) to contrast with the healthy green destination
-                  bank above — mirroring the real 2024 fix, where corrupted
-                  FDS memory was evacuated to a working memory bank. */}
-              <div className="relative mx-auto mt-2.5 max-w-[560px] overflow-hidden rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
-                <svg className="pointer-events-none absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
-                  <polyline
-                    points="0,7 18,1 34,6 52,0 70,7 88,2 104,6 122,1 140,7 158,2 176,6 194,1 212,7 230,2 248,6 266,1 284,7 300,3"
-                    fill="none"
-                    stroke="#e63946"
-                    strokeWidth="1.4"
-                    opacity="0.65"
-                  />
-                </svg>
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{ backgroundImage: 'repeating-linear-gradient(135deg, #e63946 0 8px, transparent 8px 16px)' }}
-                />
-                <div className="relative mb-2 flex flex-wrap items-center justify-between gap-1.5">
-                  <p className="glitch-label font-mono text-[8px] font-bold tracking-[.14em] text-alert">
-                    ⚠ SOURCE: DAMAGED FDS CHIP — EVACUATING BLOCKS
-                  </p>
-                  <span className="rounded-full border border-alert/40 bg-alert/10 px-2 py-[2px] font-mono text-[7px] tracking-[.08em] text-alert/80">SECTOR 7F FAILING</span>
-                </div>
-                <div className="relative flex flex-wrap items-center justify-center gap-3">
-                  {gameState === 'playing' && tray.length > 0 ? (
-                    tray.map((b) => (
-                      <div
-                        key={b.id}
-                        onPointerDown={(e) => startDrag(e, b)}
-                        className={`mem-chip flex touch-none select-none flex-col items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-3 pt-3.5 pb-2.5 active:cursor-grabbing ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
-                        style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.05), 0 0 10px ${b.color}22` }}
-                      >
-                        <PieceIcon shape={b.shape} color={b.color} cellSize={14} />
-                        <span className="font-mono text-[8px] font-bold tracking-wide" style={{ color: b.color }}>{b.label}</span>
-                        <span className="font-mono text-[6px] tracking-[.08em] text-white/30">{b.shape.length} CELL{b.shape.length !== 1 ? 'S' : ''}</span>
-                      </div>
-                    ))
-                  ) : gameState === 'playing' && allDone ? (
-                    <button
-                      onClick={handleTransmit}
-                      className="animate-pulse rounded border-2 border-crt bg-crt px-5 py-2 font-display text-[12px] font-bold text-[#0a0f0a] hover:bg-[#aaffaa]"
-                    >
-                      TRANSMIT PATCH
-                    </button>
-                  ) : (
-                    <p className="font-mono text-[9px] text-crt/40">
-                      {gameState === 'transmitting' ? 'IN FLIGHT…' : gameState === 'playing' ? 'DEALING NEXT BATCH…' : 'STANDING BY'}
-                    </p>
-                  )}
-                </div>
-
-                {/* Next batch preview + remaining counter */}
-                <div className="relative mt-2.5 flex flex-wrap items-center justify-between gap-2 rounded-md border border-crt/20 bg-black/30 px-2.5 py-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[9px] font-bold tracking-[.1em] text-crt/70">NEXT UP</span>
-                    {nextUp.length > 0 ? (
-                      <div className="flex items-center gap-2">
-                        {nextUp.map((b) => (
-                          <div key={b.id} className="rounded border border-white/15 bg-black/40 p-1 opacity-80" title={b.label}>
-                            <PieceIcon shape={b.shape} color={b.color} cellSize={9} />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="font-mono text-[9px] text-crt/40">— none queued —</span>
-                    )}
+                  {/* Next Up Row */}
+                  <div className="relative w-full flex flex-wrap items-center justify-between gap-2 rounded-md border border-crt/20 bg-black/30 px-3 py-2 shadow-xl backdrop-blur-md">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[14px] font-bold tracking-[.1em] text-crt/70">NEXT UP: </span>
+                      {nextUp.length > 0 ? (
+                        <div className="flex items-center gap-2">
+                          {nextUp.map((b) => (
+                            <div key={b.id} className="rounded border border-white/15 bg-black/40 p-1 opacity-80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]" title={b.label}>
+                              <PieceIcon shape={b.shape} color={b.color} cellSize={14} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="font-mono text-[10px] text-crt/40">— NONE —</span>
+                      )}
+                    </div>
+                    <span className="whitespace-nowrap rounded-full border border-crt/40 bg-crt/10 px-3 py-1 font-mono text-[11px] font-bold tracking-[.08em] text-crt">
+                      {remainingToPlace} BLOCK{remainingToPlace !== 1 ? 'S' : ''} LEFT
+                    </span>
                   </div>
-                  <span className="whitespace-nowrap rounded-full border border-crt/40 bg-crt/10 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[.08em] text-crt">
-                    {remainingToPlace} BLOCK{remainingToPlace !== 1 ? 'S' : ''} LEFT
-                  </span>
                 </div>
               </div>
 
               {/* Bottom bar: log + reset */}
-              <div className="mx-auto mt-2.5 flex max-w-[560px] items-center gap-2 rounded-full border border-crt/25 bg-black/40 px-3 py-2">
-                <span className={`flex-1 truncate text-left font-mono text-[10px] ${gameState === 'fail' ? 'text-alert' : gameState === 'success' ? 'text-green-300' : 'text-crt'}`}>
+              <div className="mx-auto mt-2.5 flex w-full max-w-[920px] items-center gap-2 rounded-full border border-crt/25 bg-black/40 px-3 py-2">
+                <span className={`flex-1 truncate text-left font-mono text-[12px] ${gameState === 'fail' ? 'text-alert' : gameState === 'success' ? 'text-green-300' : 'text-crt'}`}>
                   &gt; {logMessage}<span className="animate-blink">█</span>
                 </span>
-                {placedCount > 0 || gameState !== 'playing' ? (
+                {gameState !== 'ready' && (placedCount > 0 || gameState !== 'playing') ? (
                   <button
                     onClick={reset}
                     className="shrink-0 rounded-full border border-alert/60 bg-alert/15 px-3.5 py-1.5 font-mono text-[10px] font-bold tracking-[.05em] text-alert hover:bg-alert/25"
@@ -760,7 +789,7 @@ export default function MemoryMinigame() {
 
           {/* Chassis chin */}
           <div className="flex items-center justify-between px-2 pt-3.5 pb-1">
-            <span className="font-display text-[9px] tracking-[.1em] text-[#8a8470]">DSN-9000</span>
+            <span className="font-display text-[12px] tracking-[.1em] text-[#8a8470]">ROG-6700</span>
             <span className="flex gap-2.5">
               <span className={`h-2.5 w-2.5 rounded-full ${gameState === 'success' ? 'bg-crt shadow-[0_0_8px_#33ff66]' : gameState === 'fail' ? 'bg-alert shadow-[0_0_8px_#e63946]' : 'bg-[#5a5544]'}`} />
               <span className="h-2.5 w-2.5 rounded-full bg-[#5a5544]" />
@@ -778,7 +807,7 @@ export default function MemoryMinigame() {
           className="pointer-events-none fixed z-50 flex flex-col items-center gap-1 rounded-lg border border-white/15 bg-[#04140a]/90 px-2.5 py-2 shadow-2xl"
           style={{ left: drag.x, top: drag.y - DRAG_LIFT_Y, transform: 'translate(-50%, -50%)', boxShadow: `0 0 16px ${drag.color}55, 0 10px 24px rgba(0,0,0,.6)` }}
         >
-          <PieceIcon shape={drag.shape} color={drag.color} cellSize={18} />
+          <PieceIcon shape={drag.shape} color={drag.color} cellSize={24} />
           <span className="font-mono text-[8px] font-bold tracking-wide" style={{ color: drag.color }}>{drag.label}</span>
         </div>
       )}
