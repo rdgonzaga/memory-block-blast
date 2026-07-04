@@ -235,7 +235,7 @@ export default function VoyagerScrollyTelling() {
           </div>
           <p className="mt-6 font-term text-[clamp(20px,3vw,34px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
           <p className="mt-5 m-0 max-w-[940px] font-term text-[28px] leading-relaxed text-ash/60">
-            [ insert here a short description on what to expect and what to learn throughout the exhibit — NASA's Voyager 1, the FDS failure, and the technical architecture behind it all ]
+          Discover how NASA engineers leveraged 1970s hardware constraints, analyzed primitive memory maps, and executed a remote software reallocating workaround to rescue humanity's most distant emissary.
           </p>
         </div>
 
@@ -326,7 +326,7 @@ export default function VoyagerScrollyTelling() {
             <img 
             src="src/assets/saturn.png" 
             alt="Saturn" 
-            className="w-full h-auto object-contain"
+            className="w-full h-auto object-contain scale-150 translate-x-24"
             style={{
                 WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
                 maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
@@ -361,32 +361,35 @@ export default function VoyagerScrollyTelling() {
         </section>
 
       {/* ===== MEMORY ADDRESSING (pinned + scrubbed) ===== */}
-      <section id="addressing" className="relative">
-        <div data-stage className="flex h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[1080px] px-7">
-            <div className="mb-8 max-w-[520px]">
-              <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
-              <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
-            </div>
-            <div className="grid grid-cols-[1fr_auto] items-center gap-9">
-              <MemoryGrid states={addressingStates(addrP)} />
-              <div className="min-w-[190px] font-mono">
-                <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
-                <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
-                <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-                <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
-                <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
-                <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
-              </div>
-            </div>
-          </div>
+<section id="addressing" className="relative">
+  <div data-stage className="flex py-32 items-center overflow-hidden">
+    <div className="mx-auto w-full max-w-[900px] px-7">
+      
+      <div className="mb-6 max-w-[520px]">
+        <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
+        <h2 className="m-0 !font-display text-[clamp(24px,3.5vw,40px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
+      </div>
+      
+      <div className="grid grid-cols-[1fr_auto] items-center gap-9">
+        <MemoryGrid states={addressingStates(addrP)} />
+        <div className="min-w-[190px] font-mono">
+          <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
+          <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
+          <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
+          <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
+          <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
+          <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
         </div>
-      </section>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* ===== MEMORY MAPPING (pinned + scrubbed) ===== */}
       <section id="mapping" className="relative">
         <div data-stage className="flex h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[1080px] px-7 text-right">
+          <div className="mx-auto w-full max-w-[900px] px-7 text-right">
             <div className="mb-8 ml-auto max-w-[560px]">
               <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Every instruction has an address — but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
@@ -407,11 +410,11 @@ export default function VoyagerScrollyTelling() {
 
       {/* ===== NASA'S SOLUTION (pinned + scrubbed) ===== */}
       <section id="solution" className="relative">
-        <div data-stage className="flex h-screen items-center overflow-hidden">
+        <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
             <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
             <h2 className="m-0 mb-8 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
-            <div className="mx-auto max-w-[560px]"><MemoryGrid states={solutionStates(solP)} /></div>
+            <div className="mx-auto max-w-[750px]"><MemoryGrid states={solutionStates(solP)} /></div>
             <p className="mt-6 !font-display text-[22px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>✓ Code Reallocated</p>
           </div>
         </div>
