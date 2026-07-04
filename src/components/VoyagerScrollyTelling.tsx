@@ -235,7 +235,7 @@ export default function VoyagerScrollyTelling() {
           </div>
           <p className="mt-6 font-term text-[clamp(20px,3vw,34px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
           <p className="mt-5 m-0 max-w-[940px] font-term text-[28px] leading-relaxed text-ash/60">
-            [ insert here a short description on what to expect and what to learn throughout the exhibit — NASA's Voyager 1, the FDS failure, and the technical architecture behind it all ]
+          Discover how NASA engineers leveraged 1970s hardware constraints, analyzed primitive memory maps, and executed a remote software reallocating workaround to rescue humanity's most distant emissary.
           </p>
         </div>
 
