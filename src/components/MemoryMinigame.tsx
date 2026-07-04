@@ -314,7 +314,9 @@ export default function MemoryMinigame() {
     });
 
     const candidates: number[] = [];
-    for (let i = 0; i < SLOTS; i++) if (!locked.has(i)) candidates.push(i);
+    for (let i = 0; i < SLOTS; i++) {
+      if (!locked.has(i) && !occ.has(i)) candidates.push(i);
+    }
     if (candidates.length === 0) return;
 
     for (let i = candidates.length - 1; i > 0; i--) {
@@ -325,14 +327,7 @@ export default function MemoryMinigame() {
     for (const slot of candidates) {
       const occupant = occ.get(slot);
 
-      if (occupant) {
-        fireWarning(slot, () => {
-          setBlocks((prev) => prev.map((b) => (b.id === occupant.id ? { ...b, slot: null } : b)));
-          setRadiationSlots((prev) => [...prev, slot]);
-          setLogMessage(`ALERT: Radiation breach ejected ${occupant.label} from ${toHex(slot)}`);
-        });
-        return;
-      }
+      // Occupants are no longer targeted by radiation, so we skip ejection.
 
       const handShapes = currentBlocks.filter((b) => b.revealed && b.slot === null).map((b) => b.shape);
       const free = new Set<number>();
@@ -360,7 +355,7 @@ export default function MemoryMinigame() {
     if (!cells) return { valid: false, cells: null, reason: 'Package extends outside the memory bank.' };
 
     for (const c of cells) {
-      if (lockedSlots.has(c)) return { valid: false, cells, reason: `Sector collision or corruption at ${toHex(c)}` };
+      if (lockedSlots.has(c) || c === warningSlot) return { valid: false, cells, reason: `Sector collision or corruption at ${toHex(c)}` };
       const occupant = occupiedMap.get(c);
       if (occupant && occupant.id !== blockId) return { valid: false, cells, reason: `Sector collision or corruption at ${toHex(c)}` };
     }
@@ -659,7 +654,7 @@ export default function MemoryMinigame() {
                       BLOCKS
                     </p>
                   </div>
-                  <div className="relative flex flex-1 flex-row md:flex-col items-center justify-start gap-5">
+                  <div className={`relative flex flex-1 flex-row md:flex-col items-center gap-5 ${tray.length > 0 ? 'justify-start' : 'justify-center'}`}>
                     {gameState === 'playing' && tray.length > 0 ? (
                       tray.map((b) => (
                         <div
