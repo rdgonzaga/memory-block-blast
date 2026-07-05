@@ -19,6 +19,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import MemoryMinigame from './MemoryMinigame.tsx';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
@@ -169,7 +170,7 @@ export default function VoyagerScrollyTelling() {
   const ptr = Math.floor(Math.min(addrP, 0.999) * GRID);
 
   return (    
-    <div ref={root} className="relative font-sans text-ghost">
+    <div ref={root} className="relative font-sans text-ghost overflow-clip">
       {/* ===== Galaxy Background (fixed, behind everything) ===== */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-space">
         {/* Nebula clouds */}
@@ -224,7 +225,7 @@ export default function VoyagerScrollyTelling() {
 
         <div 
         data-reveal="up" 
-        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px]flex flex-col items-start text-left">
+        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
           
           <div 
           role="heading" 
@@ -420,17 +421,34 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
+      <section id="finale" className="mx-auto max-w-[1800px] px-7 py-20">
+        <MemoryMinigame />
+      </section>
+
       {/* ===== OUTRO ===== */}
-      <section className="mx-auto max-w-[760px] px-7 pt-8 text-center">
-        <p data-reveal="up" className="m-0 mb-[18px] text-[13px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
-        <p data-reveal="up" className="m-0 text-[13px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
+      <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center">
+        <p data-reveal="up" className="m-0 mb-[18px] text-[24px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
+        <p data-reveal="up" className="m-0 text-[24px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
       </section>
 
       {/* Earth (parallax) */}
-      <div className="relative mt-10 h-[340px] overflow-hidden">
-        <div data-parallax data-speed="-8" className="absolute left-1/2 top-[120px] h-[1300px] w-[1300px] -translate-x-1/2 rounded-full"
-          style={{ background: 'radial-gradient(circle at 40% 30%,rgba(170,210,255,.45),transparent 40%),radial-gradient(circle at 62% 58%,rgba(80,160,90,.5),transparent 28%),radial-gradient(circle at 30% 64%,rgba(70,140,80,.45),transparent 24%),radial-gradient(circle at 50% 50%,#1d5b9e,#0a2f57 60%,rgba(5,5,5,.9) 82%)', boxShadow: 'inset -30px -20px 120px rgba(5,5,5,.9),0 0 130px rgba(80,160,255,.18)' }} />
-      </div>
+      <div className="relative mt-10 h-[540px] ">
+            <div 
+            data-parallax 
+            data-speed="-6" 
+            className="absolute left-1/2 bottom-[-220px] -z-10 w-[clamp(650px,60vw,1400px)] -translate-x-1/2 pointer-events-none select-none opacity-100"
+            >
+           
+                <img 
+                    src="src/assets/earth_1.png" 
+                    alt="Earth" 
+                    className="w-full h-auto object-contain" 
+                    style={{
+                        filter: 'drop-shadow(0px -5px 60px rgba(170, 210, 255, 0.4)) drop-shadow(0px -15px 120px rgba(29, 91, 158, 0.5))',
+                        opacity: 0.9,}}
+                />
+            </div> 
+        </div>
     </div>
   );
 }
