@@ -118,32 +118,7 @@ export default function VoyagerScrollyTelling() {
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
-      // Parallax — planets drift slower/opposite to scroll for depth.
-      q<HTMLElement>('[data-parallax]').forEach((el) => {
-        gsap.to(el, {
-          yPercent: parseFloat(el.dataset.speed || '-12'),
-          ease: 'none',
-          scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
-        });
-      });
-
-      // Scroll-scrubbed reveals (slide / fade / mask).
-      q<HTMLElement>('[data-reveal]').forEach((el) => {
-        const v = el.dataset.reveal;
-        const from: gsap.TweenVars =
-          v === 'left'  ? { x: -90, autoAlpha: 0 } :
-          v === 'right' ? { x: 90, autoAlpha: 0 } :
-          v === 'mask'  ? { clipPath: 'inset(0 0 100% 0)', y: 24, autoAlpha: 0 } :
-          v === 'scale' ? { scale: 0.84, autoAlpha: 0 } :
-                          { y: 48, autoAlpha: 0 };
-        gsap.from(el, {
-          ...from,
-          ease: 'none',
-          scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 45%', scrub: true },
-        });
-      });
-
-      // Pinned, scrubbed memory stages. The stage pins; cell-state is driven by
+      // 1. Pinned, scrubbed memory stages. The stage pins; cell-state is driven by
       // self.progress so the grid animates AS you scroll (not on enter).
       const pin = (sel: string, set: (p: number) => void) => {
         const section = q<HTMLElement>(sel)[0];
@@ -161,6 +136,31 @@ export default function VoyagerScrollyTelling() {
       pin('#addressing', setAddrP);
       pin('#mapping', setMapP);
       pin('#solution', setSolP);
+
+      // 2. Parallax — planets drift slower/opposite to scroll for depth.
+      q<HTMLElement>('[data-parallax]').forEach((el) => {
+        gsap.to(el, {
+          yPercent: parseFloat(el.dataset.speed || '-12'),
+          ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
+        });
+      });
+
+      // 3. Scroll-scrubbed reveals (slide / fade / mask).
+      q<HTMLElement>('[data-reveal]').forEach((el) => {
+        const v = el.dataset.reveal;
+        const from: gsap.TweenVars =
+          v === 'left'  ? { x: -90, autoAlpha: 0 } :
+          v === 'right' ? { x: 90, autoAlpha: 0 } :
+          v === 'mask'  ? { clipPath: 'inset(0 0 100% 0)', y: 24, autoAlpha: 0 } :
+          v === 'scale' ? { scale: 0.84, autoAlpha: 0 } :
+                          { y: 48, autoAlpha: 0 };
+        gsap.from(el, {
+          ...from,
+          ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 45%', scrub: true },
+        });
+      });
     }, root);
 
     return () => ctx.revert();
@@ -367,17 +367,17 @@ export default function VoyagerScrollyTelling() {
     <div className="mx-auto w-full max-w-[900px] px-7">
       
       <div className="mb-6 max-w-[520px]">
-        <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
+        <p className="m-0 mb-2 text-[16px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
         <h2 className="m-0 !font-display text-[clamp(24px,3.5vw,40px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
       </div>
       
       <div className="grid grid-cols-[1fr_auto] items-center gap-9">
         <MemoryGrid states={addressingStates(addrP)} />
         <div className="min-w-[190px] font-mono">
-          <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
-          <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
+          <p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
+          <p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
           <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-          <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
+          <p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
           <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
           <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
         </div>
@@ -391,16 +391,16 @@ export default function VoyagerScrollyTelling() {
       <section id="mapping" className="relative">
         <div data-stage className="flex h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[900px] px-7 text-right">
-            <div className="mb-8 ml-auto max-w-[560px]">
-              <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Every instruction has an address — but what happens when some of those addresses suddenly become unavailable?</p>
+            <div className="mb-4 ml-auto max-w-[560px]">
+              <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
             </div>
             <div className="grid grid-cols-[auto_1fr] items-center gap-9">
               <div className="min-w-[190px] text-left font-mono">
-                <p className="m-0 text-[9px] uppercase tracking-[.16em] text-alert">⚠ Fault scan</p>
-                <p className="m-0 mt-4 text-[11px] text-ash/60">CORRUPTED BLOCKS</p>
+                <p className="m-0 text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
+                <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
                 <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
-                <p className="m-0 mt-3.5 text-[11px] text-ash/60">STATUS</p>
+                <p className="m-0 mt-3.5 text-[15px] text-ash/60">STATUS</p>
                 <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
               </div>
               <MemoryGrid states={mappingStates(mapP)} />
@@ -413,12 +413,19 @@ export default function VoyagerScrollyTelling() {
       <section id="solution" className="relative">
         <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
-            <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
-            <h2 className="m-0 mb-8 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
+            <p className="m-0 mb-2 text-[15px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
+            <h2 className="m-0 mb-4 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
             <div className="mx-auto max-w-[750px]"><MemoryGrid states={solutionStates(solP)} /></div>
-            <p className="mt-6 !font-display text-[22px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>✓ Code Reallocated</p>
+            <p className="mt-6 !font-display text-[30px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>Code Reallocated</p>
           </div>
         </div>
+      </section>
+
+      {/* ===== MINIGAME INTRO ===== */}
+      <section className="flex min-h-[60vh] items-center justify-center px-7 py-16 text-center">
+        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
+          Now it's your turn<br />to solve the problem!
+        </h2>
       </section>
 
       <section id="finale" className="mx-auto max-w-[1800px] px-7 py-20">

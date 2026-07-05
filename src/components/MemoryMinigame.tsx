@@ -517,7 +517,6 @@ export default function MemoryMinigame() {
         .glitch-label { animation: glitchFlicker 3.4s infinite; }
       `}</style>
 
-      <p className="mb-12 font-term text-[14px] text-ash">Now it's your turn to solve the problem!</p>
 
       <div className="relative mx-auto max-w-[1024px]">
         {/* Phosphor glow */}
@@ -568,7 +567,7 @@ export default function MemoryMinigame() {
                   <div className="font-display text-[clamp(24px,5vw,40px)] font-bold uppercase tracking-[.1em] text-crt" style={{ animation: 'matrixGlow 2s ease-in-out infinite' }}>
                     FDS Memory Rescue
                   </div>
-                  <div className="mx-auto mt-4 max-w-[440px] font-mono text-[11px] leading-relaxed text-crt/80 text-left">
+                  <div className="mx-auto mt-4 max-w-[440px] font-mono text-[13px] leading-relaxed text-crt/80 text-left">
                     <p>&gt; UPLINK ESTABLISHED: <span className="text-crt">VOYAGER 1</span></p>
                     <p>&gt; DISTANCE: <span className="text-crt">15 BILLION MILES</span></p>
                     <p>&gt; STATUS: <span className="text-alert animate-pulse">MEMORY CORRUPTION DETECTED</span></p>
@@ -583,7 +582,7 @@ export default function MemoryMinigame() {
                       setGameState('playing');
                       setLogMessage('SYSTEM ONLINE. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
                     }}
-                    className="mt-8 animate-pulse rounded border border-crt bg-crt/10 px-8 py-3 font-display text-[14px] font-bold tracking-widest text-crt shadow-[0_0_15px_rgba(51,255,102,.2)] hover:bg-crt hover:text-[#0a0f0a] hover:shadow-[0_0_25px_rgba(51,255,102,.6)]"
+                    className="mt-8 animate-pulse rounded border border-crt bg-crt/10 px-8 py-3 font-display text-[17px] font-bold tracking-widest text-crt shadow-[0_0_15px_rgba(51,255,102,.2)] hover:bg-crt hover:text-[#0a0f0a] hover:shadow-[0_0_25px_rgba(51,255,102,.6)]"
                   >
                     INITIALIZE RECOVERY
                   </button>
