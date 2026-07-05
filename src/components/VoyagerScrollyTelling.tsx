@@ -304,7 +304,7 @@ export default function VoyagerScrollyTelling() {
 
             <p className="m-0 text-[24px] leading-[1.8] text-ash/60">They are still listening.</p>
 
-            <p className="m-0 text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched a 722-kilogram aluminum chassis packed with 1970s-era silicon into the dark. No one who bolted it together expected to still be listening to it nearly half a century later.</p>
+            <p className="m-0 text-[24px] leading-[1.8] text-ash">Voyager 1 is the farthest human-made object ever to leave Earth — currently drifting through interstellar space at roughly 17 kilometers per second, placing it over 15 billion miles from the Sun.</p>
 
           </div>
 
