@@ -82,28 +82,66 @@ function solutionStates(p: number): CellState[] {
 
 // ---- Sticky Mission-Control HUD (page-specific; ticks live) ----------------
 function MissionHud() {
-  const [mi, setMi] = useState(15_234_986_612);
-  const [km, setKm] = useState(24_518_773_394);
-  const [sec, setSec] = useState(20 * 60 + 2);
+  const [km, setKm] = useState(24395000000); // Base: Jan 1, 2024
+  const [utcTime, setUtcTime] = useState("00:00:00");
+  const [year, setYear] = useState(2024);
+
   useEffect(() => {
+    // Voyager 1 travels at ~17.0 km/s relative to the sun.
+    // Base Epoch: Jan 1, 2024 at 00:00:00 UTC = approx 24,395,000,000 km
+    const epoch = new Date('2024-01-01T00:00:00Z').getTime();
+    const baseKm = 24395000000;
+    const vKmPerSec = 17.0; 
+
     const id = setInterval(() => {
-      setMi((v) => v + 38);
-      setKm((v) => v + 61);
-      setSec((v) => v + 1);
-    }, 1000);
+      const now = new Date();
+      const elapsedSec = (now.getTime() - epoch) / 1000;
+      setKm(baseKm + elapsedSec * vKmPerSec);
+      setUtcTime(now.toISOString().substring(11, 19));
+      setYear(now.getUTCFullYear());
+    }, 100); // 100ms tick for smooth mileage rolling
     return () => clearInterval(id);
   }, []);
-  const pad = (v: number) => String(v).padStart(2, '0');
-  const clock = `${pad(Math.floor(sec / 3600) % 100)}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`;
+
+  const mi = km * 0.621371;
+
+  // Signal travels at the speed of light (299,792 km/s)
+  const lightSecondsOneWay = km / 299792;
+  const roundTripSecs = lightSecondsOneWay * 2;
+  
+  const pad = (v: number) => String(Math.floor(v)).padStart(2, '0');
+  const rtHours = pad(roundTripSecs / 3600);
+  const rtMinutes = pad((roundTripSecs % 3600) / 60);
+  const rtSeconds = pad(roundTripSecs % 60);
+
+  const owHours = (lightSecondsOneWay / 3600).toFixed(1);
+
   const cell = 'bg-black/85 px-3.5 py-2.5';
   const label = 'm-0 text-[9px] uppercase tracking-[.16em] text-orange';
   const big = 'm-0 mt-0.5 text-sm font-bold text-ghost';
+  
   return (
     <header className="sticky top-0 z-40 grid grid-cols-2 gap-px border-b border-orange/35 bg-orange/20 backdrop-blur-md md:grid-cols-4">
-      <div className={cell}><p className={label}>▸ Current Distance</p><p className={big}>{mi.toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p><p className="m-0 text-[9px] text-ash/40">{km.toLocaleString('en-US')} km</p></div>
-      <div className={cell}><p className={label}>⇄ Comm Round-Trip</p><p className={big}>67 hr 04 min 12 sec</p><p className="m-0 text-[9px] text-ash/40">One-way ~33.5 hours</p></div>
-      <div className={cell}><p className={label}>⌁ Signal Strength</p><p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p><p className="m-0 text-[9px] text-ash/40">DSN Canberra connected</p></div>
-      <div className={cell}><p className={label}>◷ Mission Control Time</p><p className={big}>{clock}</p><p className="m-0 text-[9px] text-ash/40">JPL DSN 2025 UTC</p></div>
+      <div className={cell}>
+        <p className={label}>▸ Current Distance</p>
+        <p className={big}>{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p>
+        <p className="m-0 text-[9px] text-ash/40">{Math.floor(km).toLocaleString('en-US')} km</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>⇄ Comm Round-Trip</p>
+        <p className={big}>{rtHours} hr {rtMinutes} min {rtSeconds} sec</p>
+        <p className="m-0 text-[9px] text-ash/40">One-way ~{owHours} hours</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>⌁ Signal Strength</p>
+        <p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p>
+        <p className="m-0 text-[9px] text-ash/40">DSN Canberra connected</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>◷ Mission Control Time</p>
+        <p className={big}>{utcTime}</p>
+        <p className="m-0 text-[9px] text-ash/40">JPL DSN {year} UTC</p>
+      </div>
     </header>
   );
 }
