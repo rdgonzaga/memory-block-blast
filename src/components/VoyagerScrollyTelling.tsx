@@ -117,30 +117,30 @@ function MissionHud() {
   const owHours = (lightSecondsOneWay / 3600).toFixed(1);
 
   const cell = 'bg-black/85 px-3.5 py-2.5';
-  const label = 'm-0 text-[9px] uppercase tracking-[.16em] text-orange';
-  const big = 'm-0 mt-0.5 text-sm font-bold text-ghost';
+  const label = 'm-0 text-[13px] uppercase tracking-[.16em] text-orange';
+  const big = 'm-0 mt-0 text-[16px] font-bold text-ghost';
   
   return (
     <header className="sticky top-0 z-40 grid grid-cols-2 gap-px border-b border-orange/35 bg-orange/20 backdrop-blur-md md:grid-cols-4">
       <div className={cell}>
         <p className={label}>▸ Current Distance</p>
         <p className={big}>{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p>
-        <p className="m-0 text-[9px] text-ash/40">{Math.floor(km).toLocaleString('en-US')} km</p>
+        <p className="m-0 text-[12px] text-ash/40">{Math.floor(km).toLocaleString('en-US')} km</p>
       </div>
       <div className={cell}>
         <p className={label}>⇄ Comm Round-Trip</p>
         <p className={big}>{rtHours} hr {rtMinutes} min {rtSeconds} sec</p>
-        <p className="m-0 text-[9px] text-ash/40">One-way ~{owHours} hours</p>
+        <p className="m-0 text-[12px] text-ash/40">One-way ~{owHours} hours</p>
       </div>
       <div className={cell}>
         <p className={label}>⌁ Signal Strength</p>
         <p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p>
-        <p className="m-0 text-[9px] text-ash/40">DSN Canberra connected</p>
+        <p className="m-0 text-[12px] text-ash/40">DSN Canberra connected</p>
       </div>
       <div className={cell}>
         <p className={label}>◷ Mission Control Time</p>
         <p className={big}>{utcTime}</p>
-        <p className="m-0 text-[9px] text-ash/40">JPL DSN {year} UTC</p>
+        <p className="m-0 text-[12px] text-ash/40">JPL DSN {year} UTC</p>
       </div>
     </header>
   );
