@@ -461,9 +461,9 @@ export default function MemoryMinigame() {
     setWarningSlot(null);
     setDrag(null);
     setHoverSlot(null);
-    setGameState('playing');
+    setGameState('ready');
     setSignalStrength(INITIAL_TIME);
-    setLogMessage('SYSTEM REBOOTED. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
+    setLogMessage('AWAITING CONNECTION...');
   }
 
   const isDistressed = gameState === 'fail' || (gameState === 'playing' && signalStrength < 30);
