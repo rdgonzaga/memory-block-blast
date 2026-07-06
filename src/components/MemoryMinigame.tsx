@@ -239,6 +239,10 @@ export default function MemoryMinigame() {
   const nextUp = useMemo(() => blocks.filter((b) => !b.revealed).slice(0, HAND_SIZE), [blocks]);
   const remainingToPlace = useMemo(() => blocks.filter((b) => b.slot === null).length, [blocks]);
 
+  // Onboarding hint: point the player from the tray to the grid until they
+  // make their very first placement (or start dragging).
+  const showDragHint = gameState === 'playing' && placedCount === 0 && !drag && tray.length > 0;
+
   // --- Cosmic Decay Timer (Signal Strength) ---
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -457,9 +461,9 @@ export default function MemoryMinigame() {
     setWarningSlot(null);
     setDrag(null);
     setHoverSlot(null);
-    setGameState('playing');
+    setGameState('ready');
     setSignalStrength(INITIAL_TIME);
-    setLogMessage('SYSTEM REBOOTED. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
+    setLogMessage('AWAITING CONNECTION...');
   }
 
   const isDistressed = gameState === 'fail' || (gameState === 'playing' && signalStrength < 30);
@@ -515,9 +519,45 @@ export default function MemoryMinigame() {
           94% { opacity: .6; transform: translateX(0); }
         }
         .glitch-label { animation: glitchFlicker 3.4s infinite; }
+
+        /* Onboarding hint: a little cursor travels FROM the highlighted tray
+           block itself toward the grid and "drops" a ghost tile there,
+           looping until the player gets it. Anchored at (50%,50%) of its
+           parent block so it visually starts right on top of the piece. */
+        @keyframes dragHintCursorX {
+          0%   { transform: translate(-50%, -50%); opacity: 0; }
+          10%  { opacity: 1; }
+          55%  { transform: translate(calc(-50% + 230px), -50%); opacity: 1; }
+          65%  { transform: translate(calc(-50% + 230px), -50%) scale(0.85); opacity: 1; }
+          78%  { opacity: 0; }
+          100% { opacity: 0; transform: translate(-50%, -50%); }
+        }
+        @keyframes dragHintGhostX {
+          0%, 48%  { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+          58%      { opacity: .9; transform: translate(calc(-50% + 230px), -50%) scale(1); }
+          76%      { opacity: 0; transform: translate(calc(-50% + 230px), -50%) scale(1.15); }
+          100%     { opacity: 0; }
+        }
+        @keyframes dragHintCursorY {
+          0%   { transform: translate(-50%, -50%); opacity: 0; }
+          10%  { opacity: 1; }
+          55%  { transform: translate(-50%, calc(-50% + 160px)); opacity: 1; }
+          65%  { transform: translate(-50%, calc(-50% + 160px)) scale(0.85); opacity: 1; }
+          78%  { opacity: 0; }
+          100% { opacity: 0; transform: translate(-50%, -50%); }
+        }
+        @keyframes dragHintGhostY {
+          0%, 48%  { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+          58%      { opacity: .9; transform: translate(-50%, calc(-50% + 160px)) scale(1); }
+          76%      { opacity: 0; transform: translate(-50%, calc(-50% + 160px)) scale(1.15); }
+          100%     { opacity: 0; }
+        }
+        @keyframes dragHintPulse {
+          0%, 100% { opacity: .5; }
+          50% { opacity: 1; }
+        }
       `}</style>
 
-      <p className="mb-12 font-term text-[14px] text-ash">Now it's your turn to solve the problem!</p>
 
       <div className="relative mx-auto max-w-[1024px]">
         {/* Phosphor glow */}
@@ -565,10 +605,10 @@ export default function MemoryMinigame() {
 
               {gameState === 'ready' && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#020802]/85 px-[20px] pb-4 backdrop-blur-[3px]">
-                  <div className="font-display text-[clamp(24px,5vw,40px)] font-bold uppercase tracking-[.1em] text-crt" style={{ animation: 'matrixGlow 2s ease-in-out infinite' }}>
+                  <div className="font-display text-[clamp(28px,5.5vw,46px)] font-bold uppercase tracking-[.1em] text-crt" style={{ animation: 'matrixGlow 2s ease-in-out infinite' }}>
                     FDS Memory Rescue
                   </div>
-                  <div className="mx-auto mt-4 max-w-[440px] font-mono text-[11px] leading-relaxed text-crt/80 text-left">
+                  <div className="mx-auto mt-4 max-w-[500px] font-mono text-[15px] leading-relaxed text-crt/80 text-left sm:text-[16px]">
                     <p>&gt; UPLINK ESTABLISHED: <span className="text-crt">VOYAGER 1</span></p>
                     <p>&gt; DISTANCE: <span className="text-crt">15 BILLION MILES</span></p>
                     <p>&gt; STATUS: <span className="text-alert animate-pulse">MEMORY CORRUPTION DETECTED</span></p>
@@ -583,7 +623,7 @@ export default function MemoryMinigame() {
                       setGameState('playing');
                       setLogMessage('SYSTEM ONLINE. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
                     }}
-                    className="mt-8 animate-pulse rounded border border-crt bg-crt/10 px-8 py-3 font-display text-[14px] font-bold tracking-widest text-crt shadow-[0_0_15px_rgba(51,255,102,.2)] hover:bg-crt hover:text-[#0a0f0a] hover:shadow-[0_0_25px_rgba(51,255,102,.6)]"
+                    className="mt-8 animate-pulse rounded border border-crt bg-crt/10 px-9 py-3.5 font-display text-[18px] font-bold tracking-widest text-crt shadow-[0_0_15px_rgba(51,255,102,.2)] hover:bg-crt hover:text-[#0a0f0a] hover:shadow-[0_0_25px_rgba(51,255,102,.6)]"
                   >
                     INITIALIZE RECOVERY
                   </button>
@@ -632,20 +672,29 @@ export default function MemoryMinigame() {
 
               <div className="mx-auto flex min-w-0 w-full max-w-[920px] flex-col md:flex-row items-stretch justify-center gap-4">
                 {/* Left Sidebar: MEMORY BLOCKS Tray */}
-                <div className="relative flex w-full md:w-[150px] shrink-0 flex-col gap-2 overflow-hidden rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
-                  <svg className="pointer-events-none absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
-                    <polyline
-                      points="0,7 18,1 34,6 52,0 70,7 88,2 104,6 122,1 140,7 158,2 176,6 194,1 212,7 230,2 248,6 266,1 284,7 300,3"
-                      fill="none"
-                      stroke="#e63946"
-                      strokeWidth="1.4"
-                      opacity="0.65"
+                <div className="relative flex w-full md:w-[150px] shrink-0 flex-col gap-2 overflow-visible rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
+                  <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
+                    <svg className="absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
+                      <polyline
+                        points="0,7 18,1 34,6 52,0 70,7 88,2 104,6 122,1 140,7 158,2 176,6 194,1 212,7 230,2 248,6 266,1 284,7 300,3"
+                        fill="none"
+                        stroke="#e63946"
+                        strokeWidth="1.4"
+                        opacity="0.65"
+                      />
+                    </svg>
+                    <div
+                      className="absolute inset-0 opacity-[0.06]"
+                      style={{ backgroundImage: 'repeating-linear-gradient(135deg, #e63946 0 8px, transparent 8px 16px)' }}
                     />
-                  </svg>
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                    style={{ backgroundImage: 'repeating-linear-gradient(135deg, #e63946 0 8px, transparent 8px 16px)' }}
-                  />
+                  </div>
+
+                  {/* Onboarding hint now lives on the highlighted tray piece itself
+                      (see i === 0 block below), so it visually starts on top
+                      of the block being demonstrated instead of floating
+                      near the panel edge. */}
+
+
                   <div className="relative flex flex-col items-center justify-between gap-1.5 text-center">
                     <p className="mb-0 pt-0 glitch-label font-mono text-[15px] font-bold text-alert">
                       CORRUPTED MEMORY
@@ -656,13 +705,48 @@ export default function MemoryMinigame() {
                   </div>
                   <div className={`relative flex flex-1 flex-row md:flex-col items-center gap-5 ${tray.length > 0 ? 'justify-start' : 'justify-center'}`}>
                     {gameState === 'playing' && tray.length > 0 ? (
-                      tray.map((b) => (
+                      tray.map((b, i) => (
                         <div
                           key={b.id}
                           onPointerDown={(e) => startDrag(e, b)}
-                          className={`mem-chip flex touch-none select-none flex-col items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-3 pt-3.5 pb-2.5 active:cursor-grabbing ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
+                          className={`mem-chip relative flex touch-none select-none flex-col items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-3 pt-3.5 pb-2.5 active:cursor-grabbing ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
                           style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.05), 0 0 10px ${b.color}22` }}
                         >
+                          {showDragHint && i === 0 && (
+                            <>
+                              <span
+                                className="pointer-events-none absolute -inset-1 rounded-md border-2"
+                                style={{ borderColor: b.color, animation: 'warnPulse 1.1s ease-in-out infinite' }}
+                              />
+                              {/* Cursor + ghost tile start directly on top of this block and
+                                  drift toward the grid — right on desktop (tray is left of the
+                                  grid), down on mobile (tray sits above the grid when stacked). */}
+                              <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 hidden md:block">
+                                <div
+                                  className="absolute h-7 w-7 rounded-md border-2 border-dashed"
+                                  style={{ borderColor: b.color, background: `${b.color}22`, animation: 'dragHintGhostX 2.6s ease-in-out infinite' }}
+                                />
+                                <div
+                                  className="absolute text-[20px] leading-none"
+                                  style={{ animation: 'dragHintCursorX 2.6s ease-in-out infinite', filter: `drop-shadow(0 0 4px ${b.color}cc)` }}
+                                >
+                                  👆
+                                </div>
+                              </div>
+                              <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 block md:hidden">
+                                <div
+                                  className="absolute h-6 w-6 rounded-md border-2 border-dashed"
+                                  style={{ borderColor: b.color, background: `${b.color}22`, animation: 'dragHintGhostY 2.6s ease-in-out infinite' }}
+                                />
+                                <div
+                                  className="absolute text-[18px] leading-none"
+                                  style={{ animation: 'dragHintCursorY 2.6s ease-in-out infinite', filter: `drop-shadow(0 0 4px ${b.color}cc)` }}
+                                >
+                                  👆
+                                </div>
+                              </div>
+                            </>
+                          )}
                           <PieceIcon shape={b.shape} color={b.color} cellSize={35} />
                           <span className="font-mono text-[15px] font-bold tracking-wide" style={{ color: b.color }}>{b.label}</span>
                           <span className="font-mono text-[10px] tracking-[.08em] text-white/500">{b.shape.length} CELL{b.shape.length !== 1 ? 'S' : ''}</span>
