@@ -20,6 +20,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+import jupiterImg from '../assets/jupiter.png';
+import saturnImg from '../assets/saturn.png';
+import voyager1Img from '../assets/voyager1.png';
+import earthImg from '../assets/earth_1.png';
+import MemoryMinigame from './MemoryMinigame.tsx';
+
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
 // ---- Memory grid model -----------------------------------------------------
@@ -81,28 +87,66 @@ function solutionStates(p: number): CellState[] {
 
 // ---- Sticky Mission-Control HUD (page-specific; ticks live) ----------------
 function MissionHud() {
-  const [mi, setMi] = useState(15_234_986_612);
-  const [km, setKm] = useState(24_518_773_394);
-  const [sec, setSec] = useState(20 * 60 + 2);
+  const [km, setKm] = useState(24395000000); // Base: Jan 1, 2024
+  const [utcTime, setUtcTime] = useState("00:00:00");
+  const [year, setYear] = useState(2024);
+
   useEffect(() => {
+    // Voyager 1 travels at ~17.0 km/s relative to the sun.
+    // Base Epoch: Jan 1, 2024 at 00:00:00 UTC = approx 24,395,000,000 km
+    const epoch = new Date('2024-01-01T00:00:00Z').getTime();
+    const baseKm = 24395000000;
+    const vKmPerSec = 17.0; 
+
     const id = setInterval(() => {
-      setMi((v) => v + 38);
-      setKm((v) => v + 61);
-      setSec((v) => v + 1);
-    }, 1000);
+      const now = new Date();
+      const elapsedSec = (now.getTime() - epoch) / 1000;
+      setKm(baseKm + elapsedSec * vKmPerSec);
+      setUtcTime(now.toISOString().substring(11, 19));
+      setYear(now.getUTCFullYear());
+    }, 100); // 100ms tick for smooth mileage rolling
     return () => clearInterval(id);
   }, []);
-  const pad = (v: number) => String(v).padStart(2, '0');
-  const clock = `${pad(Math.floor(sec / 3600) % 100)}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`;
+
+  const mi = km * 0.621371;
+
+  // Signal travels at the speed of light (299,792 km/s)
+  const lightSecondsOneWay = km / 299792;
+  const roundTripSecs = lightSecondsOneWay * 2;
+  
+  const pad = (v: number) => String(Math.floor(v)).padStart(2, '0');
+  const rtHours = pad(roundTripSecs / 3600);
+  const rtMinutes = pad((roundTripSecs % 3600) / 60);
+  const rtSeconds = pad(roundTripSecs % 60);
+
+  const owHours = (lightSecondsOneWay / 3600).toFixed(1);
+
   const cell = 'bg-black/85 px-3.5 py-2.5';
-  const label = 'm-0 text-[9px] uppercase tracking-[.16em] text-orange';
-  const big = 'm-0 mt-0.5 text-sm font-bold text-ghost';
+  const label = 'm-0 text-[13px] uppercase tracking-[.16em] text-orange';
+  const big = 'm-0 mt-0 text-[16px] font-bold text-ghost';
+  
   return (
     <header className="sticky top-0 z-40 grid grid-cols-2 gap-px border-b border-orange/35 bg-orange/20 backdrop-blur-md md:grid-cols-4">
-      <div className={cell}><p className={label}>▸ Current Distance</p><p className={big}>{mi.toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p><p className="m-0 text-[9px] text-ash/40">{km.toLocaleString('en-US')} km</p></div>
-      <div className={cell}><p className={label}>⇄ Comm Round-Trip</p><p className={big}>67 hr 04 min 12 sec</p><p className="m-0 text-[9px] text-ash/40">One-way ~33.5 hours</p></div>
-      <div className={cell}><p className={label}>⌁ Signal Strength</p><p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p><p className="m-0 text-[9px] text-ash/40">DSN Canberra connected</p></div>
-      <div className={cell}><p className={label}>◷ Mission Control Time</p><p className={big}>{clock}</p><p className="m-0 text-[9px] text-ash/40">JPL DSN 2025 UTC</p></div>
+      <div className={cell}>
+        <p className={label}>▸ Current Distance</p>
+        <p className={big}>{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p>
+        <p className="m-0 text-[12px] text-ash/40">{Math.floor(km).toLocaleString('en-US')} km</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>⇄ Comm Round-Trip</p>
+        <p className={big}>{rtHours} hr {rtMinutes} min {rtSeconds} sec</p>
+        <p className="m-0 text-[12px] text-ash/40">One-way ~{owHours} hours</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>⌁ Signal Strength</p>
+        <p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p>
+        <p className="m-0 text-[12px] text-ash/40">DSN Canberra connected</p>
+      </div>
+      <div className={cell}>
+        <p className={label}>◷ Mission Control Time</p>
+        <p className={big}>{utcTime}</p>
+        <p className="m-0 text-[12px] text-ash/40">JPL DSN {year} UTC</p>
+      </div>
     </header>
   );
 }
@@ -117,32 +161,7 @@ export default function VoyagerScrollyTelling() {
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
-      // Parallax — planets drift slower/opposite to scroll for depth.
-      q<HTMLElement>('[data-parallax]').forEach((el) => {
-        gsap.to(el, {
-          yPercent: parseFloat(el.dataset.speed || '-12'),
-          ease: 'none',
-          scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
-        });
-      });
-
-      // Scroll-scrubbed reveals (slide / fade / mask).
-      q<HTMLElement>('[data-reveal]').forEach((el) => {
-        const v = el.dataset.reveal;
-        const from: gsap.TweenVars =
-          v === 'left'  ? { x: -90, autoAlpha: 0 } :
-          v === 'right' ? { x: 90, autoAlpha: 0 } :
-          v === 'mask'  ? { clipPath: 'inset(0 0 100% 0)', y: 24, autoAlpha: 0 } :
-          v === 'scale' ? { scale: 0.84, autoAlpha: 0 } :
-                          { y: 48, autoAlpha: 0 };
-        gsap.from(el, {
-          ...from,
-          ease: 'none',
-          scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 45%', scrub: true },
-        });
-      });
-
-      // Pinned, scrubbed memory stages. The stage pins; cell-state is driven by
+      // 1. Pinned, scrubbed memory stages. The stage pins; cell-state is driven by
       // self.progress so the grid animates AS you scroll (not on enter).
       const pin = (sel: string, set: (p: number) => void) => {
         const section = q<HTMLElement>(sel)[0];
@@ -160,6 +179,31 @@ export default function VoyagerScrollyTelling() {
       pin('#addressing', setAddrP);
       pin('#mapping', setMapP);
       pin('#solution', setSolP);
+
+      // 2. Parallax — planets drift slower/opposite to scroll for depth.
+      q<HTMLElement>('[data-parallax]').forEach((el) => {
+        gsap.to(el, {
+          yPercent: parseFloat(el.dataset.speed || '-12'),
+          ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
+        });
+      });
+
+      // 3. Scroll-scrubbed reveals (slide / fade / mask).
+      q<HTMLElement>('[data-reveal]').forEach((el) => {
+        const v = el.dataset.reveal;
+        const from: gsap.TweenVars =
+          v === 'left'  ? { x: -90, autoAlpha: 0 } :
+          v === 'right' ? { x: 90, autoAlpha: 0 } :
+          v === 'mask'  ? { clipPath: 'inset(0 0 100% 0)', y: 24, autoAlpha: 0 } :
+          v === 'scale' ? { scale: 0.84, autoAlpha: 0 } :
+                          { y: 48, autoAlpha: 0 };
+        gsap.from(el, {
+          ...from,
+          ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top 90%', end: 'top 45%', scrub: true },
+        });
+      });
     }, root);
 
     return () => ctx.revert();
@@ -169,7 +213,7 @@ export default function VoyagerScrollyTelling() {
   const ptr = Math.floor(Math.min(addrP, 0.999) * GRID);
 
   return (    
-    <div ref={root} className="relative font-sans text-ghost">
+    <div ref={root} className="relative font-sans text-ghost overflow-clip">
       {/* ===== Galaxy Background (fixed, behind everything) ===== */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-space">
         {/* Nebula clouds */}
@@ -212,7 +256,7 @@ export default function VoyagerScrollyTelling() {
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
         <img 
-            src="src/assets/jupiter.png" 
+            src={typeof jupiterImg === 'object' ? jupiterImg.src : jupiterImg}
             alt="Jupiter" 
             className="w-full h-auto object-contain"
             style={{
@@ -224,7 +268,7 @@ export default function VoyagerScrollyTelling() {
 
         <div 
         data-reveal="up" 
-        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px]flex flex-col items-start text-left">
+        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
           
           <div 
           role="heading" 
@@ -265,7 +309,7 @@ export default function VoyagerScrollyTelling() {
 
             <p className="m-0 text-[24px] leading-[1.8] text-ash/60">They are still listening.</p>
 
-            <p className="m-0 text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched a 722-kilogram aluminum chassis packed with 1970s-era silicon into the dark. No one who bolted it together expected to still be listening to it nearly half a century later.</p>
+            <p className="m-0 text-[24px] leading-[1.8] text-ash">Voyager 1 is the farthest human-made object ever to leave Earth — currently drifting through interstellar space at roughly 17 kilometers per second, placing it over 15 billion miles from the Sun.</p>
 
           </div>
 
@@ -279,7 +323,7 @@ export default function VoyagerScrollyTelling() {
                     }}>
 
                     <img
-                    src="src/assets/voyager1.png"
+                    src={typeof voyager1Img === 'object' ? voyager1Img.src : voyager1Img}
                     alt="Voyager 1 Probe"
                     className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
                     />
@@ -324,7 +368,7 @@ export default function VoyagerScrollyTelling() {
             <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
             
             <img 
-            src="src/assets/saturn.png" 
+            src={typeof saturnImg === 'object' ? saturnImg.src : saturnImg}
             alt="Saturn" 
             className="w-full h-auto object-contain scale-150 translate-x-24"
             style={{
@@ -366,17 +410,17 @@ export default function VoyagerScrollyTelling() {
     <div className="mx-auto w-full max-w-[900px] px-7">
       
       <div className="mb-6 max-w-[520px]">
-        <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
+        <p className="m-0 mb-2 text-[16px] leading-[1.7] text-ash">If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?</p>
         <h2 className="m-0 !font-display text-[clamp(24px,3.5vw,40px)] font-bold uppercase tracking-wide text-orange">Memory Addressing</h2>
       </div>
       
       <div className="grid grid-cols-[1fr_auto] items-center gap-9">
         <MemoryGrid states={addressingStates(addrP)} />
         <div className="min-w-[190px] font-mono">
-          <p className="m-0 text-[9px] uppercase tracking-[.16em] text-ash/50">▸ Processor read</p>
-          <p className="m-0 mt-4 text-[11px] text-ash/60">ADDRESS</p>
+          <p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
+          <p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
           <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-          <p className="m-0 mt-3.5 text-[11px] text-ash/60">DATA</p>
+          <p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
           <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
           <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]"><div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} /></div>
         </div>
@@ -390,16 +434,16 @@ export default function VoyagerScrollyTelling() {
       <section id="mapping" className="relative">
         <div data-stage className="flex h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[900px] px-7 text-right">
-            <div className="mb-8 ml-auto max-w-[560px]">
-              <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Every instruction has an address — but what happens when some of those addresses suddenly become unavailable?</p>
+            <div className="mb-4 ml-auto max-w-[560px]">
+              <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
             </div>
             <div className="grid grid-cols-[auto_1fr] items-center gap-9">
               <div className="min-w-[190px] text-left font-mono">
-                <p className="m-0 text-[9px] uppercase tracking-[.16em] text-alert">⚠ Fault scan</p>
-                <p className="m-0 mt-4 text-[11px] text-ash/60">CORRUPTED BLOCKS</p>
+                <p className="m-0 text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
+                <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
                 <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
-                <p className="m-0 mt-3.5 text-[11px] text-ash/60">STATUS</p>
+                <p className="m-0 mt-3.5 text-[15px] text-ash/60">STATUS</p>
                 <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
               </div>
               <MemoryGrid states={mappingStates(mapP)} />
@@ -412,25 +456,49 @@ export default function VoyagerScrollyTelling() {
       <section id="solution" className="relative">
         <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
-            <p className="m-0 mb-2 text-[13px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
-            <h2 className="m-0 mb-8 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
+            <p className="m-0 mb-2 text-[15px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
+            <h2 className="m-0 mb-4 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
             <div className="mx-auto max-w-[750px]"><MemoryGrid states={solutionStates(solP)} /></div>
-            <p className="mt-6 !font-display text-[22px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>✓ Code Reallocated</p>
+            <p className="mt-6 !font-display text-[30px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>Code Reallocated</p>
           </div>
         </div>
       </section>
 
+      {/* ===== MINIGAME INTRO ===== */}
+      <section className="flex min-h-[60vh] items-center justify-center px-7 py-16 text-center">
+        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
+          Now it's your turn<br />to solve the problem!
+        </h2>
+      </section>
+
+      <section id="finale" className="mx-auto max-w-[1800px] px-7 py-20">
+        <MemoryMinigame />
+      </section>
+
       {/* ===== OUTRO ===== */}
-      <section className="mx-auto max-w-[760px] px-7 pt-8 text-center">
-        <p data-reveal="up" className="m-0 mb-[18px] text-[13px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
-        <p data-reveal="up" className="m-0 text-[13px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
+      <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center">
+        <p data-reveal="up" className="m-0 mb-[18px] text-[24px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
+        <p data-reveal="up" className="m-0 text-[24px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
       </section>
 
       {/* Earth (parallax) */}
-      <div className="relative mt-10 h-[340px] overflow-hidden">
-        <div data-parallax data-speed="-8" className="absolute left-1/2 top-[120px] h-[1300px] w-[1300px] -translate-x-1/2 rounded-full"
-          style={{ background: 'radial-gradient(circle at 40% 30%,rgba(170,210,255,.45),transparent 40%),radial-gradient(circle at 62% 58%,rgba(80,160,90,.5),transparent 28%),radial-gradient(circle at 30% 64%,rgba(70,140,80,.45),transparent 24%),radial-gradient(circle at 50% 50%,#1d5b9e,#0a2f57 60%,rgba(5,5,5,.9) 82%)', boxShadow: 'inset -30px -20px 120px rgba(5,5,5,.9),0 0 130px rgba(80,160,255,.18)' }} />
-      </div>
+      <div className="relative mt-10 h-[540px] ">
+            <div 
+            data-parallax 
+            data-speed="-6" 
+            className="absolute left-1/2 bottom-[-220px] -z-10 w-[clamp(650px,60vw,1400px)] -translate-x-1/2 pointer-events-none select-none opacity-100"
+            >
+           
+                <img 
+                    src={typeof earthImg === 'object' ? earthImg.src : earthImg}
+                    alt="Earth" 
+                    className="w-full h-auto object-contain" 
+                    style={{
+                        filter: 'drop-shadow(0px -5px 60px rgba(170, 210, 255, 0.4)) drop-shadow(0px -15px 120px rgba(29, 91, 158, 0.5))',
+                        opacity: 0.9,}}
+                />
+            </div> 
+        </div>
     </div>
   );
 }
