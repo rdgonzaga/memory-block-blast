@@ -19,6 +19,11 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+import jupiterImg from '../assets/jupiter.png';
+import saturnImg from '../assets/saturn.png';
+import voyager1Img from '../assets/voyager1.png';
+import earthImg from '../assets/earth_1.png';
 import MemoryMinigame from './MemoryMinigame.tsx';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -251,7 +256,7 @@ export default function VoyagerScrollyTelling() {
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
         <img 
-            src="src/assets/jupiter.png" 
+            src={typeof jupiterImg === 'object' ? jupiterImg.src : jupiterImg}
             alt="Jupiter" 
             className="w-full h-auto object-contain"
             style={{
@@ -318,7 +323,7 @@ export default function VoyagerScrollyTelling() {
                     }}>
 
                     <img
-                    src="src/assets/voyager1.png"
+                    src={typeof voyager1Img === 'object' ? voyager1Img.src : voyager1Img}
                     alt="Voyager 1 Probe"
                     className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
                     />
@@ -363,7 +368,7 @@ export default function VoyagerScrollyTelling() {
             <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
             
             <img 
-            src="src/assets/saturn.png" 
+            src={typeof saturnImg === 'object' ? saturnImg.src : saturnImg}
             alt="Saturn" 
             className="w-full h-auto object-contain scale-150 translate-x-24"
             style={{
@@ -485,7 +490,7 @@ export default function VoyagerScrollyTelling() {
             >
            
                 <img 
-                    src="src/assets/earth_1.png" 
+                    src={typeof earthImg === 'object' ? earthImg.src : earthImg}
                     alt="Earth" 
                     className="w-full h-auto object-contain" 
                     style={{
