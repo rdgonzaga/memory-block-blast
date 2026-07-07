@@ -1,3 +1,70 @@
+# Mid-Milestone Update (July 2026)
+
+**Deployment Link:** [https://rdgonzaga.github.io/memory-block-blast/](https://rdgonzaga.github.io/memory-block-blast/)
+
+### Challenges
+
+Our very first challenge as a group was selecting a topic for the case study that is both interesting and related to CSARCH2. We explored a number of different topics like CrowdStrike, military conflicts, and space applications. Ultimately, we liked the idea of the type of technology in the context of space and Aerospace Engineering and decided to take the problem with **Voyager 1’s FDS** and how NASA Engineers figured out what the problem is and what they did to solve it.
+
+At first, we didn’t really know what the actual problem was with Voyager 1’s FDS since we didn’t fully understand the underlying concept that made it fail. We thought it was because some kind of RAM inside Voyager 1 had failed, and they had to fix that remotely. Turns out, the thing had **multiple memory chips inside of it, and a single one of them was responsible for storing a portion of the FDS Software that had failed**, and all they had to do was transfer instructions from the old broken memory chip to a new one.
+
+We also found it difficult to allocate time for developing the website itself due to demands from other courses such as LBYARCH, CSSWENG, STHCIUX, and CSNETWK. Finally, we struggled with **deployment pathing on GitHub Pages**, where our background images kept breaking in production because our Vite/Astro bundler couldn't resolve hardcoded string paths on a subpath domain. We had to **migrate to dynamic React imports** to fix it.
+
+---
+
+### Interactive Element
+
+The interactive element we ended up implementing is a minigame that requires the user to put blocks of instructions from the broken memory chip into a new one. We thought that it would be boring if we just implemented a drag-and-drop system by itself, so we added **pressure mechanics** and a goal for the user to achieve.
+
+While developing the minigame, many things went wrong. First, the drag-and-drop feature was a little clunky and hard to play with, which took a little bit of time figuring out how to make it easy and predictable for the user to place the blocks. We also had some trouble figuring out how to **make the graphics of the minigame look like an actual memory chip**, so we tried adding memory addresses to each box of the game’s grid. The sizes of the text at first were also too small to be noticeable by the player, so we made them bigger and more obvious.  
+
+We also spent considerable time **refining the game logic to make it fair**. During testing, cosmic radiation would randomly destroy pieces the player had already successfully placed. We fixed this by programming an **"occupied-slot immunity map"** that forces radiation to only target empty memory sectors and actively rejects players from dropping pieces onto actively decaying slots. To improve the ergonomics of the workspace, we redesigned the layout entirely, **moving the drag-and-drop tray to a fixed left sidebar and the "Next Up" queue to the bottom** so the game feels like a proper terminal dashboard.
+
+---
+
+### Aha Moments & Things Learned
+
+During the early development phases of this project, there was considerable confusion regarding the exact purpose and relationship between our **MDX file layer and our TSX component layer**. The initial impression was that MDX files were simply a glorified Markdown layout with very little unique programmatic value. 
+
+Initially, our Mission Control HUD used generic placeholder timers that just ticked upwards arbitrarily. We realized that we could **use actual astrophysics to drive the UI instead**. By anchoring to a known NASA epoch (Jan 1, 2024) and programming Voyager 1's true drifting speed (17.0 km/s), we wrote a simple algorithm to compute the probe's **exact real-time distance and live light-speed communication delay** in milliseconds. This change made our simple UI decoration into a highly accurate, grounded scientific dashboard.
+
+---
+
+### Creative Development
+
+To make our computer architecture project engaging and intuitive, we designed our exhibit with a **strong emphasis on storytelling and interactive learning**. Instead of immediately forcing users into a raw programming challenge, we structured the exhibit to first guide the user through a chronological, scroll-driven visual timeline. This narrative provides crucial backstory regarding the **real-world stakes of the Voyager 1 mission**, the engineering difficulties the crew faced across a 15-billion-mile radio link, and the underlying mechanics of absolute memory addressing and physical mapping. By establishing this solid narrative foundation, users can easily understand the purpose behind the technical hardware constraints before transitioning into the main operations mini-game. This makes the player feel like a member of the mission rescue crew. 
+
+We also implemented a lot of **smooth scroll-scrubbed reveal animations using GSAP**, which we had some problems with at first because the animations would sometimes fire way too early.
+
+---
+
+### Things to be done in the final submission  
+
+Although the progress we’ve made in this submission is already good, there are still several changes we would like to be made by the final submission. The following are:
+
+1. Improve layout design and overall mobile responsiveness;
+2. Improve the game mechanics;
+3. Optimize the website’s performance and scrolling animations;
+4. Add subtle sound design like retro terminal beeps to make the website more immersive;
+5. Clean up unused components, functions, and comments;
+
+---
+
+### Disclosure on the Use of AI
+
+During the development of this project, we utilized Large Language Models (LLMs) to assist with scaffolding, technical troubleshooting, and iterative coding:
+
+*   **Anthropic Claude:** Utilized primarily during the early stages of development to brainstorm the overarching structure and generate the foundational layout design templates for the website.
+*   **Google Gemini:** Utilized during active development to assist with complex programming tasks. This included refining the logic for the interactive drag-and-drop minigame. 
+
+*Note: All AI-assisted designs and code snippets were thoroughly reviewed, modified, and tested by our group to ensure they aligned with our specific project requirements and academic standards.*
+
+
+<br/>
+<br/>
+
+***
+
 # CSARCH2 Virtual Exhibit Proposal
 
 ## S03 Group 3

@@ -336,7 +336,7 @@ export default function VoyagerScrollyTelling() {
           <p data-reveal="right" className="m-0 text-right text-[24px] leading-[1.8] text-ash/60">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
         </div>
 
-        {/** AHAHAHAHHAHAHA */}
+        {/** rotate animation */}
         <style>{`
             @keyframes slowRotateClockwise {
                 from { transform: rotate(0deg); }
@@ -370,7 +370,7 @@ export default function VoyagerScrollyTelling() {
             <img 
             src={typeof saturnImg === 'object' ? saturnImg.src : saturnImg}
             alt="Saturn" 
-            className="w-full h-auto object-contain scale-150 translate-x-24"
+            className="w-full h-auto object-contain scale-95 translate-x-24"
             style={{
                 WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
                 maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
@@ -378,7 +378,7 @@ export default function VoyagerScrollyTelling() {
             />
         </div>
 
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.1fr_0.9fr] px-14">
             
             <div className="hidden md:block pointer-events-none" />
 
@@ -499,6 +499,53 @@ export default function VoyagerScrollyTelling() {
                 />
             </div> 
         </div>
+
+        {/* ===== REFERENCES SECTION ===== */}
+        <section id="references" className="relative z-10 mx-auto max-w-[1600px] px-14 pt-[220px] pb-24 font-term text-[16px] text-ash/60">
+            
+            <div className="h-px flex-1 bg-gradient-to-r from-orange/20 via-orange/40 to-transparent bg-[linear-gradient(to_right,rgba(250,102,2,0.35)_1px,transparent_1px)] bg-[size:6px_1px]" />
+            
+            <div className="pl-6 md:pl-14"> 
+
+            {/* ===== SECTION HEADER ===== */}
+            <h3 className="m-0 mt-10 mb-8 !font-display text-[22px] font-bold uppercase tracking-wider text-orange">
+                References
+            </h3>            
+
+            {/* ===== REFERENCE LIST ===== */}
+            <ul className="m-0 pl-6 list-none flex flex-col gap-4 max-w-[1200px] text-[15px] leading-relaxed">
+            
+                <li className="m-0 border-l border-white/10 pl-4 py-0.5">
+                    Computer memory definition concepts retrieved from{" "}
+                    <a href="https://certifiedsystemsgroup.com/understanding-computer-memory/" target="_blank" rel="noreferrer" className="text-orange/80 hover:text-orange underline transition-colors break-all">https://certifiedsystemsgroup.com/understanding-computer-memory/</a>
+                </li>
+
+                <li className="m-0 border-l border-white/10 pl-4 py-0.5">
+                    Memory address definitions and processor architecture retrieved from{" "}
+                    <a href="https://www.ituonline.com/tech-definitions/what-is-a-memory-address/" target="_blank" rel="noreferrer" className="text-orange/80 hover:text-orange underline transition-colors break-all">https://www.ituonline.com/tech-definitions/what-is-a-memory-address/</a>
+                </li>
+
+                <li className="m-0 border-l border-white/10 pl-4 py-0.5">
+                    Microprocessor memory structural operations retrieved from{" "}
+                    <a href="https://www.uobabylon.edu.iq/eprints/publication_3_22584_1575.pdf" target="_blank" rel="noreferrer" className="text-orange/80 hover:text-orange underline transition-colors break-all">https://www.uobabylon.edu.iq/eprints/publication_3_22584_1575.pdf</a>
+                </li>
+
+                <li className="m-0 border-l border-white/10 pl-4 py-0.5">
+                    Memory mapping core definitions and OS tables retrieved from{" "}
+                    <a href="https://www.geeksforgeeks.org/operating-systems/memory-mapping/" target="_blank" rel="noreferrer" className="text-orange/80 hover:text-orange underline transition-colors break-all">https://www.geeksforgeeks.org/operating-systems/memory-mapping/</a>
+                </li>
+
+                <li className="m-0 border-l border-white/10 pl-4 py-0.5">
+                    Virtual addressing and page allocation mechanics retrieved from{" "}
+                    <a href="https://questdb.com/glossary/memory-mapping/" target="_blank" rel="noreferrer" className="text-orange/80 hover:text-orange underline transition-colors break-all">https://questdb.com/glossary/memory-mapping/</a>
+                </li>
+            </ul>
+
+            </div>
+
+        </section>
+
+        
     </div>
   );
 }
