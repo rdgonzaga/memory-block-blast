@@ -500,6 +500,70 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
+     {/* ===== THE DEAD CHIP & THE JUMP ===== */}
+      <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16">
+        
+        {/* The Problem */}
+        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px]">
+          <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase tracking-wide text-alert leading-[1.05]">
+            Root Cause:<br />A Dead Chip
+          </h2>
+          <p className="m-0 text-[22px] leading-[1.8] text-ash">
+            After months of testing, engineers found the problem: a single memory chip inside the computer failed completely. Because the chip broke, the instructions stored on it became unreadable.
+          </p>
+          <p className="m-0 text-[22px] leading-[1.8] text-ash">
+            The big issue was what those instructions did. This specific chip holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
+          </p>
+        </div>
+
+        {/* The Instruction Pointer */}
+        <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
+          <h3 className="m-0 !font-display text-[26px] font-bold uppercase tracking-wide text-orange mb-4">
+            The Instruction Pointer
+          </h3>
+          <p className="m-0 text-[18px] leading-[1.7] text-ash/80 mb-5 max-w-[750px]">
+            Every computer has a tiny, super-fast memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. Think of it like a bookmark in a book. After the computer reads and does what the instruction says, the IP automatically moves to the very next line.
+          </p>
+          <p className="m-0 text-[18px] leading-[1.7] text-ash/80 max-w-[750px]">
+            This regular loop is exactly what broke Voyager 1. A piece of the spacecraft's memory got physically damaged and corrupted. But the IP didn't know that. It just kept moving forward, line by line, right into the broken memory area, reading complete gibberish and running it like real code.
+          </p>
+        </div>
+
+        {/* The Strategy */}
+        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px] pt-4">
+          <h2 className="m-0 !font-display text-[clamp(28px,3.5vw,44px)] font-bold uppercase tracking-wide text-orange leading-[1.05]">
+            Instruction Pointer Control<br />& Jump Remapping
+          </h2>
+          <p className="m-0 text-[20px] leading-[1.8] text-ash">
+            It’s impossible to send a mechanic 15 billion miles into deep space. The only option was a remote software repair, beamed across the solar system to a computer built in the early 1970s.
+          </p>
+          <p className="m-0 text-[20px] leading-[1.8] text-ash">
+            Since there wasn't a single open space in the healthy memory large enough to hold the rescued code, the engineers had to get creative. They chopped the vital telemetry instructions into smaller fragments and tucked them into tiny, unused gaps scattered throughout the computer's working memory.
+          </p>
+        </div>
+
+        {/* The Jump Instruction (Enlarged Centerpiece) */}
+        <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
+          <h3 className="m-0 font-mono text-[26px] md:text-[30px] font-bold uppercase tracking-[.1em] text-crt mb-6">
+            The Jump Instruction (JMP)
+          </h3>
+          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 mb-6 max-w-[750px]">
+            A jump instruction directly overwrites the Instruction Pointer with a new address. It does not move data; it simply redirects the processor’s attention.
+          </p>
+          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 max-w-[750px]">
+            Each relocated fragment ends with a precisely calculated JMP pointing to the next fragment. The final fragment ends with a JMP back into the original post-corruption code. The processor never knows the code was moved. It just follows the digital breadcrumbs.
+          </p>
+        </div>
+
+        {/* Critical Risk */}
+        <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-alert/40 bg-alert/10 px-8 py-8">
+          <p className="m-0 text-[18px] leading-[1.7] font-term text-alert/90">
+            <strong className="tracking-wide">CRITICAL RISK:</strong> There was a 47-hour delay between sending a command and seeing the result. One miscalculated address. One word written to the wrong offset. One JMP pointing three words past its target. Any of these would send the IP into unmapped memory — and Voyager 1 would go dark permanently.
+          </p>
+        </div>
+
+      </section>
+
       {/* ===== NASA'S SOLUTION (pinned + scrubbed) ===== */}
       <section id="solution" className="relative">
         <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
