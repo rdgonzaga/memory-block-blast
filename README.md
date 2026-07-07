@@ -1,15 +1,6 @@
 # Mid-Milestone Update (July 2026)
 
-### Disclosure on the Use of AI
-
-During the development of this project, we utilized Large Language Models (LLMs) to assist with scaffolding, technical troubleshooting, and iterative coding:
-
-*   **Anthropic Claude:** Utilized primarily during the early stages of development to brainstorm the overarching structure and generate the foundational layout design templates for the website.
-*   **Google Gemini:** Utilized during active development to assist with complex programming tasks. This included refining the logic for the interactive drag-and-drop minigame. 
-
-*Note: All AI-assisted designs and code snippets were thoroughly reviewed, modified, and tested by our group to ensure they aligned with our specific project requirements and academic standards.*
-
----
+**Deployment Link:** [https://rdgonzaga.github.io/memory-block-blast/](https://rdgonzaga.github.io/memory-block-blast/)
 
 ### Challenges
 
@@ -56,6 +47,18 @@ Although the progress we’ve made in this submission is already good, there are
 3. Optimize the website’s performance and scrolling animations;
 4. Add subtle sound design like retro terminal beeps to make the website more immersive;
 5. Clean up unused components, functions, and comments;
+
+---
+
+### Disclosure on the Use of AI
+
+During the development of this project, we utilized Large Language Models (LLMs) to assist with scaffolding, technical troubleshooting, and iterative coding:
+
+*   **Anthropic Claude:** Utilized primarily during the early stages of development to brainstorm the overarching structure and generate the foundational layout design templates for the website.
+*   **Google Gemini:** Utilized during active development to assist with complex programming tasks. This included refining the logic for the interactive drag-and-drop minigame. 
+
+*Note: All AI-assisted designs and code snippets were thoroughly reviewed, modified, and tested by our group to ensure they aligned with our specific project requirements and academic standards.*
+
 
 <br/>
 <br/>
