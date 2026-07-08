@@ -402,7 +402,7 @@ export default function VoyagerScrollyTelling() {
         </section>
 
       {/* ===== WHAT IS COMPUTER MEMORY? ===== */}
-      <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-20">
+      <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-10">
 
         <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
 
@@ -429,11 +429,11 @@ export default function VoyagerScrollyTelling() {
             <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
                 
                 {/* Header Block — Aligned left */}
-                <div className="mb-10 max-w-[620px] text-left">
-                    <p className="m-0 mb-2 text-[18px] leading-[1.7] text-ash">
+                <div className="mb-10 max-w-[750px] text-left">
+                    <p className="m-0 mb-2 text-[24px] text-ash/60"> 
                         If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?
                     </p>
-                    <h2 className="m-0 !font-display text-[clamp(24px,3.5vw,80px)] font-bold uppercase tracking-wide text-orange">
+                    <h2 className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
                         Memory Addressing
                     </h2>
                 </div>
@@ -480,23 +480,80 @@ export default function VoyagerScrollyTelling() {
 
       {/* ===== MEMORY MAPPING (pinned + scrubbed) ===== */}
       <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[900px] px-7 text-right">
-            <div className="mb-4 ml-auto max-w-[560px]">
+        <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
+
+            <div className="mb-4 ml-auto max-w-[560px] text-right">
               <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
             </div>
-            <div className="grid grid-cols-[auto_1fr] items-center gap-9">
-              <div className="min-w-[190px] text-left font-mono">
-                <p className="m-0 text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
-                <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
-                <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
-                <p className="m-0 mt-3.5 text-[15px] text-ash/60">STATUS</p>
-                <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
-              </div>
-              <MemoryGrid states={mappingStates(mapP)} />
+
+
+            {/* Main Two-Column Layout Panel */}
+            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-12 items-start">
+
+                {/* LEFT COLUMN */}
+                <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
+
+                    <p className="m-0 text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-left" >
+                        Think of a computer's memory like an empty plot of land. Memory mapping divides the land into permanent zones for specific jobs, like one zone for temporary data and another for software instructions.
+                    </p>
+                    <p className="m-0 text-[24px] leading-relaxed text-ash/60 font-term text-left">
+                        VOn older computers like Voyager 1, this map is an unbreakable contract. If a piece of code belongs at address 100, it must stay exactly at address 100. The computer doesn't double-check its work; it blindly goes to the requested address, grabs whatever is sitting there, and tries to run it.
+                    </p>
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className="grid grid-cols-[auto_1fr] items-center gap-9 bg-white/[0.02] border border-white/[0.05] p-6 rounded-[20px] w-full">
+
+                    <div className="min-w-[190px] text-left font-mono">
+                        <p className="m-0 text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
+                        <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
+                        <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
+                        <p className="m-0 mt-3.5 text-[15px] text-ash/60">STATUS</p>
+                        <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
+                    </div>
+                    <MemoryGrid states={mappingStates(mapP)} />
+                    </div>
+
             </div>
+
+            <p className="mt-5 m-0 max-w-[100%] font-term text-[24px] text-center mt-12 leading-relaxed text-ash/60">
+                Because the computer can't tell the difference between real instructions and random noise, a broken memory chip is incredibly dangerous. It doesn't just corrupt saved files; it completely breaks how the computer behaves.
+            </p>
+
+        </div>
+      </section>
+
+      {/* ===== LOST IN TRANSLATION SECTION ===== */}
+      <section id="lost-in-translation" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
+        <div data-stage className="flex py-32 flex-col items-center text-center overflow-hidden">
+          
+
+          <div className="mb-14 max-w-[1000px]">
+            <h2 className="m-0 !font-display text-[clamp(32px,5vw,72px)] font-bold uppercase leading-[1.05] tracking-wide text-orange">
+              Lost in Translation in Deep Space
+            </h2>
+            <p className="m-0 mt-4 font-mono text-[18px] tracking-wider text-ghost/80 uppercase">
+              November 14, 2023 // Telemetry Stream Disruption
+            </p>
           </div>
+
+          <div className="w-full max-w-[1200px] bg-white/[0.02] border border-white/[0.04] p-8 md:p-12 rounded-[24px] flex flex-col gap-8 text-center items-center">
+            
+            <p className="m-0 font-term text-[24px] leading-relaxed text-ash">
+              On November 14, 2023, Voyager 1’s data stream broke. The spacecraft hadn't died, and the signal hadn't weakened by distance. Instead of sending back science data, it simply began transmitting a repeating loop of total gibberish, sending an unreadable pattern of <span className="font-mono text-orange font-bold">1</span>s and <span className="font-mono text-orange font-bold">0</span>s.
+            </p>
+            
+            <p className="m-0 font-term text-[24px] leading-relaxed text-ash/60">
+              For the NASA engineers back on Earth, this was both a relief and a nightmare. The probe was clearly still alive and broadcasting its signal on time, but the data was completely meaningless.
+            </p>
+            
+            <p className="m-0 font-term text-[24px] leading-relaxed text-ash/60">
+              To make matters worse, Voyager 1 is over 15 billion miles away. At that immense distance, every single command sent to the spacecraft takes <span className="text-ghost font-bold">47 hours</span> just to complete a round trip, making any quick fix impossible.
+            </p>
+
+          </div>
+
         </div>
       </section>
 
