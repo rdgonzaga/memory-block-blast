@@ -34,7 +34,6 @@ const MemoryMinigame = lazy(() => import('./MemoryMinigame.tsx'));
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
 
-// ---- Memory grid model -----------------------------------------------------
 const GRID = 48; // 8 cols × 6 rows
 const FRAG = [5, 6, 7, 13, 18, 19, 26, 27, 33, 34, 40, 41]; // corrupted addresses
 const HEX = ['7F', '03', 'A1', 'FF', '2C', '90', '5E', '11', 'C8', '04', 'D2', '6B'];
@@ -66,7 +65,6 @@ function MemoryGrid({ states }: { states: CellState[] }) {
   );
 }
 
-// ---- Pure progress → cell-state mappers (mirror the prototype) --------------
 function addressingStates(p: number): CellState[] {
   const ptr = Math.floor(Math.min(p, 0.999) * GRID);
   return Array.from({ length: GRID }, (_, i) =>
@@ -91,7 +89,6 @@ function solutionStates(p: number): CellState[] {
   });
 }
 
-// ---- Sticky Mission-Control HUD (page-specific; ticks live) ----------------
 function MissionHud() {
   const [km, setKm] = useState(24395000000); // Base: Jan 1, 2024
   const [utcTime, setUtcTime] = useState("00:00:00");
@@ -206,8 +203,6 @@ export default function VoyagerScrollyTelling() {
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
-      // 1. Pinned, scrubbed memory stages. The stage pins; cell-state is driven by
-      // self.progress so the grid animates AS you scroll (not on enter).
       const pin = (sel: string, set: (p: number) => void) => {
         const section = q<HTMLElement>(sel)[0];
         if (!section) return;
@@ -225,7 +220,6 @@ export default function VoyagerScrollyTelling() {
       pin('#mapping', setMapP);
       pin('#solution', setSolP);
 
-      // 2. Parallax — planets drift slower/opposite to scroll for depth.
       q<HTMLElement>('[data-parallax]').forEach((el) => {
         gsap.to(el, {
           yPercent: parseFloat(el.dataset.speed || '-12'),
@@ -234,7 +228,6 @@ export default function VoyagerScrollyTelling() {
         });
       });
 
-      // 3. Scroll-scrubbed reveals (slide / fade / mask).
       q<HTMLElement>('[data-reveal]').forEach((el) => {
         const v = el.dataset.reveal;
         const from: gsap.TweenVars =
@@ -259,9 +252,7 @@ export default function VoyagerScrollyTelling() {
 
   return (    
     <div ref={root} className="relative font-sans text-ghost overflow-clip">
-      {/* ===== Galaxy Background (fixed, behind everything) ===== */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-space">
-        {/* Nebula clouds */}
         <div
           className="absolute inset-0 opacity-[0.35] mix-blend-screen"
           style={{
@@ -274,7 +265,6 @@ export default function VoyagerScrollyTelling() {
             `
           }}
         />
-        {/* Drifting Stars - Parallax Layers */}
         <div
           className="absolute inset-0 animate-drift opacity-80"
           style={{
@@ -290,14 +280,12 @@ export default function VoyagerScrollyTelling() {
 
       <MissionHud />
 
-      {/* ===== HERO ===== */}
       <section className="relative mx-auto max-w-[1800px] px-2 pt-20 pb-52">
         <div 
         data-parallax 
         data-speed="-8" 
         className="absolute right-0 top-1/2 -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
         >
-        {/* orange gradient */}
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
         <img
@@ -333,7 +321,6 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-          {/**Nav Buttons */}
         <div className="mx-auto mt-28 flex max-w-[800px] flex-col gap-4">
           <a href="#finale" 
           className="
@@ -346,7 +333,6 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      {/* ===== WHAT IS VOYAGER 1 ===== */}
       <section id="what-is" className="mx-auto max-w-[1800px] scroll-mt-20  px-2 pt-10 pb-[90px]">
         <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,5vw,80px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
         <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[24px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
@@ -363,7 +349,6 @@ export default function VoyagerScrollyTelling() {
 
           </div>
 
-          {/* Voyager probe */}
             <div className="relative flex justify-center items-center w-full min-h-[400px] lg:min-h-[500px]">
                 <div
                     data-reveal="right"
@@ -389,7 +374,6 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
-      {/* ===== IN 2023, SOMETHING WENT WRONG ===== */}
       <section className="flex min-h-[70vh] items-center justify-center px-7 py-16 text-center">
         <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert">In 2023,<br />Something Went Wrong...</h2>
       </section>
@@ -397,17 +381,13 @@ export default function VoyagerScrollyTelling() {
       <div className="mx-auto max-w-[1080px] px-7">        
       </div>
 
-
-      {/* ===== WHAT GOES ON INSIDE (FDS) ===== */}
         <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
         
-        {/* SATURN */}
         <div 
             data-parallax 
             data-speed="-6" 
             className="absolute left-[-120px] top-1/2 -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
         >
-            {/* gradient */}
             <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
             
             <img
@@ -429,7 +409,6 @@ export default function VoyagerScrollyTelling() {
             
             <div className="hidden md:block pointer-events-none" />
 
-            {/* Right Column */}
             <div className="text-right flex flex-col items-end relative z-10">
             <p data-reveal="right" className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
                 But why was this so difficult to fix?
@@ -448,7 +427,6 @@ export default function VoyagerScrollyTelling() {
         </div>
         </section>
 
-      {/* ===== WHAT IS COMPUTER MEMORY? ===== */}
       <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-10">
 
         <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
@@ -469,13 +447,9 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
-
-
-        {/* ===== MEMORY ADDRESSING (pinned + scrubbed) ===== */}
         <section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
             <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
                 
-                {/* Header Block — Aligned left */}
                 <div className="mb-10 max-w-[750px] text-left">
                     <p className="m-0 mb-2 text-base md:text-[24px] text-ash/60"> 
                         If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?
@@ -485,10 +459,8 @@ export default function VoyagerScrollyTelling() {
                     </h2>
                 </div>
                 
-                {/* Main Two-Column Layout Panel */}
                 <div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-12 items-start">
                     
-                    {/* LEFT COLUMN */}
                     <div className="grid grid-cols-[1fr_auto] items-center gap-9 bg-white/[0.02] border border-white/[0.05] p-6 rounded-[20px] w-full max-w-[900px]">
                         <MemoryGrid states={addressingStates(addrP)} />
                         
@@ -504,7 +476,6 @@ export default function VoyagerScrollyTelling() {
                         </div>
                     </div>
                     
-                    {/* RIGHT COLUMN Description*/}
                     <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
                         <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-right" >
@@ -525,7 +496,6 @@ export default function VoyagerScrollyTelling() {
             </div>
         </section>
 
-      {/* ===== MEMORY MAPPING (pinned + scrubbed) ===== */}
       <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
         <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
 
@@ -534,11 +504,8 @@ export default function VoyagerScrollyTelling() {
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
             </div>
 
-
-            {/* Main Two-Column Layout Panel */}
             <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-12 items-start">
 
-                {/* LEFT COLUMN */}
                 <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
                     <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-left" >
@@ -549,7 +516,6 @@ export default function VoyagerScrollyTelling() {
                     </p>
                 </div>
 
-                {/* RIGHT COLUMN */}
                 <div className="grid grid-cols-[auto_1fr] items-center gap-9 bg-white/[0.02] border border-white/[0.05] p-6 rounded-[20px] w-full">
 
                     <div className="min-w-[190px] text-left font-mono">
@@ -571,7 +537,6 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      {/* ===== LOST IN TRANSLATION SECTION ===== */}
       <section id="lost-in-translation" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
         <div data-stage className="flex py-32 flex-col items-center text-center overflow-hidden">
           
@@ -604,10 +569,8 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-     {/* ===== THE DEAD CHIP & THE JUMP ===== */}
       <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16">
         
-        {/* The Problem */}
         <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px]">
           <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase tracking-wide text-alert leading-[1.05]">
             Root Cause:<br />A Dead Chip
@@ -620,7 +583,6 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-        {/* The Instruction Pointer */}
         <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
           <h3 className="m-0 !font-display text-[26px] font-bold uppercase tracking-wide text-orange mb-4">
             The Instruction Pointer
@@ -633,7 +595,6 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-        {/* The Strategy */}
         <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px] pt-4">
           <h2 className="m-0 !font-display text-[clamp(28px,3.5vw,44px)] font-bold uppercase tracking-wide text-orange leading-[1.05]">
             Instruction Pointer Control<br />& Jump Remapping
@@ -646,7 +607,6 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-        {/* The Jump Instruction (Enlarged Centerpiece) */}
         <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
           <h3 className="m-0 font-mono text-[26px] md:text-[30px] font-bold uppercase tracking-[.1em] text-crt mb-6">
             The Jump Instruction (JMP)
@@ -659,7 +619,6 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-        {/* Critical Risk */}
         <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-alert/40 bg-alert/10 px-8 py-8">
           <p className="m-0 text-[18px] leading-[1.7] font-term text-alert/90">
             <strong className="tracking-wide">CRITICAL RISK:</strong> There was a 47-hour delay between sending a command and seeing the result. One miscalculated address. One word written to the wrong offset. One JMP pointing three words past its target. Any of these would send the IP into unmapped memory — and Voyager 1 would go dark permanently.
@@ -668,7 +627,6 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
-      {/* ===== NASA'S SOLUTION (pinned + scrubbed) ===== */}
       <section id="solution" className="relative">
         <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
           <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
@@ -680,7 +638,6 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      {/* ===== MINIGAME INTRO ===== */}
       <section className="flex min-h-[60vh] items-center justify-center px-7 py-16 text-center">
         <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
           Now it's your turn<br />to solve the problem!
@@ -695,13 +652,11 @@ export default function VoyagerScrollyTelling() {
         )}
       </section>
 
-      {/* ===== OUTRO ===== */}
       <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center">
         <p data-reveal="up" className="m-0 mb-[18px] text-base md:text-[24px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
         <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
       </section>
 
-      {/* Earth (parallax) */}
       <div className="relative mt-10 h-[540px] ">
             <div 
             data-parallax 
@@ -724,19 +679,16 @@ export default function VoyagerScrollyTelling() {
             </div> 
         </div>
 
-        {/* ===== REFERENCES SECTION ===== */}
         <section id="references" className="relative z-10 mx-auto max-w-[1600px] px-7 md:px-14 pt-[220px] pb-24 font-term text-[16px] text-ash/60">
             
             <div className="h-px flex-1 bg-gradient-to-r from-orange/20 via-orange/40 to-transparent bg-[linear-gradient(to_right,rgba(250,102,2,0.35)_1px,transparent_1px)] bg-[size:6px_1px]" />
             
             <div className="pl-6 md:pl-14"> 
 
-            {/* ===== SECTION HEADER ===== */}
             <h3 className="m-0 mt-10 mb-8 !font-display text-base md:text-[22px] font-bold uppercase tracking-wider text-orange">
                 References
             </h3>            
 
-            {/* ===== REFERENCE LIST ===== */}
             <ul className="m-0 pl-6 list-none flex flex-col gap-4 max-w-[1200px] text-[15px] leading-relaxed">
             
                 <li className="m-0 border-l border-white/10 pl-4 py-0.5">

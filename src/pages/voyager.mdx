@@ -62,18 +62,4 @@ import '@fontsource/share-tech-mono';
 `}
 </style>
 
-{/*
-  Memory Block Blast — single-page scrollytelling exhibit.
-
-  The locked ExhibitLayout.astro provides the sticky Mission-Control HUD, the
-  page <title>/<author>/<readingTime> chrome, and loads Tailwind + fonts.
-  Everything below is interactive, so it lives in hydrated React islands:
-
-    • <VoyagerScrollyTelling client:load />  — hydrate immediately; it owns the
-      fixed starfield + all scroll-linked (GSAP ScrollTrigger) animation, so it
-      must be measuring scroll from first paint.
-    • <MemoryMinigame client:visible />      — defer hydration until the CRT
-      finale scrolls into view (it's far down the page and self-contained).
-*/}
-
 <VoyagerScrollyTelling client:load />

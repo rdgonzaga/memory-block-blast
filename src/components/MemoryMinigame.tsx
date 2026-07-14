@@ -14,7 +14,6 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-// ---- Shape model ------------------------------------------------------------
 type Cell = [number, number]; // [dx, dy] offset from a piece's anchor (top-left)
 type Shape = Cell[];
 
@@ -72,7 +71,6 @@ function makeInitialBlocks(): Block[] {
   return BLOCK_TEMPLATE.map((b, i) => ({ ...b, slot: null, revealed: i < HAND_SIZE }));
 }
 
-// ---- Placement / winnability solver ----------------------------------------
 function shapeCells(shape: Shape, anchor: number): number[] | null {
   const anchorRow = Math.floor(anchor / GRID_COLUMNS);
   const anchorCol = anchor % GRID_COLUMNS;
@@ -95,7 +93,6 @@ function getValidAnchors(shape: Shape, freeSlots: Set<number>): number[] {
   return anchors;
 }
 
-// Backtracking search: can every shape simultaneously fit inside freeSlots?
 function canPlaceAllShapes(shapes: Shape[], freeSlots: Set<number>): boolean {
   const sorted = [...shapes].sort((a, b) => b.length - a.length);
   function backtrack(idx: number, free: Set<number>): boolean {
@@ -159,8 +156,6 @@ function anchorFromTargetSlot(shape: Shape, targetSlot: number): number | null {
 // block the view of the target cell on touch devices.
 const DRAG_LIFT_Y = 46;
 
-// Glossy CSS-only tile, styled after the bevelled block look of stacking
-// puzzle games — no external image assets involved.
 function Tile({ color, dim = 20 }: { color: string; dim?: number }) {
   return (
     <div
@@ -195,7 +190,6 @@ function PieceIcon({ shape, color, cellSize = 12 }: { shape: Shape; color: strin
 }
 
 export default function MemoryMinigame() {
-  // --- Core Game State ---
   const [blocks, setBlocks] = useState<Block[]>(makeInitialBlocks);
   const [corruptSlots, setCorruptSlots] = useState<number[]>(() => generateCorruptSlots());
   const [radiationSlots, setRadiationSlots] = useState<number[]>([]);
@@ -205,7 +199,6 @@ export default function MemoryMinigame() {
   const [gameState, setGameState] = useState<GameState>('ready');
   const [logMessage, setLogMessage] = useState('AWAITING CONNECTION...');
 
-  // --- Pointer-based drag state (works for mouse + touch) ---
   const [drag, setDrag] = useState<{ id: string; shape: Shape; label: string; color: string; x: number; y: number } | null>(null);
   const [hoverSlot, setHoverSlot] = useState<number | null>(null);
 
@@ -220,7 +213,6 @@ export default function MemoryMinigame() {
   useEffect(() => { radiationRef.current = radiationSlots; }, [radiationSlots]);
   useEffect(() => { corruptRef.current = corruptSlots; }, [corruptSlots]);
 
-  // --- Derived State ---
   const placedCount = useMemo(() => blocks.filter((b) => b.slot !== null).length, [blocks]);
   const allDone = placedCount === blocks.length;
   const lockedSlots = useMemo(() => new Set([...corruptSlots, ...radiationSlots]), [corruptSlots, radiationSlots]);
@@ -243,7 +235,6 @@ export default function MemoryMinigame() {
   // make their very first placement (or start dragging).
   const showDragHint = gameState === 'playing' && placedCount === 0 && !drag && tray.length > 0;
 
-  // --- Cosmic Decay Timer (Signal Strength) ---
   useEffect(() => {
     if (gameState !== 'playing') return;
     const timer = setInterval(() => {
@@ -260,7 +251,6 @@ export default function MemoryMinigame() {
     return () => clearInterval(timer);
   }, [gameState]);
 
-  // --- Deal the next hand once the current one is fully placed ---
   useEffect(() => {
     if (gameState !== 'playing') return;
     if (tray.length > 0) return;
@@ -270,7 +260,6 @@ export default function MemoryMinigame() {
     setBlocks((prev) => prev.map((b) => (nextIds.has(b.id) ? { ...b, revealed: true } : b)));
   }, [tray.length, blocks, gameState]);
 
-  // --- Stuck check: if nothing in hand can fit anywhere, the run is over ---
   useEffect(() => {
     if (gameState !== 'playing' || tray.length === 0) return;
     const free = new Set<number>();
@@ -282,7 +271,6 @@ export default function MemoryMinigame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tray, lockedSlots, occupiedMap, gameState]);
 
-  // --- Expanding Cosmic Radiation Loop ---
   useEffect(() => {
     if (gameState !== 'playing' && gameState !== 'transmitting') return;
     const interval = setInterval(() => strikeRadiation(), RADIATION_INTERVAL_MS);
@@ -350,7 +338,6 @@ export default function MemoryMinigame() {
     }
   }
 
-  // --- Placement validation (shared by preview + commit) ---
   function checkPlacement(blockId: string, anchorSlot: number): { valid: boolean; cells: number[] | null; reason?: string } {
     const block = blocks.find((b) => b.id === blockId);
     if (!block) return { valid: false, cells: null };
@@ -381,7 +368,6 @@ export default function MemoryMinigame() {
     setLogMessage(`SUCCESS: Mapped ${block.label} to ${toHex(anchorSlot)}`);
   }
 
-  // --- Pointer drag lifecycle ---
   function startDrag(e: React.PointerEvent, block: Block) {
     if (gameState !== 'playing') return;
     e.preventDefault();
@@ -431,7 +417,6 @@ export default function MemoryMinigame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drag?.id]);
 
-  // --- Actions ---
   function handleTransmit() {
     if (!allDone || gameState !== 'playing') return;
     setGameState('transmitting');
@@ -558,15 +543,12 @@ export default function MemoryMinigame() {
         }
       `}</style>
 
-
       <div className="relative mx-auto max-w-[1024px]">
-        {/* Phosphor glow */}
         <div
           className="pointer-events-none absolute -inset-10 rounded-full blur-[20px]"
           style={{ background: isDistressed ? 'radial-gradient(circle,rgba(230,57,70,.28),transparent 65%)' : 'radial-gradient(circle,rgba(51,255,102,.28),transparent 65%)' }}
         />
 
-        {/* Beige plastic chassis */}
         <div
           className="relative rounded-[26px] px-[28px] pt-[28px] pb-[16px] transition-transform sm:px-[34px] sm:pt-[34px]"
           style={{
@@ -575,18 +557,14 @@ export default function MemoryMinigame() {
             animation: isDistressed ? 'crtShake 0.28s infinite' : undefined,
           }}
         >
-          {/* Tube bezel */}
           <div className="relative overflow-hidden rounded-[14px] bg-[#0a0f0a] p-3 sm:p-4" style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,.9),inset 0 0 0 3px #1a1a14' }}>
-            {/* Screen */}
             <div className="relative animate-flicker overflow-hidden rounded-lg px-[14px] pt-[20px] pb-[16px] sm:px-[20px]" style={{ background: 'radial-gradient(120% 120% at 50% 40%,#04140a,#020802)' }}>
-              {/* Scanlines + sweep */}
               <div className="pointer-events-none absolute inset-0 z-20" style={{ backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px)' }} />
               <div className="pointer-events-none absolute inset-x-0 z-20 h-[60px] animate-scanline" style={{ background: isDistressed ? 'linear-gradient(180deg,transparent,rgba(230,57,70,.1),transparent)' : 'linear-gradient(180deg,transparent,rgba(51,255,102,.06),transparent)' }} />
               {isDistressed && (
                 <div className="pointer-events-none absolute inset-0 z-20" style={{ background: 'radial-gradient(circle,rgba(230,57,70,.18),transparent 70%)', animation: 'warnPulse 0.9s infinite' }} />
               )}
 
-              {/* Header pill strip */}
               <div className="mb-2.5 flex flex-wrap items-center justify-center gap-1.5">
                 {[
                   { label: 'LINK', ok: gameState !== 'fail' },
@@ -662,7 +640,6 @@ export default function MemoryMinigame() {
                 </>
               )}
 
-              {/* Threat Meter */}
               <div className="w-full h-1 bg-[#1a1a14] mb-3 overflow-hidden border border-crt/20">
                 <div
                   className={`h-full transition-all duration-700 ${signalStrength < 30 ? 'bg-alert' : 'bg-crt'}`}
@@ -671,7 +648,6 @@ export default function MemoryMinigame() {
               </div>
 
               <div className="mx-auto flex min-w-0 w-full max-w-[920px] flex-col md:flex-row items-stretch justify-center gap-4">
-                {/* Left Sidebar: MEMORY BLOCKS Tray */}
                 <div className="relative flex w-full md:w-[150px] shrink-0 flex-col gap-2 overflow-visible rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
                   <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
                     <svg className="absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
@@ -693,7 +669,6 @@ export default function MemoryMinigame() {
                       (see i === 0 block below), so it visually starts on top
                       of the block being demonstrated instead of floating
                       near the panel edge. */}
-
 
                   <div className="relative flex flex-col items-center justify-between gap-1.5 text-center">
                     <p className="mb-0 pt-0 glitch-label font-mono text-[15px] font-bold text-alert">
@@ -768,7 +743,6 @@ export default function MemoryMinigame() {
                 </div>
 
                 <div className="flex min-w-0 w-full max-w-[684px] flex-1 flex-col items-center gap-2.5">
-                  {/* AVAILABLE MEMORY grid */}
                   <div className="w-full min-w-0 overflow-hidden rounded-lg border border-crt/25 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
                 <p className="mb-2 mt-0 text-left font-mono text-[12px] tracking-[.14em] text-crt/60">DESTINATION: HEALTHY MEMORY BANK — {GRID_COLUMNS}×{GRID_ROWS}</p>
                 <div className="grid gap-[5px]" style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0,1fr))` }}>
@@ -826,7 +800,6 @@ export default function MemoryMinigame() {
                 </div>
               </div>
 
-                  {/* Next Up Row */}
                   <div className="relative w-full flex flex-wrap items-center justify-between gap-2 rounded-md border border-crt/20 bg-black/30 px-3 py-2 shadow-xl backdrop-blur-md">
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[14px] font-bold tracking-[.1em] text-crt/70">NEXT UP: </span>
@@ -849,7 +822,6 @@ export default function MemoryMinigame() {
                 </div>
               </div>
 
-              {/* Bottom bar: log + reset */}
               <div className="mx-auto mt-2.5 flex w-full max-w-[920px] items-center gap-2 rounded-full border border-crt/25 bg-black/40 px-3 py-2">
                 <span className={`flex-1 truncate text-left font-mono text-[12px] ${gameState === 'fail' ? 'text-alert' : gameState === 'success' ? 'text-green-300' : 'text-crt'}`}>
                   &gt; {logMessage}<span className="animate-blink">█</span>
@@ -866,7 +838,6 @@ export default function MemoryMinigame() {
             </div>
           </div>
 
-          {/* Chassis chin */}
           <div className="flex items-center justify-between px-2 pt-3.5 pb-1">
             <span className="font-display text-[12px] tracking-[.1em] text-[#8a8470]">ROG-6700</span>
             <span className="flex gap-2.5">
