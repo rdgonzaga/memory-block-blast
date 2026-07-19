@@ -30,7 +30,13 @@ type GameState = 'ready' | 'playing' | 'transmitting' | 'success' | 'fail';
 
 const GRID_COLUMNS = 9;
 const GRID_ROWS = 6;
-const SLOTS = GRID_COLUMNS * GRID_ROWS; // 54
+// Phones get a narrower, taller board (6x9 instead of 9x6) so each cell is
+// ~50% wider at the same container width — same 54 total slots either way,
+// so difficulty/winnability (see canPlaceAllShapes below) is unaffected.
+const GRID_COLUMNS_MOBILE = 6;
+const GRID_ROWS_MOBILE = 9;
+const MOBILE_BREAKPOINT = 768; // matches this file's/the exhibit's existing `md:` cutoff
+const SLOTS = GRID_COLUMNS * GRID_ROWS; // 54 (6*9 === 9*6)
 const HAND_SIZE = 3;
 const INITIAL_TIME = 100;
 const DECAY_TICK_MS = 1100;
@@ -71,34 +77,34 @@ function makeInitialBlocks(): Block[] {
   return BLOCK_TEMPLATE.map((b, i) => ({ ...b, slot: null, revealed: i < HAND_SIZE }));
 }
 
-function shapeCells(shape: Shape, anchor: number): number[] | null {
-  const anchorRow = Math.floor(anchor / GRID_COLUMNS);
-  const anchorCol = anchor % GRID_COLUMNS;
+function shapeCells(shape: Shape, anchor: number, cols: number, rows: number): number[] | null {
+  const anchorRow = Math.floor(anchor / cols);
+  const anchorCol = anchor % cols;
   const cells: number[] = [];
   for (const [dx, dy] of shape) {
     const col = anchorCol + dx;
     const row = anchorRow + dy;
-    if (col < 0 || col >= GRID_COLUMNS || row < 0 || row >= GRID_ROWS) return null;
-    cells.push(row * GRID_COLUMNS + col);
+    if (col < 0 || col >= cols || row < 0 || row >= rows) return null;
+    cells.push(row * cols + col);
   }
   return cells;
 }
 
-function getValidAnchors(shape: Shape, freeSlots: Set<number>): number[] {
+function getValidAnchors(shape: Shape, freeSlots: Set<number>, cols: number, rows: number): number[] {
   const anchors: number[] = [];
-  for (let anchor = 0; anchor < SLOTS; anchor++) {
-    const cells = shapeCells(shape, anchor);
+  for (let anchor = 0; anchor < cols * rows; anchor++) {
+    const cells = shapeCells(shape, anchor, cols, rows);
     if (cells && cells.every((c) => freeSlots.has(c))) anchors.push(anchor);
   }
   return anchors;
 }
 
-function canPlaceAllShapes(shapes: Shape[], freeSlots: Set<number>): boolean {
+function canPlaceAllShapes(shapes: Shape[], freeSlots: Set<number>, cols: number, rows: number): boolean {
   const sorted = [...shapes].sort((a, b) => b.length - a.length);
   function backtrack(idx: number, free: Set<number>): boolean {
     if (idx === sorted.length) return true;
-    for (const anchor of getValidAnchors(sorted[idx], free)) {
-      const cells = shapeCells(sorted[idx], anchor)!;
+    for (const anchor of getValidAnchors(sorted[idx], free, cols, rows)) {
+      const cells = shapeCells(sorted[idx], anchor, cols, rows)!;
       const next = new Set(free);
       cells.forEach((c) => next.delete(c));
       if (backtrack(idx + 1, next)) return true;
@@ -108,10 +114,11 @@ function canPlaceAllShapes(shapes: Shape[], freeSlots: Set<number>): boolean {
   return backtrack(0, freeSlots);
 }
 
-// Random hardware-corrupted sectors, retried until the opening hand is
-// guaranteed to fit somewhere on the board.
-function generateCorruptSlots(): number[] {
-  const openingShapes = BLOCK_TEMPLATE.slice(0, HAND_SIZE).map((b) => b.shape);
+// Retried until the full 10-block deal (not just the opening hand) has a
+// valid combined arrangement, so a loss can only come from the player's own
+// placement choices — any subset of a placeable full set is itself placeable.
+function generateCorruptSlots(cols: number, rows: number): number[] {
+  const allShapes = BLOCK_TEMPLATE.map((b) => b.shape);
   for (let attempt = 0; attempt < 500; attempt++) {
     const count = 6 + Math.floor(Math.random() * 3); // 6-8
     const chosen = new Set<number>();
@@ -120,9 +127,12 @@ function generateCorruptSlots(): number[] {
     const free = new Set<number>();
     for (let i = 0; i < SLOTS; i++) if (!chosen.has(i)) free.add(i);
 
-    if (canPlaceAllShapes(openingShapes, free)) return [...chosen];
+    if (canPlaceAllShapes(allShapes, free, cols, rows)) return [...chosen];
   }
-  return [4, 5, 12, 20, 33, 41]; // guaranteed-winnable fallback
+  // Orientation-safe fallback: reserving the last few slots in row-major
+  // order always leaves one large contiguous free region at the start of
+  // the grid regardless of cols/rows, which trivially fits every shape.
+  return Array.from({ length: 6 }, (_, i) => SLOTS - 1 - i);
 }
 
 function toHex(slot: number): string {
@@ -140,29 +150,36 @@ function shapeDims(shape: Shape): { width: number; height: number } {
 // visually looks like it should, the "target" grid cell under the pointer is
 // treated as the shape's visual center, not its (0,0) anchor — then we solve
 // backwards for the actual top-left anchor slot.
-function anchorFromTargetSlot(shape: Shape, targetSlot: number): number | null {
+function anchorFromTargetSlot(shape: Shape, targetSlot: number, cols: number): number | null {
   const { width, height } = shapeDims(shape);
   const centerX = Math.floor((width - 1) / 2);
   const centerY = Math.floor((height - 1) / 2);
-  const targetRow = Math.floor(targetSlot / GRID_COLUMNS);
-  const targetCol = targetSlot % GRID_COLUMNS;
+  const targetRow = Math.floor(targetSlot / cols);
+  const targetCol = targetSlot % cols;
   const anchorRow = targetRow - centerY;
   const anchorCol = targetCol - centerX;
   if (anchorRow < 0 || anchorCol < 0) return null;
-  return anchorRow * GRID_COLUMNS + anchorCol;
+  return anchorRow * cols + anchorCol;
+}
+
+function resolveGridDims(): { cols: number; rows: number } {
+  if (typeof window === 'undefined') return { cols: GRID_COLUMNS, rows: GRID_ROWS };
+  return window.innerWidth < MOBILE_BREAKPOINT
+    ? { cols: GRID_COLUMNS_MOBILE, rows: GRID_ROWS_MOBILE }
+    : { cols: GRID_COLUMNS, rows: GRID_ROWS };
 }
 
 // Pieces are lifted above the pointer while dragging so a finger doesn't
 // block the view of the target cell on touch devices.
 const DRAG_LIFT_Y = 46;
 
-function Tile({ color, dim = 20 }: { color: string; dim?: number }) {
+function Tile({ color, dim = 20 }: { color: string; dim?: number | string }) {
   return (
     <div
       style={{
         width: dim,
         height: dim,
-        borderRadius: Math.max(2, dim * 0.18),
+        borderRadius: `max(2px, ${typeof dim === 'number' ? `${dim * 0.18}px` : `calc(${dim} * 0.18)`})`,
         background: `linear-gradient(160deg, ${color} 0%, ${color}cc 55%, ${color}88 100%)`,
         boxShadow: `inset 0 2px 0 rgba(255,255,255,.55), inset 0 -3px 4px rgba(0,0,0,.4), 0 0 8px ${color}77`,
       }}
@@ -170,19 +187,20 @@ function Tile({ color, dim = 20 }: { color: string; dim?: number }) {
   );
 }
 
-function PieceIcon({ shape, color, cellSize = 12 }: { shape: Shape; color: string; cellSize?: number }) {
+function PieceIcon({ shape, color, cellSize = 12 }: { shape: Shape; color: string; cellSize?: number | string }) {
   const width = Math.max(...shape.map((c) => c[0])) + 1;
   const height = Math.max(...shape.map((c) => c[1])) + 1;
   const filled = new Set(shape.map(([x, y]) => `${x},${y}`));
+  const size = typeof cellSize === 'number' ? `${cellSize}px` : cellSize;
   return (
-    <div className="grid" style={{ gridTemplateColumns: `repeat(${width}, ${cellSize}px)`, gap: 2 }}>
+    <div className="grid" style={{ gridTemplateColumns: `repeat(${width}, ${size})`, gap: 2 }}>
       {Array.from({ length: width * height }).map((_, i) => {
         const x = i % width;
         const y = Math.floor(i / width);
         return filled.has(`${x},${y}`) ? (
           <Tile key={i} color={color} dim={cellSize} />
         ) : (
-          <div key={i} style={{ width: cellSize, height: cellSize }} />
+          <div key={i} style={{ width: size, height: size }} />
         );
       })}
     </div>
@@ -190,8 +208,13 @@ function PieceIcon({ shape, color, cellSize = 12 }: { shape: Shape; color: strin
 }
 
 export default function MemoryMinigame() {
+  // Board shape is resolved once per game (see resolveGridDims/reset) rather
+  // than reactively on resize — reshaping mid-game would invalidate already
+  // placed blocks' slot indices, which are only meaningful for the grid
+  // shape they were placed under.
+  const [dims, setDims] = useState(resolveGridDims);
   const [blocks, setBlocks] = useState<Block[]>(makeInitialBlocks);
-  const [corruptSlots, setCorruptSlots] = useState<number[]>(() => generateCorruptSlots());
+  const [corruptSlots, setCorruptSlots] = useState<number[]>(() => generateCorruptSlots(dims.cols, dims.rows));
   const [radiationSlots, setRadiationSlots] = useState<number[]>([]);
   const [warningSlot, setWarningSlot] = useState<number | null>(null);
 
@@ -213,6 +236,38 @@ export default function MemoryMinigame() {
   useEffect(() => { radiationRef.current = radiationSlots; }, [radiationSlots]);
   useEffect(() => { corruptRef.current = corruptSlots; }, [corruptSlots]);
 
+  // While still on the pre-game "ready" screen, keep the board shape live in
+  // sync with the actual viewport (resize, orientation change, or devtools
+  // device-toolbar toggling) — nothing is placed yet, so this is always
+  // safe. Once "INITIALIZE RECOVERY" locks in a run, this stops: reshaping
+  // mid-game would invalidate already-placed blocks' slot indices.
+  useEffect(() => {
+    if (gameState !== 'ready') return;
+    function syncDims() {
+      const next = resolveGridDims();
+      setDims((prev) => (prev.cols === next.cols && prev.rows === next.rows ? prev : next));
+    }
+    syncDims();
+    // matchMedia's `change` event is what DevTools' device-toolbar toggle
+    // actually fires reliably (it's the standard responsive-testing API);
+    // plain `resize`/`orientationchange` are kept too for real window drags.
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    mql.addEventListener('change', syncDims);
+    window.addEventListener('resize', syncDims);
+    window.addEventListener('orientationchange', syncDims);
+    return () => {
+      mql.removeEventListener('change', syncDims);
+      window.removeEventListener('resize', syncDims);
+      window.removeEventListener('orientationchange', syncDims);
+    };
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState !== 'ready') return;
+    setCorruptSlots(generateCorruptSlots(dims.cols, dims.rows));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dims, gameState]);
+
   const placedCount = useMemo(() => blocks.filter((b) => b.slot !== null).length, [blocks]);
   const allDone = placedCount === blocks.length;
   const lockedSlots = useMemo(() => new Set([...corruptSlots, ...radiationSlots]), [corruptSlots, radiationSlots]);
@@ -221,11 +276,11 @@ export default function MemoryMinigame() {
     const map = new Map<number, Block>();
     blocks.forEach((b) => {
       if (b.slot === null) return;
-      const cells = shapeCells(b.shape, b.slot) ?? [];
+      const cells = shapeCells(b.shape, b.slot, dims.cols, dims.rows) ?? [];
       cells.forEach((c) => map.set(c, b));
     });
     return map;
-  }, [blocks]);
+  }, [blocks, dims]);
 
   const tray = useMemo(() => blocks.filter((b) => b.revealed && b.slot === null), [blocks]);
   const nextUp = useMemo(() => blocks.filter((b) => !b.revealed).slice(0, HAND_SIZE), [blocks]);
@@ -264,7 +319,7 @@ export default function MemoryMinigame() {
     if (gameState !== 'playing' || tray.length === 0) return;
     const free = new Set<number>();
     for (let i = 0; i < SLOTS; i++) if (!lockedSlots.has(i) && !occupiedMap.has(i)) free.add(i);
-    if (!canPlaceAllShapes(tray.map((b) => b.shape), free)) {
+    if (!canPlaceAllShapes(tray.map((b) => b.shape), free, dims.cols, dims.rows)) {
       setGameState('fail');
       setLogMessage('CRITICAL FAILURE: NO FREE SECTOR FITS THE REMAINING BLOCKS. PRESS RESET.');
     }
@@ -302,7 +357,7 @@ export default function MemoryMinigame() {
     const occ = new Map<number, Block>();
     currentBlocks.forEach((b) => {
       if (b.slot === null) return;
-      (shapeCells(b.shape, b.slot) ?? []).forEach((c) => occ.set(c, b));
+      (shapeCells(b.shape, b.slot, dims.cols, dims.rows) ?? []).forEach((c) => occ.set(c, b));
     });
 
     const candidates: number[] = [];
@@ -321,14 +376,18 @@ export default function MemoryMinigame() {
 
       // Occupants are no longer targeted by radiation, so we skip ejection.
 
-      const handShapes = currentBlocks.filter((b) => b.revealed && b.slot === null).map((b) => b.shape);
+      // Checked against every still-unplaced block (not just the visible
+      // hand) so a strike can never strand a shape dealt in a later batch —
+      // see generateCorruptSlots' doc comment for why this guarantees the
+      // game is only ever lost through the player's own placement choices.
+      const remainingShapes = currentBlocks.filter((b) => b.slot === null).map((b) => b.shape);
       const free = new Set<number>();
       for (let i = 0; i < SLOTS; i++) {
         if (locked.has(i) || i === slot || occ.has(i)) continue;
         free.add(i);
       }
 
-      if (handShapes.length === 0 || canPlaceAllShapes(handShapes, free)) {
+      if (remainingShapes.length === 0 || canPlaceAllShapes(remainingShapes, free, dims.cols, dims.rows)) {
         fireWarning(slot, () => {
           setRadiationSlots((prev) => [...prev, slot]);
           setLogMessage(`WARNING: Cosmic radiation sealed sector ${toHex(slot)}`);
@@ -342,7 +401,7 @@ export default function MemoryMinigame() {
     const block = blocks.find((b) => b.id === blockId);
     if (!block) return { valid: false, cells: null };
 
-    const cells = shapeCells(block.shape, anchorSlot);
+    const cells = shapeCells(block.shape, anchorSlot, dims.cols, dims.rows);
     if (!cells) return { valid: false, cells: null, reason: 'Package extends outside the memory bank.' };
 
     for (const c of cells) {
@@ -371,6 +430,14 @@ export default function MemoryMinigame() {
   function startDrag(e: React.PointerEvent, block: Block) {
     if (gameState !== 'playing') return;
     e.preventDefault();
+    // Capture the pointer so pointermove/up keep firing even when the finger
+    // slides off the little piece onto the grid — otherwise a touch drag can
+    // silently drop on some mobile browsers.
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      /* not all pointer types support capture */
+    }
     setDrag({ id: block.id, shape: block.shape, label: block.label, color: block.color, x: e.clientX, y: e.clientY });
   }
 
@@ -394,7 +461,7 @@ export default function MemoryMinigame() {
       const slot = slotUnderPoint(e.clientX, e.clientY - DRAG_LIFT_Y);
       setDrag((current) => {
         if (current && slot !== null) {
-          const anchor = anchorFromTargetSlot(current.shape, slot);
+          const anchor = anchorFromTargetSlot(current.shape, slot, dims.cols);
           if (anchor !== null) {
             commitDrop(current.id, anchor);
           } else {
@@ -440,8 +507,10 @@ export default function MemoryMinigame() {
     warningTimeoutRef.current = null;
     transmitTimeoutRef.current = null;
 
+    const newDims = resolveGridDims();
+    setDims(newDims);
     setBlocks(makeInitialBlocks());
-    setCorruptSlots(generateCorruptSlots());
+    setCorruptSlots(generateCorruptSlots(newDims.cols, newDims.rows));
     setRadiationSlots([]);
     setWarningSlot(null);
     setDrag(null);
@@ -455,15 +524,15 @@ export default function MemoryMinigame() {
 
   const previewCells = useMemo(() => {
     if (!drag || hoverSlot === null) return null;
-    const anchor = anchorFromTargetSlot(drag.shape, hoverSlot);
+    const anchor = anchorFromTargetSlot(drag.shape, hoverSlot, dims.cols);
     if (anchor === null) return null;
     const { valid, cells } = checkPlacement(drag.id, anchor);
     return cells ? { cells, valid } : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drag, hoverSlot, blocks, lockedSlots]);
+  }, [drag, hoverSlot, blocks, lockedSlots, dims]);
 
   return (
-    <section id="finale" className="scroll-mt-16 px-7 pt-16 pb-20 text-center">
+    <section id="finale" className="scroll-mt-16 px-[clamp(10px,4vw,28px)] pt-16 pb-20 text-center">
       <style>{`
         @keyframes crtShake {
           0%, 100% { transform: translate(0, 0); }
@@ -526,20 +595,28 @@ export default function MemoryMinigame() {
         @keyframes dragHintCursorY {
           0%   { transform: translate(-50%, -50%); opacity: 0; }
           10%  { opacity: 1; }
-          55%  { transform: translate(-50%, calc(-50% + 160px)); opacity: 1; }
-          65%  { transform: translate(-50%, calc(-50% + 160px)) scale(0.85); opacity: 1; }
+          55%  { transform: translate(-50%, calc(-50% - 160px)); opacity: 1; }
+          65%  { transform: translate(-50%, calc(-50% - 160px)) scale(0.85); opacity: 1; }
           78%  { opacity: 0; }
           100% { opacity: 0; transform: translate(-50%, -50%); }
         }
         @keyframes dragHintGhostY {
           0%, 48%  { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-          58%      { opacity: .9; transform: translate(-50%, calc(-50% + 160px)) scale(1); }
-          76%      { opacity: 0; transform: translate(-50%, calc(-50% + 160px)) scale(1.15); }
+          58%      { opacity: .9; transform: translate(-50%, calc(-50% - 160px)) scale(1); }
+          76%      { opacity: 0; transform: translate(-50%, calc(-50% - 160px)) scale(1.15); }
           100%     { opacity: 0; }
         }
         @keyframes dragHintPulse {
           0%, 100% { opacity: .5; }
           50% { opacity: 1; }
+        }
+
+        /* Board layout: on phones the destination grid leads, then the
+           corrupted-blocks tray, then "next up" last at the very bottom.
+           On desktop the tray sits as a left column spanning both rows. */
+        .mmg-board { grid-template-areas: "grid" "tray" "next"; }
+        @media (min-width: 768px) {
+          .mmg-board { grid-template-areas: "tray grid" "tray next"; }
         }
       `}</style>
 
@@ -550,15 +627,15 @@ export default function MemoryMinigame() {
         />
 
         <div
-          className="relative rounded-[26px] px-[28px] pt-[28px] pb-[16px] transition-transform sm:px-[34px] sm:pt-[34px]"
+          className="relative rounded-[26px] px-[clamp(10px,4vw,28px)] pt-[clamp(12px,4vw,28px)] pb-[16px] transition-transform sm:px-[34px] sm:pt-[34px]"
           style={{
             background: 'linear-gradient(180deg,#e8e3d4,#cfc8b6)',
             boxShadow: 'inset 0 2px 6px rgba(255,255,255,.6),0 30px 80px rgba(0,0,0,.6)',
             animation: isDistressed ? 'crtShake 0.28s infinite' : undefined,
           }}
         >
-          <div className="relative overflow-hidden rounded-[14px] bg-[#0a0f0a] p-3 sm:p-4" style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,.9),inset 0 0 0 3px #1a1a14' }}>
-            <div className="relative animate-flicker overflow-hidden rounded-lg px-[14px] pt-[20px] pb-[16px] sm:px-[20px]" style={{ background: 'radial-gradient(120% 120% at 50% 40%,#04140a,#020802)' }}>
+          <div className="relative overflow-hidden rounded-[14px] bg-[#0a0f0a] p-[clamp(6px,2vw,12px)] sm:p-4" style={{ boxShadow: 'inset 0 0 50px rgba(0,0,0,.9),inset 0 0 0 3px #1a1a14' }}>
+            <div className="relative animate-flicker overflow-hidden rounded-lg px-[clamp(6px,3vw,14px)] pt-[20px] pb-[16px] sm:px-[20px]" style={{ background: 'radial-gradient(120% 120% at 50% 40%,#04140a,#020802)' }}>
               <div className="pointer-events-none absolute inset-0 z-20" style={{ backgroundImage: 'repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 4px)' }} />
               <div className="pointer-events-none absolute inset-x-0 z-20 h-[60px] animate-scanline" style={{ background: isDistressed ? 'linear-gradient(180deg,transparent,rgba(230,57,70,.1),transparent)' : 'linear-gradient(180deg,transparent,rgba(51,255,102,.06),transparent)' }} />
               {isDistressed && (
@@ -598,6 +675,11 @@ export default function MemoryMinigame() {
                   </div>
                   <button
                     onClick={() => {
+                      // Final re-check as the run actually locks in, on top
+                      // of the live sync below — belt and suspenders.
+                      const startDims = resolveGridDims();
+                      setDims(startDims);
+                      setCorruptSlots(generateCorruptSlots(startDims.cols, startDims.rows));
                       setGameState('playing');
                       setLogMessage('SYSTEM ONLINE. DRAG A BLOCK TO A FREE ADDRESS TO BEGIN.');
                     }}
@@ -647,8 +729,8 @@ export default function MemoryMinigame() {
                 />
               </div>
 
-              <div className="mx-auto flex min-w-0 w-full max-w-[920px] flex-col md:flex-row items-stretch justify-center gap-4">
-                <div className="relative flex w-full md:w-[150px] shrink-0 flex-col gap-2 overflow-visible rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-3">
+              <div className="mmg-board mx-auto grid w-full max-w-[920px] grid-cols-1 gap-3 md:grid-cols-[150px_1fr] md:gap-4">
+                <div style={{ gridArea: 'tray' }} className="relative flex w-full flex-col gap-1 overflow-visible rounded-lg border border-alert/40 bg-[linear-gradient(160deg,rgba(230,57,70,.08),rgba(0,0,0,.3))] p-1.5 md:gap-2 md:p-3">
                   <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
                     <svg className="absolute left-0 top-0 h-[8px] w-full" viewBox="0 0 300 8" preserveAspectRatio="none">
                       <polyline
@@ -670,21 +752,24 @@ export default function MemoryMinigame() {
                       of the block being demonstrated instead of floating
                       near the panel edge. */}
 
-                  <div className="relative flex flex-col items-center justify-between gap-1.5 text-center">
-                    <p className="mb-0 pt-0 glitch-label font-mono text-[15px] font-bold text-alert">
+                  <div className="relative flex flex-col items-center justify-between gap-1 text-center">
+                    <p className="glitch-label m-0 font-mono text-[10px] font-bold tracking-[.06em] text-alert md:hidden">
+                      CORRUPTED BLOCKS
+                    </p>
+                    <p className="mb-0 pt-0 glitch-label hidden font-mono text-[15px] font-bold text-alert md:block">
                       CORRUPTED MEMORY
                     </p>
-                    <p className="mt-0 pt-0 glitch-label font-mono text-[25px] -mt-4 font-bold text-alert">
+                    <p className="mt-0 pt-0 glitch-label hidden -mt-4 font-mono text-[25px] font-bold text-alert md:block">
                       BLOCKS
                     </p>
                   </div>
-                  <div className={`relative flex flex-1 flex-row md:flex-col items-center gap-5 ${tray.length > 0 ? 'justify-start' : 'justify-center'}`}>
+                  <div className={`relative flex flex-1 flex-row flex-wrap md:flex-nowrap md:flex-col items-center gap-1.5 sm:gap-5 ${tray.length > 0 ? 'justify-center md:justify-start' : 'justify-center'}`}>
                     {gameState === 'playing' && tray.length > 0 ? (
                       tray.map((b, i) => (
                         <div
                           key={b.id}
                           onPointerDown={(e) => startDrag(e, b)}
-                          className={`mem-chip relative flex touch-none select-none flex-col items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-3 pt-3.5 pb-2.5 active:cursor-grabbing ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
+                          className={`mem-chip relative flex touch-none select-none flex-col items-center gap-0.5 rounded-md border border-white/15 bg-white/[0.03] px-1.5 pt-1.5 pb-1 active:cursor-grabbing md:gap-1.5 md:px-3 md:pt-3.5 md:pb-2.5 ${drag?.id === b.id ? 'opacity-25' : 'cursor-grab'}`}
                           style={{ boxShadow: `inset 0 1px 0 rgba(255,255,255,.05), 0 0 10px ${b.color}22` }}
                         >
                           {showDragHint && i === 0 && (
@@ -695,7 +780,7 @@ export default function MemoryMinigame() {
                               />
                               {/* Cursor + ghost tile start directly on top of this block and
                                   drift toward the grid — right on desktop (tray is left of the
-                                  grid), down on mobile (tray sits above the grid when stacked). */}
+                                  grid), up on mobile (grid sits above the tray when stacked). */}
                               <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 hidden md:block">
                                 <div
                                   className="absolute h-7 w-7 rounded-md border-2 border-dashed"
@@ -722,15 +807,15 @@ export default function MemoryMinigame() {
                               </div>
                             </>
                           )}
-                          <PieceIcon shape={b.shape} color={b.color} cellSize={35} />
-                          <span className="font-mono text-[15px] font-bold tracking-wide" style={{ color: b.color }}>{b.label}</span>
-                          <span className="font-mono text-[10px] tracking-[.08em] text-white/500">{b.shape.length} CELL{b.shape.length !== 1 ? 'S' : ''}</span>
+                          <PieceIcon shape={b.shape} color={b.color} cellSize="clamp(14px, 5vw, 30px)" />
+                          <span className="font-mono text-[11px] font-bold tracking-wide md:text-[15px]" style={{ color: b.color }}>{b.label}</span>
+                          <span className="hidden font-mono text-[10px] tracking-[.08em] text-white/500 md:block">{b.shape.length} CELL{b.shape.length !== 1 ? 'S' : ''}</span>
                         </div>
                       ))
                     ) : gameState === 'playing' && allDone ? (
                       <button
                         onClick={handleTransmit}
-                        className="animate-pulse rounded border-2 border-crt bg-crt px-5 py-2 font-display text-[12px] font-bold text-[#0a0f0a] hover:bg-[#aaffaa]"
+                        className="flex min-h-[40px] animate-pulse items-center justify-center rounded border-2 border-crt bg-crt px-5 font-display text-[12px] font-bold text-[#0a0f0a] hover:bg-[#aaffaa]"
                       >
                         TRANSMIT PATCH
                       </button>
@@ -742,10 +827,9 @@ export default function MemoryMinigame() {
                   </div>
                 </div>
 
-                <div className="flex min-w-0 w-full max-w-[684px] flex-1 flex-col items-center gap-2.5">
-                  <div className="w-full min-w-0 overflow-hidden rounded-lg border border-crt/25 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
-                <p className="mb-2 mt-0 text-left font-mono text-[12px] tracking-[.14em] text-crt/60">DESTINATION: HEALTHY MEMORY BANK — {GRID_COLUMNS}×{GRID_ROWS}</p>
-                <div className="grid gap-[5px]" style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0,1fr))` }}>
+                <div style={{ gridArea: 'grid' }} className="w-full min-w-0 overflow-hidden rounded-lg border border-crt/25 bg-black/40 p-3 shadow-2xl backdrop-blur-md">
+                <p className="mb-2 mt-0 text-left font-mono text-[12px] tracking-[.14em] text-crt/60">DESTINATION: HEALTHY MEMORY BANK — {dims.cols}×{dims.rows}</p>
+                <div className="grid gap-[3px] sm:gap-[5px]" style={{ gridTemplateColumns: `repeat(${dims.cols}, minmax(0,1fr))` }}>
                   {Array.from({ length: SLOTS }).map((_, slot) => {
                     const isCorrupt = corruptSlots.includes(slot);
                     const isRadiation = radiationSlots.includes(slot);
@@ -788,26 +872,26 @@ export default function MemoryMinigame() {
                         {showAddress && (
                           <span
                             className="pointer-events-none absolute left-[3px] top-[2px] font-mono font-bold leading-none"
-                            style={{ fontSize: 10, color: addressColor, textShadow: occupant ? '0 1px 2px rgba(0,0,0,.6)' : 'none' }}
+                            style={{ fontSize: 'clamp(6px, 2.2vw, 10px)', color: addressColor, textShadow: occupant ? '0 1px 2px rgba(0,0,0,.6)' : 'none' }}
                           >
                             {toHex(slot)}
                           </span>
                         )}
-                        <span className="font-mono text-[40px] text-alert">{content}</span>
+                        <span className="font-mono text-[clamp(16px,5vw,40px)] text-alert">{content}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-                  <div className="relative w-full flex flex-wrap items-center justify-between gap-2 rounded-md border border-crt/20 bg-black/30 px-3 py-2 shadow-xl backdrop-blur-md">
+                  <div style={{ gridArea: 'next' }} className="relative w-full flex flex-wrap items-center justify-between gap-2 rounded-md border border-crt/20 bg-black/30 px-3 py-2 shadow-xl backdrop-blur-md">
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[14px] font-bold tracking-[.1em] text-crt/70">NEXT UP: </span>
                       {nextUp.length > 0 ? (
                         <div className="flex items-center gap-2">
                           {nextUp.map((b) => (
                             <div key={b.id} className="rounded border border-white/15 bg-black/40 p-1 opacity-80 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]" title={b.label}>
-                              <PieceIcon shape={b.shape} color={b.color} cellSize={14} />
+                              <PieceIcon shape={b.shape} color={b.color} cellSize="clamp(11px, 3vw, 14px)" />
                             </div>
                           ))}
                         </div>
@@ -819,7 +903,6 @@ export default function MemoryMinigame() {
                       {remainingToPlace} BLOCK{remainingToPlace !== 1 ? 'S' : ''} LEFT
                     </span>
                   </div>
-                </div>
               </div>
 
               <div className="mx-auto mt-2.5 flex w-full max-w-[920px] items-center gap-2 rounded-full border border-crt/25 bg-black/40 px-3 py-2">
@@ -829,7 +912,7 @@ export default function MemoryMinigame() {
                 {gameState !== 'ready' && (placedCount > 0 || gameState !== 'playing') ? (
                   <button
                     onClick={reset}
-                    className="shrink-0 rounded-full border border-alert/60 bg-alert/15 px-3.5 py-1.5 font-mono text-[10px] font-bold tracking-[.05em] text-alert hover:bg-alert/25"
+                    className="flex min-h-[40px] shrink-0 items-center justify-center rounded-full border border-alert/60 bg-alert/15 px-4 font-mono text-[10px] font-bold tracking-[.05em] text-alert hover:bg-alert/25"
                   >
                     ⟲ RESET
                   </button>
@@ -857,7 +940,7 @@ export default function MemoryMinigame() {
           className="pointer-events-none fixed z-50 flex flex-col items-center gap-1 rounded-lg border border-white/15 bg-[#04140a]/90 px-2.5 py-2 shadow-2xl"
           style={{ left: drag.x, top: drag.y - DRAG_LIFT_Y, transform: 'translate(-50%, -50%)', boxShadow: `0 0 16px ${drag.color}55, 0 10px 24px rgba(0,0,0,.6)` }}
         >
-          <PieceIcon shape={drag.shape} color={drag.color} cellSize={24} />
+          <PieceIcon shape={drag.shape} color={drag.color} cellSize="clamp(18px, 5vw, 24px)" />
           <span className="font-mono text-[8px] font-bold tracking-wide" style={{ color: drag.color }}>{drag.label}</span>
         </div>
       )}
