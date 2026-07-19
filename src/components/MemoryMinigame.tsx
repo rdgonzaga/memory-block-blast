@@ -38,6 +38,7 @@ const GRID_ROWS_MOBILE = 9;
 const MOBILE_BREAKPOINT = 768; // matches this file's/the exhibit's existing `md:` cutoff
 const SLOTS = GRID_COLUMNS * GRID_ROWS; // 54 (6*9 === 9*6)
 const HAND_SIZE = 3;
+const PREVIEW_SIZE = 5;
 const INITIAL_TIME = 100;
 const DECAY_TICK_MS = 1100;
 const RADIATION_INTERVAL_MS = 5200;
@@ -283,7 +284,7 @@ export default function MemoryMinigame() {
   }, [blocks, dims]);
 
   const tray = useMemo(() => blocks.filter((b) => b.revealed && b.slot === null), [blocks]);
-  const nextUp = useMemo(() => blocks.filter((b) => !b.revealed).slice(0, HAND_SIZE), [blocks]);
+  const nextUp = useMemo(() => blocks.filter((b) => !b.revealed).slice(0, PREVIEW_SIZE), [blocks]);
   const remainingToPlace = useMemo(() => blocks.filter((b) => b.slot === null).length, [blocks]);
 
   // Onboarding hint: point the player from the tray to the grid until they
