@@ -15,6 +15,14 @@ import '@fontsource/share-tech-mono';
 
 <style>
 {`
+  /* This template ships Tailwind with preflight disabled, so nothing sets
+     box-sizing and every element defaults to content-box — which makes any
+     w-full element with padding overflow its parent (boxes ran off the screen
+     edge on mobile). Restore the border-box everyone expects, scoped to this
+     page. */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
   html {
     background: #050505 !important;
   }

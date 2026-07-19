@@ -52,7 +52,7 @@ const CELL_CLASS: Record<CellState, string> = {
 
 function MemoryGrid({ states }: { states: CellState[] }) {
   return (
-    <div className="grid grid-cols-8 gap-1.5 rounded-xl border border-white/10 bg-black/40 p-5 font-mono shadow-2xl backdrop-blur-md">
+    <div className="grid grid-cols-8 gap-1 sm:gap-1.5 rounded-xl border border-white/10 bg-black/40 p-2.5 sm:p-5 font-mono shadow-2xl backdrop-blur-md">
       {Array.from({ length: GRID }).map((_, i) => (
         <div
           key={i}
@@ -145,31 +145,49 @@ function MissionHud() {
 
   const owHours = (lightSecondsOneWay / 3600).toFixed(1);
 
-  const cell = 'bg-black/85 px-3.5 py-2.5';
-  const label = 'm-0 text-[13px] uppercase tracking-[.16em] text-orange';
-  const big = 'm-0 mt-0 text-[16px] font-bold text-ghost';
-  
+  // On phones the HUD collapses to a single slim navbar row: one value per
+  // cell, abbreviated, with the secondary lines hidden. The full 4-up readout
+  // returns at md+.
+  const cell = 'min-w-0 bg-black/85 px-1.5 py-1 sm:px-3.5 sm:py-2.5';
+  const label = 'm-0 text-[clamp(8px,2.3vw,13px)] uppercase tracking-[.1em] sm:tracking-[.16em] text-orange truncate';
+  const big = 'm-0 mt-0 leading-tight text-[clamp(11px,3.3vw,16px)] font-bold text-ghost truncate';
+  const sub = 'm-0 text-[12px] text-ash/40 hidden md:block';
+
   return (
-    <header className="sticky top-0 z-40 grid grid-cols-2 gap-px border-b border-orange/35 bg-orange/20 backdrop-blur-md md:grid-cols-4">
+    <header className="sticky top-0 z-40 border-b border-orange/35 bg-orange/20 backdrop-blur-md">
+      <p className="m-0 truncate border-b border-orange/20 bg-black/40 px-2 py-1 text-center font-mono text-[9px] uppercase tracking-[.18em] text-orange/80 sm:px-3.5 sm:text-[11px] sm:tracking-[.28em]">
+        Voyager 1 — Live Mission Telemetry
+      </p>
+      <div className="grid grid-cols-4 gap-px">
       <div className={cell}>
-        <p className={label}>▸ Current Distance</p>
-        <p className={big}>{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></p>
-        <p className="m-0 text-[12px] text-ash/40">{Math.floor(km).toLocaleString('en-US')} km</p>
+        <p className={label}><span className="md:hidden">▸ Dist</span><span className="hidden md:inline">▸ Current Distance</span></p>
+        <p className={big}>
+          <span className="md:hidden">{(mi / 1e9).toFixed(2)}B <span className="text-[8px] text-ash">mi</span></span>
+          <span className="hidden md:inline">{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></span>
+        </p>
+        <p className={sub}>{Math.floor(km).toLocaleString('en-US')} km</p>
       </div>
       <div className={cell}>
-        <p className={label}>⇄ Comm Round-Trip</p>
-        <p className={big}>{rtHours} hr {rtMinutes} min {rtSeconds} sec</p>
-        <p className="m-0 text-[12px] text-ash/40">One-way ~{owHours} hours</p>
+        <p className={label}><span className="md:hidden">⇄ Comm</span><span className="hidden md:inline">⇄ Comm Round-Trip</span></p>
+        <p className={big}>
+          <span className="md:hidden">{parseInt(rtHours, 10)}h {parseInt(rtMinutes, 10)}m</span>
+          <span className="hidden md:inline">{rtHours} hr {rtMinutes} min {rtSeconds} sec</span>
+        </p>
+        <p className={sub}>One-way ~{owHours} hours</p>
       </div>
       <div className={cell}>
-        <p className={label}>⌁ Signal Strength</p>
-        <p className={big}>-161.4 <span className="text-[9px] text-ash">dBm</span></p>
-        <p className="m-0 text-[12px] text-ash/40">DSN Canberra connected</p>
+        <p className={label}><span className="md:hidden">⌁ Signal</span><span className="hidden md:inline">⌁ Signal Strength</span></p>
+        <p className={big}>-161.4 <span className="text-[8px] sm:text-[9px] text-ash">dBm</span></p>
+        <p className={sub}>DSN Canberra connected</p>
       </div>
       <div className={cell}>
-        <p className={label}>◷ Mission Control Time</p>
-        <p className={big}>{utcTime}</p>
-        <p className="m-0 text-[12px] text-ash/40">JPL DSN {year} UTC</p>
+        <p className={label}><span className="md:hidden">◷ Time</span><span className="hidden md:inline">◷ Mission Control Time</span></p>
+        <p className={big}>
+          <span className="md:hidden">{utcTime.slice(0, 5)}</span>
+          <span className="hidden md:inline">{utcTime}</span>
+        </p>
+        <p className={sub}>JPL DSN {year} UTC</p>
+      </div>
       </div>
     </header>
   );
@@ -200,18 +218,33 @@ export default function VoyagerScrollyTelling() {
   }, []);
 
   useLayoutEffect(() => {
+    // Don't let a mobile browser's URL-bar show/hide fire a ScrollTrigger
+    // refresh mid-scroll — that's the main source of pin jumpiness on phones.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    // Mobile stages are shorter (see the `pin` helper below), so they need a
+    // shorter scrub duration too or the freeze outlasts the content.
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
       const pin = (sel: string, set: (p: number) => void) => {
         const section = q<HTMLElement>(sel)[0];
         if (!section) return;
+        const stage = section.querySelector('[data-stage]') as HTMLElement;
+
+        // Pin the stage and scrub the grid on both desktop and mobile so the
+        // screen freezes while the memory grid animates. On mobile the stage
+        // is laid out so the grid sits at the top (visible during the freeze);
+        // ignoreMobileResize (set above) + anticipatePin keep it from jumping.
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
-          end: '+=170%',
-          pin: section.querySelector('[data-stage]') as HTMLElement,
+          end: isDesktop ? '+=170%' : '+=110%',
+          pin: stage,
           pinSpacing: true,
+          anticipatePin: 1,
           scrub: true,
           onUpdate: (st) => set(+st.progress.toFixed(3)),
         });
@@ -282,9 +315,9 @@ export default function VoyagerScrollyTelling() {
 
       <section className="relative mx-auto max-w-[1800px] px-2 pt-20 pb-52">
         <div 
-        data-parallax 
-        data-speed="-8" 
-        className="absolute right-0 top-1/2 -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
+        data-parallax
+        data-speed="-8"
+        className="absolute right-0 top-[66%] -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
         >
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
@@ -321,15 +354,15 @@ export default function VoyagerScrollyTelling() {
           </p>
         </div>
 
-        <div className="mx-auto mt-28 flex max-w-[800px] flex-col gap-4">
-          <a href="#finale" 
+        <div className="mx-auto mt-28 flex max-w-[560px] flex-col gap-3">
+          <a href="#finale"
           className="
-          no-underline rounded-[10px] 
-          border border-white/20 bg-black/60 px-5 py-[18px] 
-          text-center font-term text-lg md:text-[28px] tracking-wide text-ghost transition-colors 
+          no-underline rounded-[10px]
+          border border-white/20 bg-black/60 px-5 py-3
+          text-center font-term text-sm md:text-lg tracking-wide text-ghost transition-colors
           hover:border-orange hover:bg-orange/10 hover:text-orange">Launch Operations Mini-Game</a>
-          <a href="#what-is" 
-          className="no-underline flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-[18px] font-term text-lg md:text-[28px] tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline </a>
+          <a href="#what-is"
+          className="no-underline flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-3 font-term text-sm md:text-lg tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline </a>
         </div>
       </section>
 
@@ -359,7 +392,7 @@ export default function VoyagerScrollyTelling() {
                     alt="Voyager 1 Probe"
                     width={voyager1Img.width}
                     height={voyager1Img.height}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
                     />
@@ -384,9 +417,9 @@ export default function VoyagerScrollyTelling() {
         <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
         
         <div 
-            data-parallax 
-            data-speed="-6" 
-            className="absolute left-[-120px] top-1/2 -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
+            data-parallax
+            data-speed="-6"
+            className="absolute left-[-120px] top-[82%] -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
         >
             <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
             
@@ -395,7 +428,7 @@ export default function VoyagerScrollyTelling() {
             alt="Saturn"
             width={saturnImg.width}
             height={saturnImg.height}
-            loading="lazy"
+            loading="eager"
             decoding="async"
             className="w-full h-auto object-contain scale-95 translate-x-24"
             style={{
@@ -448,23 +481,23 @@ export default function VoyagerScrollyTelling() {
       </section>
 
         <section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
-            <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
+            <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
                 
-                <div className="mb-10 max-w-[750px] text-left">
-                    <p className="m-0 mb-2 text-base md:text-[24px] text-ash/60"> 
+                <div className="mb-6 md:mb-10 max-w-[750px] text-left">
+                    <p className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
                         If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?
                     </p>
                     <h2 className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
                         Memory Addressing
                     </h2>
                 </div>
-                
-                <div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-12 items-start">
-                    
-                    <div className="grid grid-cols-[1fr_auto] items-center gap-9 bg-white/[0.02] border border-white/[0.05] p-6 rounded-[20px] w-full max-w-[900px]">
+
+                <div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-12 items-start">
+
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full max-w-[900px]">
                         <MemoryGrid states={addressingStates(addrP)} />
-                        
-                        <div className="min-w-[190px] font-mono">
+
+                        <div className="w-full md:min-w-[190px] font-mono">
                             <p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
                             <p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
                             <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
@@ -475,7 +508,7 @@ export default function VoyagerScrollyTelling() {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
                         <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-right" >
@@ -488,8 +521,8 @@ export default function VoyagerScrollyTelling() {
 
                 </div>
 
-                
-                <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-12 leading-relaxed text-ash/60">
+
+                <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-6 md:mt-12 leading-relaxed text-ash/60">
                     This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
                 </p>
 
@@ -497,16 +530,16 @@ export default function VoyagerScrollyTelling() {
         </section>
 
       <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex py-32 flex-col items-start overflow-hidden">
+        <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
 
             <div className="mb-4 ml-auto max-w-[560px] text-right">
               <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
               <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
             </div>
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-12 items-start">
+            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6 md:gap-12 items-start">
 
-                <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
+                <div className="order-2 md:order-1 flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
                     <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-left" >
                         Think of a computer's memory like an empty plot of land. Memory mapping divides the land into permanent zones for specific jobs, like one zone for temporary data and another for software instructions.
@@ -516,9 +549,9 @@ export default function VoyagerScrollyTelling() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-[auto_1fr] items-center gap-9 bg-white/[0.02] border border-white/[0.05] p-6 rounded-[20px] w-full">
+                <div className="order-1 md:order-2 grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full">
 
-                    <div className="min-w-[190px] text-left font-mono">
+                    <div className="w-full md:min-w-[190px] text-left font-mono">
                         <p className="m-0 text-sm md:text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
                         <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
                         <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
@@ -669,7 +702,7 @@ export default function VoyagerScrollyTelling() {
                     alt="Earth"
                     width={earthImg.width}
                     height={earthImg.height}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     className="w-full h-auto object-contain"
                     style={{
