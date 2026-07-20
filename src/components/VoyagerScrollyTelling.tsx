@@ -260,7 +260,7 @@ export default function VoyagerScrollyTelling() {
 							hover:border-white/40 hover:bg-white/10 hover:shadow-[0_4px_25px_rgba(255,255,255,0.1)]
 						"
 					>
-						Launch Operations Mini-Game
+						Launch Simulation
 					</a>
 
 					<a 
@@ -306,7 +306,7 @@ export default function VoyagerScrollyTelling() {
           </div>
 
 					{/* IMAGE FLEX BOX */}
-					<div className="relative flex justify-center md:justify-end items-start w-full -mt-10 md:-mt-28 md:w-[40%]">
+					<div className="relative flex justify-center md:justify-end items-start w-full -mt-10 md:-mt-28 md:w-[40%] ">
 							<div
 									data-reveal="right"
 									className="w-[80%] max-w-[550px] aspect-square animate-slow-rotate">
@@ -328,9 +328,18 @@ export default function VoyagerScrollyTelling() {
 			</div>
       </section>
 
-      <section className="flex min-h-[70vh] items-center justify-center px-7 py-16 text-center">
-        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert">In 2023,<br />Something Went Wrong...</h2>
-      </section>
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+				<h2 
+					data-reveal="scale" 
+					className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert"
+				>
+					In 2023,<br />Something Went Wrong...
+				</h2>
+
+				<p className="m-0 text-base md:text-xl text-ash/80">
+					The Voyager was sending gibberish data from outerspace!
+				</p>
+			</section>
 
       <div className="mx-auto max-w-[1700px] px-7">        
       </div>
@@ -338,12 +347,12 @@ export default function VoyagerScrollyTelling() {
 			{/* WHAT GOES ON SECTION */}
 			<section className="relative mx-auto max-w-[1700px] scroll-mt-20 px-2 pt-10 pb-[90px] font-term">
 				
-				<div className="max-w-[1600px] mx-auto relative rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16">
+				<div className="max-w-[1600px] mx-auto relative rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16 ">
 
 					{/* Saturn Image*/}
 					<div 
 						data-reveal="left"
-						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-7%]"
+						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-7%] hidden md:block"
 						style={{
 							WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%)",
 							maskImage: "linear-gradient(to right, transparent 0%, black 35%)",
@@ -364,7 +373,7 @@ export default function VoyagerScrollyTelling() {
 					</div>
 
 					{/* Right Content */}
-					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[60%] lg:w-[55%]">
+					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[60%] lg:w-[55%] px-7 md:px-14">
 						
 						<div 
 							data-reveal="right" 
@@ -397,17 +406,18 @@ export default function VoyagerScrollyTelling() {
 				</div>
 			</section>
 
-      <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-10">
+			{/* WHAT IS COMPUTER MEMORY SECTION */}
+      <section className="relative mt-[112px] mx-auto max-w-[1700px] px-2 pt-20 pb-10">
 
-        <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
+        <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left ">
 
-            <h3 data-reveal="left" className="m-0 mb-5 !font-display text-[clamp(22px,3vw,32px)] font-bold uppercase text-orange">What is Computer Memory?</h3>
+            <h3 data-reveal="left" className="m-0 mb-5 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange px-7 md:px-14">What is Computer Memory?</h3>
 
-            <p data-reveal="left" className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-justify leading-relaxed text-ash/60">
+            <p data-reveal="left" className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
                 Computer memory serves as the system's active workspace, holding the instructions and data required for immediate operation. On Voyager 1's 1970s architecture, this memory is organized into "words"—16-bit units rather than modern bytes—which define every calculation.
             </p>
 
-            <p data-reveal="left" className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-justify leading-relaxed text-ash/60">
+            <p data-reveal="left" className="mt-5 m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
                 Without this functional memory space, the spacecraft loses its operational instructions and data, effectively rendering it lifeless, which is a critical failure that occurred for Voyager 1 in November 2023.
             </p>
 
@@ -415,54 +425,59 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
-        <section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
-            <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
-                
-                <div className="mb-6 md:mb-10 max-w-[750px] text-left font-term">
-                    <p className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
-                        If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?
-                    </p>
-                    <h2 className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
-                        Memory Addressing
-                    </h2>
-                </div>
+			<section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+					<div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden px-7 md:px-14">
+							
+							<div className="mb-6 md:mb-10 max-w-[1200px] text-left font-term">
+									<div 
+										data-reveal="left" 
+										className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+									>
+										<span>If memory stores everything a computer needs, how are instructions found in memory?</span>
+								
+									</div>
 
-                <div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-12 items-start">
+									<h2 className="mt-5 m-0 !font-display text-[clamp(22px,2vw,2vw)]  font-bold uppercase leading-[1.04] text-orange">
+											Memory Addressing
+									</h2>
+							</div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full max-w-[900px]">
-                        <MemoryGrid states={addressingStates(addrP)} />
+							<div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-12 items-start">
 
-                        <div className="w-full md:min-w-[190px] font-mono">
-                            <p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
-                            <p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
-                            <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-                            <p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
-                            <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
-                            <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]">
-                                <div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} />
-                            </div>
-                        </div>
-                    </div>
+									<div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full max-w-[900px]">
+											<MemoryGrid states={addressingStates(addrP)} />
 
-                    <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
+											<div className="w-full md:min-w-[190px] font-mono">
+													<p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
+													<p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
+													<p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
+													<p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
+													<p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
+													<div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]">
+															<div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} />
+													</div>
+											</div>
+									</div>
 
-                        <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-right" >
-                            Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like you would pull a specific folder from a numbered drawer in a filing cabinet.
-                        </p>
-                        <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term text-right">
-                            Voyager 1’s onboard computer is incredibly small by today's standards, with just 8,192 memory slots. When the spacecraft needs to know what to do next, it asks for the instructions stored in one of these specific slots, and the hardware instantly hands them over so the program can continue.
-                        </p>
-                    </div>
+									<div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4 pr-7 md:pr-14">
 
-                </div>
+											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ashfont-term mb-8 text-right" >
+													Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like you would pull a specific folder from a numbered drawer in a filing cabinet.
+											</p>
+											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-right">
+													Voyager 1’s onboard computer is incredibly small by today's standards, with just 8,192 memory slots. When the spacecraft needs to know what to do next, it asks for the instructions stored in one of these specific slots, and the hardware instantly hands them over so the program can continue.
+											</p>
+									</div>
+
+							</div>
 
 
-                <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-6 md:mt-12 leading-relaxed text-ash/60">
-                    This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
-                </p>
+							<p className="mt-5 max-w-[100%] m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-center mt-6 md:mt-12 leading-relaxed pr-7 md:pr-14">
+									This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
+							</p>
 
-            </div>
-        </section>
+					</div>
+			</section>
 
       <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
         <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
