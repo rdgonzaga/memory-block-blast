@@ -234,11 +234,14 @@ export default function VoyagerScrollyTelling() {
         />
       </div>
 
-      <section className="relative mx-auto max-w-[1800px] px-2 pt-20 pb-52">
+
+			{/* INDEX SECTION */}			
+      <section className="relative mx-auto max-w-[1700px] px-2 pt-20 pb-52">
+
         <div 
         data-parallax
         data-speed="-8"
-        className="absolute right-0 top-[66%] -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
+        className="absolute right-0 top-[20%] -z-10 w-[clamp(400px,40vw,650px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
         >
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
@@ -252,7 +255,7 @@ export default function VoyagerScrollyTelling() {
             fetchPriority="high"
             className="w-full h-auto object-contain"
             style={{
-                WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
                 maskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
             }}
         />
@@ -260,34 +263,59 @@ export default function VoyagerScrollyTelling() {
 
         <div 
         data-reveal="up" 
-        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
+        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pb-[70px] flex flex-col items-start text-left">
 
           <div
           role="heading"
           aria-level={1} 
           data-reveal="mask" 
-          className="m-0 !font-display text-[clamp(65px,9vw,9vw)] font-bold uppercase leading-[.86] text-orange">
+          className="m-0 !font-display text-[clamp(65px,6vw,6vw)] font-bold uppercase leading-[.86] text-orange">
             Memory<br />Block<br />Blast
           </div>
-          <p className="mt-6 font-term text-[clamp(20px,3vw,34px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
-          <p className="mt-5 m-0 max-w-[940px] font-term text-lg md:text-[28px] leading-relaxed text-ash/60">
+          <p className="mt-2 font-term text-[clamp(20px,34px,2vw)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
+          <p className="mt-1 m-0 max-w-[940px] font-term text-lg text-[clamp(15px,1vw,24px)] leading-relaxed text-ash/60">
           Discover how NASA engineers leveraged 1970s hardware constraints, analyzed primitive memory maps, and executed a remote software reallocating workaround to rescue humanity's most distant emissary.
           </p>
         </div>
 
-        <div className="mx-auto mt-28 flex max-w-[560px] flex-col gap-3">
-          <a href="#finale"
-          className="
-          no-underline rounded-[10px]
-          border border-white/20 bg-black/60 px-5 py-3
-          text-center font-term text-sm md:text-lg tracking-wide text-ghost transition-colors
-          hover:border-orange hover:bg-orange/10 hover:text-orange">Launch Operations Mini-Game</a>
-          <a href="#what-is"
-          className="no-underline flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-3 font-term text-sm md:text-lg tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline </a>
-        </div>
+				{/* IDX BUTTONS */}			
+        <div className="mx-auto mt-8 flex max-w-[560px] flex-col gap-5">
+					<a 
+						href="#finale"
+						className="
+							no-underline text-center font-term text-sm md:text-lg tracking-wide text-white transition-all
+							
+							/* Glassmorphism */
+							rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]
+							px-6 py-3.5
+							
+							/* Hover */
+							hover:border-white/40 hover:bg-white/10 hover:shadow-[0_4px_25px_rgba(255,255,255,0.1)]
+						"
+					>
+						Launch Operations Mini-Game
+					</a>
+
+					<a 
+						href="#what-is"
+						className="
+							no-underline flex items-center justify-center gap-2.5 font-term text-sm md:text-lg tracking-wide text-white transition-all
+							
+							/* Glassmorphism */
+							rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]
+							px-6 py-3.5
+							
+							/* Hover */
+							hover:border-white/40 hover:bg-white/10 hover:shadow-[0_4px_25px_rgba(255,255,255,0.1)]
+						"
+					>
+						Explore Story Timeline 
+					</a>
+				</div>
+
       </section>
 
-      <section id="what-is" className="mx-auto max-w-[1800px] scroll-mt-20  px-2 pt-10 pb-[90px] font-term">
+      <section id="what-is" className="mx-auto max-w-[1700px] scroll-mt-20  px-2 pt-10 pb-[90px] font-term">
         <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,5vw,80px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
         <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[24px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
 
@@ -330,7 +358,7 @@ export default function VoyagerScrollyTelling() {
         <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert">In 2023,<br />Something Went Wrong...</h2>
       </section>
 
-      <div className="mx-auto max-w-[1080px] px-7">        
+      <div className="mx-auto max-w-[1700px] px-7">        
       </div>
 
         <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
