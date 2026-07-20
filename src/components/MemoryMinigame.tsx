@@ -1,20 +1,7 @@
-/**
- * MemoryMinigame.tsx
- * --------------------------------------------------------------------------
- * The finale: a command-console mini-game — the 2024 Voyager 1 FDS Memory
- * Rescue. Block-Blast-style tetromino pieces, dealt three at a time, get
- * dragged onto a bigger memory grid before radiation seals it off and the
- * clock runs out.
- *
- * All piece art is drawn with CSS gradients/shadows in this file — no image
- * assets are fetched or bundled, so there's nothing to source or license.
- *
- * Drag & drop uses the Pointer Events API (not HTML5 drag/drop) so it works
- * reliably on touch devices and inside sandboxed/iframe previews.
- */
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-type Cell = [number, number]; // [dx, dy] offset from a piece's anchor (top-left)
+type Cell = [number, number]; 
 type Shape = Cell[];
 
 type Block = {
@@ -22,21 +9,18 @@ type Block = {
   label: string;
   shape: Shape;
   color: string;
-  slot: number | null; // anchor slot index once placed, null = not placed
-  revealed: boolean; // whether it's in the visible 3-piece tray yet
+  slot: number | null; 
+  revealed: boolean;
 };
 
 type GameState = 'ready' | 'playing' | 'transmitting' | 'success' | 'fail';
 
 const GRID_COLUMNS = 9;
 const GRID_ROWS = 6;
-// Phones get a narrower, taller board (6x9 instead of 9x6) so each cell is
-// ~50% wider at the same container width — same 54 total slots either way,
-// so difficulty/winnability (see canPlaceAllShapes below) is unaffected.
 const GRID_COLUMNS_MOBILE = 6;
 const GRID_ROWS_MOBILE = 9;
-const MOBILE_BREAKPOINT = 768; // matches this file's/the exhibit's existing `md:` cutoff
-const SLOTS = GRID_COLUMNS * GRID_ROWS; // 54 (6*9 === 9*6)
+const MOBILE_BREAKPOINT = 768;
+const SLOTS = GRID_COLUMNS * GRID_ROWS; 
 const HAND_SIZE = 3;
 const PREVIEW_SIZE = 5;
 const INITIAL_TIME = 100;
@@ -45,7 +29,6 @@ const RADIATION_INTERVAL_MS = 5200;
 const RADIATION_WARNING_MS = 900;
 const TRANSMIT_DELAY_MS = 5000;
 
-// Tetromino-family shapes, offsets relative to (0,0).
 const SHAPES = {
   mono: [[0, 0]] as Shape,
   domino: [[0, 0], [1, 0]] as Shape,
@@ -59,8 +42,6 @@ const SHAPES = {
   lShape: [[0, 0], [0, 1], [0, 2], [1, 2]] as Shape,
 };
 
-// The 10-block pool for a full run, each with a Voyager-flavored label and a
-// distinct accent color (reds are reserved for hazards, so none appear here).
 const BLOCK_TEMPLATE: Array<Pick<Block, 'id' | 'label' | 'shape' | 'color'>> = [
   { id: 'blk-jmp', label: 'JMP_PTR', shape: SHAPES.mono, color: '#33ff99' },
   { id: 'blk-lnk', label: 'LNK_SEG', shape: SHAPES.domino, color: '#5ce1ff' },
@@ -115,13 +96,10 @@ function canPlaceAllShapes(shapes: Shape[], freeSlots: Set<number>, cols: number
   return backtrack(0, freeSlots);
 }
 
-// Retried until the full 10-block deal (not just the opening hand) has a
-// valid combined arrangement, so a loss can only come from the player's own
-// placement choices — any subset of a placeable full set is itself placeable.
 function generateCorruptSlots(cols: number, rows: number): number[] {
   const allShapes = BLOCK_TEMPLATE.map((b) => b.shape);
   for (let attempt = 0; attempt < 500; attempt++) {
-    const count = 6 + Math.floor(Math.random() * 3); // 6-8
+    const count = 6 + Math.floor(Math.random() * 3); 
     const chosen = new Set<number>();
     while (chosen.size < count) chosen.add(Math.floor(Math.random() * SLOTS));
 
@@ -130,9 +108,6 @@ function generateCorruptSlots(cols: number, rows: number): number[] {
 
     if (canPlaceAllShapes(allShapes, free, cols, rows)) return [...chosen];
   }
-  // Orientation-safe fallback: reserving the last few slots in row-major
-  // order always leaves one large contiguous free region at the start of
-  // the grid regardless of cols/rows, which trivially fits every shape.
   return Array.from({ length: 6 }, (_, i) => SLOTS - 1 - i);
 }
 
@@ -146,11 +121,6 @@ function shapeDims(shape: Shape): { width: number; height: number } {
   return { width, height };
 }
 
-// The drag ghost renders the whole shape centered on the pointer (so the
-// player sees exactly what they're holding). To make the drop land where it
-// visually looks like it should, the "target" grid cell under the pointer is
-// treated as the shape's visual center, not its (0,0) anchor — then we solve
-// backwards for the actual top-left anchor slot.
 function anchorFromTargetSlot(shape: Shape, targetSlot: number, cols: number): number | null {
   const { width, height } = shapeDims(shape);
   const centerX = Math.floor((width - 1) / 2);
@@ -170,8 +140,6 @@ function resolveGridDims(): { cols: number; rows: number } {
     : { cols: GRID_COLUMNS, rows: GRID_ROWS };
 }
 
-// Pieces are lifted above the pointer while dragging so a finger doesn't
-// block the view of the target cell on touch devices.
 const DRAG_LIFT_Y = 46;
 
 function Tile({ color, dim = 20 }: { color: string; dim?: number | string }) {
@@ -209,10 +177,6 @@ function PieceIcon({ shape, color, cellSize = 12 }: { shape: Shape; color: strin
 }
 
 export default function MemoryMinigame() {
-  // Board shape is resolved once per game (see resolveGridDims/reset) rather
-  // than reactively on resize — reshaping mid-game would invalidate already
-  // placed blocks' slot indices, which are only meaningful for the grid
-  // shape they were placed under.
   const [dims, setDims] = useState(resolveGridDims);
   const [blocks, setBlocks] = useState<Block[]>(makeInitialBlocks);
   const [corruptSlots, setCorruptSlots] = useState<number[]>(() => generateCorruptSlots(dims.cols, dims.rows));
@@ -226,7 +190,6 @@ export default function MemoryMinigame() {
   const [drag, setDrag] = useState<{ id: string; shape: Shape; label: string; color: string; x: number; y: number } | null>(null);
   const [hoverSlot, setHoverSlot] = useState<number | null>(null);
 
-  // --- Refs so interval/timeout callbacks always see fresh state ---
   const blocksRef = useRef(blocks);
   const radiationRef = useRef(radiationSlots);
   const corruptRef = useRef(corruptSlots);
@@ -237,11 +200,6 @@ export default function MemoryMinigame() {
   useEffect(() => { radiationRef.current = radiationSlots; }, [radiationSlots]);
   useEffect(() => { corruptRef.current = corruptSlots; }, [corruptSlots]);
 
-  // While still on the pre-game "ready" screen, keep the board shape live in
-  // sync with the actual viewport (resize, orientation change, or devtools
-  // device-toolbar toggling) — nothing is placed yet, so this is always
-  // safe. Once "INITIALIZE RECOVERY" locks in a run, this stops: reshaping
-  // mid-game would invalidate already-placed blocks' slot indices.
   useEffect(() => {
     if (gameState !== 'ready') return;
     function syncDims() {
@@ -249,9 +207,6 @@ export default function MemoryMinigame() {
       setDims((prev) => (prev.cols === next.cols && prev.rows === next.rows ? prev : next));
     }
     syncDims();
-    // matchMedia's `change` event is what DevTools' device-toolbar toggle
-    // actually fires reliably (it's the standard responsive-testing API);
-    // plain `resize`/`orientationchange` are kept too for real window drags.
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
     mql.addEventListener('change', syncDims);
     window.addEventListener('resize', syncDims);
@@ -287,8 +242,6 @@ export default function MemoryMinigame() {
   const nextUp = useMemo(() => blocks.filter((b) => !b.revealed).slice(0, PREVIEW_SIZE), [blocks]);
   const remainingToPlace = useMemo(() => blocks.filter((b) => b.slot === null).length, [blocks]);
 
-  // Onboarding hint: point the player from the tray to the grid until they
-  // make their very first placement (or start dragging).
   const showDragHint = gameState === 'playing' && placedCount === 0 && !drag && tray.length > 0;
 
   useEffect(() => {
@@ -375,12 +328,6 @@ export default function MemoryMinigame() {
     for (const slot of candidates) {
       const occupant = occ.get(slot);
 
-      // Occupants are no longer targeted by radiation, so we skip ejection.
-
-      // Checked against every still-unplaced block (not just the visible
-      // hand) so a strike can never strand a shape dealt in a later batch —
-      // see generateCorruptSlots' doc comment for why this guarantees the
-      // game is only ever lost through the player's own placement choices.
       const remainingShapes = currentBlocks.filter((b) => b.slot === null).map((b) => b.shape);
       const free = new Set<number>();
       for (let i = 0; i < SLOTS; i++) {
@@ -431,13 +378,9 @@ export default function MemoryMinigame() {
   function startDrag(e: React.PointerEvent, block: Block) {
     if (gameState !== 'playing') return;
     e.preventDefault();
-    // Capture the pointer so pointermove/up keep firing even when the finger
-    // slides off the little piece onto the grid — otherwise a touch drag can
-    // silently drop on some mobile browsers.
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {
-      /* not all pointer types support capture */
     }
     setDrag({ id: block.id, shape: block.shape, label: block.label, color: block.color, x: e.clientX, y: e.clientY });
   }
@@ -676,8 +619,6 @@ export default function MemoryMinigame() {
                   </div>
                   <button
                     onClick={() => {
-                      // Final re-check as the run actually locks in, on top
-                      // of the live sync below — belt and suspenders.
                       const startDims = resolveGridDims();
                       setDims(startDims);
                       setCorruptSlots(generateCorruptSlots(startDims.cols, startDims.rows));
@@ -747,12 +688,6 @@ export default function MemoryMinigame() {
                       style={{ backgroundImage: 'repeating-linear-gradient(135deg, #e63946 0 8px, transparent 8px 16px)' }}
                     />
                   </div>
-
-                  {/* Onboarding hint now lives on the highlighted tray piece itself
-                      (see i === 0 block below), so it visually starts on top
-                      of the block being demonstrated instead of floating
-                      near the panel edge. */}
-
                   <div className="relative flex flex-col items-center justify-between gap-1 text-center">
                     <p className="glitch-label m-0 font-mono text-[10px] font-bold tracking-[.06em] text-alert md:hidden">
                       CORRUPTED BLOCKS
@@ -779,9 +714,6 @@ export default function MemoryMinigame() {
                                 className="pointer-events-none absolute -inset-1 rounded-md border-2"
                                 style={{ borderColor: b.color, animation: 'warnPulse 1.1s ease-in-out infinite' }}
                               />
-                              {/* Cursor + ghost tile start directly on top of this block and
-                                  drift toward the grid — right on desktop (tray is left of the
-                                  grid), up on mobile (grid sits above the tray when stacked). */}
                               <div className="pointer-events-none absolute left-1/2 top-1/2 z-30 hidden md:block">
                                 <div
                                   className="absolute h-7 w-7 rounded-md border-2 border-dashed"
@@ -931,11 +863,6 @@ export default function MemoryMinigame() {
           </div>
         </div>
       </div>
-
-      {/* Floating drag ghost — renders the FULL shape footprint, centered on
-          the pointer and lifted above it. This is the same geometry the
-          anchor solver assumes, so the piece drops exactly where it looks
-          like it will. */}
       {drag && (
         <div
           className="pointer-events-none fixed z-50 flex flex-col items-center gap-1 rounded-lg border border-white/15 bg-[#04140a]/90 px-2.5 py-2 shadow-2xl"

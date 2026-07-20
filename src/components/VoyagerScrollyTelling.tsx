@@ -1,20 +1,3 @@
-/**
- * VoyagerScrollyTelling.tsx
- * --------------------------------------------------------------------------
- * The full scroll-driven narrative for the "Memory Block Blast" exhibit.
- *
- * Why GSAP ScrollTrigger (vs Framer Motion): this spec needs PINNED sections
- * (the title/background pins while text + the memory grid scrub past) AND true
- * scroll-scrubbed timelines. `pin: true` + `scrub: true` do that natively;
- * Framer's useScroll/useTransform is great for simple reveals but pinning long
- * scrubbed timelines is far cleaner in GSAP. All effects below are scrubbed —
- * nothing "fires once".
- *
- * Hydrate from the .mdx with: <VoyagerScrollyTelling client:load />
- *
- * NOTE: the locked ExhibitLayout.astro owns the <title>/<author>/<readingTime>
- * chrome + Tailwind/fonts.
- */
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -24,11 +7,6 @@ import saturnImg from '../assets/saturn.webp';
 import voyager1Img from '../assets/voyager1.webp';
 import earthImg from '../assets/earth_1.webp';
 
-// Code-split: the finale minigame is ~900 lines of drag-and-drop logic that
-// nobody needs until they scroll to the bottom of the page. Loading it via
-// React.lazy + an IntersectionObserver gate (below) keeps its chunk out of
-// the initial client:load bundle entirely, matching the client:visible-style
-// deferred hydration this exhibit was designed around.
 const MemoryMinigame = lazy(() => import('./MemoryMinigame.tsx'));
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -141,14 +119,8 @@ export default function VoyagerScrollyTelling() {
   }, []);
 
   useLayoutEffect(() => {
-    // Don't let a mobile browser's URL-bar show/hide fire a ScrollTrigger
-    // refresh mid-scroll — that's the main source of pin jumpiness on phones.
     ScrollTrigger.config({ ignoreMobileResize: true });
-
-    // Mobile stages are shorter (see the `pin` helper below), so they need a
-    // shorter scrub duration too or the freeze outlasts the content.
     const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
@@ -156,11 +128,6 @@ export default function VoyagerScrollyTelling() {
         const section = q<HTMLElement>(sel)[0];
         if (!section) return;
         const stage = section.querySelector('[data-stage]') as HTMLElement;
-
-        // Pin the stage and scrub the grid on both desktop and mobile so the
-        // screen freezes while the memory grid animates. On mobile the stage
-        // is laid out so the grid sits at the top (visible during the freeze);
-        // ignoreMobileResize (set above) + anticipatePin keep it from jumping.
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
