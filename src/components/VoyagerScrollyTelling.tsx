@@ -241,7 +241,7 @@ export default function VoyagerScrollyTelling() {
         <div 
         data-parallax
         data-speed="-8"
-        className="absolute right-0 top-[20%] -z-10 w-[clamp(400px,40vw,650px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
+        className="hidden md:block absolute right-0 top-[20%] -z-10 w-[clamp(400px,40vw,650px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
         >
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
@@ -256,7 +256,7 @@ export default function VoyagerScrollyTelling() {
             className="w-full h-auto object-contain"
             style={{
                 WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
-                maskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+                maskImage: "linear-gradient(to right, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
             }}
         />
         </div>
@@ -315,24 +315,30 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
+			{/* WHAT IS VOYAGER 1 SECTION */}
       <section id="what-is" className="mx-auto max-w-[1700px] scroll-mt-20  px-2 pt-10 pb-[90px] font-term">
-        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,5vw,80px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
-        <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[24px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
+				
+				<div className="max-w-[1600px] mx-auto relative overflow-hidden rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16">
+				
+        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
+        <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[18px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
 
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 px-7 md:px-14">
 
-          <div data-reveal="left" className="flex flex-col gap-5">
+          <div data-reveal="up" className="flex flex-col gap-5">
 
-            <p className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched Voyager 1, a robot space probe with the primary goal of studying the planets in our solar system.</p>
+            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">On September 5, 1977, NASA launched Voyager 1, a robot space probe with the primary goal of studying the planets in our solar system.</p>
 
-            <p className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">After almost six decades of travel, Voyager 1 still remains the farthest human-made object ever to leave Earth.</p>
+            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">After almost six decades of travel, Voyager 1 still remains the farthest human-made object ever to leave Earth.</p>
+
+						<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
 
           </div>
 
             <div className="relative flex justify-center items-center w-full min-h-[400px] lg:min-h-[500px]">
                 <div
                     data-reveal="right"
-                    className="w-[85%] max-w-[550px] aspect-square animate-slow-rotate">
+                    className="w-[70%] max-w-[550px] aspect-square animate-slow-rotate">
 
                     <img
                     src={voyager1Img.src}
@@ -347,11 +353,7 @@ export default function VoyagerScrollyTelling() {
             </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2 px-7 md:px-14">
-          <div />
-          <p data-reveal="right" className="m-0 text-right text-base md:text-[24px] leading-[1.8] text-ash/60">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
-        </div>
-
+			</div>
       </section>
 
       <section className="flex min-h-[70vh] items-center justify-center px-7 py-16 text-center">
