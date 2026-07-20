@@ -316,41 +316,46 @@ export default function VoyagerScrollyTelling() {
       </section>
 
 			{/* WHAT IS VOYAGER 1 SECTION */}
-      <section id="what-is" className="mx-auto max-w-[1700px] scroll-mt-20  px-2 pt-10 pb-[90px] font-term">
+      <section id="what-is" className="mx-auto max-w-[1700px] scroll-mt-20 px-2 pt-10 pb-[90px] font-term">
 				
 				<div className="max-w-[1600px] mx-auto relative overflow-hidden rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16">
 				
         <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
         <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[18px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
 
-        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 px-7 md:px-14">
+        <div className="flex flex-col md:flex-row items-start gap-8 px-7 md:px-14">
 
-          <div data-reveal="up" className="flex flex-col gap-5">
+					{/* TEXT FLEX BOX */}
+          <div data-reveal="up" className="flex flex-col gap-5 md:w-[60%]">
 
             <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">On September 5, 1977, NASA launched Voyager 1, a robot space probe with the primary goal of studying the planets in our solar system.</p>
 
             <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">After almost six decades of travel, Voyager 1 still remains the farthest human-made object ever to leave Earth.</p>
 
-						<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
+						<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">
+							Voyager 1 is the farthest human-made object ever to leave Earth—currently drifting through interstellar space at roughly 17 kilometers per second, placing it over 15 billion miles from the Sun.
+						</p>
 
           </div>
 
-            <div className="relative flex justify-center items-center w-full min-h-[400px] lg:min-h-[500px]">
-                <div
-                    data-reveal="right"
-                    className="w-[70%] max-w-[550px] aspect-square animate-slow-rotate">
+					{/* IMAGE FLEX BOX */}
+					<div className="relative flex justify-center md:justify-end items-start w-full -mt-10 md:-mt-28 md:w-[40%]">
+							<div
+									data-reveal="right"
+									className="w-[80%] max-w-[550px] aspect-square animate-slow-rotate">
 
-                    <img
-                    src={voyager1Img.src}
-                    alt="Voyager 1 Probe"
-                    width={voyager1Img.width}
-                    height={voyager1Img.height}
-                    loading="eager"
-                    decoding="async"
-                    className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
-                    />
-                </div>
-            </div>
+									<img
+									src={voyager1Img.src}
+									alt="Voyager 1 Probe"
+									width={voyager1Img.width}
+									height={voyager1Img.height}
+									loading="eager"
+									decoding="async"
+									className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
+									/>
+							</div>
+					</div>
+
         </div>
 
 			</div>
