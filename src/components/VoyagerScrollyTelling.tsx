@@ -425,6 +425,7 @@ export default function VoyagerScrollyTelling() {
 
       </section>
 
+			{/* MEMORY ADDRESSING SECTION */}
 			<section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
 					<div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden px-7 md:px-14">
 							
@@ -437,7 +438,7 @@ export default function VoyagerScrollyTelling() {
 								
 									</div>
 
-									<h2 className="mt-5 m-0 !font-display text-[clamp(22px,2vw,2vw)]  font-bold uppercase leading-[1.04] text-orange">
+									<h2 className="mt-5 m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase leading-[1.04] text-orange">
 											Memory Addressing
 									</h2>
 							</div>
@@ -461,7 +462,7 @@ export default function VoyagerScrollyTelling() {
 
 									<div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4 pr-7 md:pr-14">
 
-											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ashfont-term mb-8 text-right" >
+											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-right" >
 													Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like you would pull a specific folder from a numbered drawer in a filing cabinet.
 											</p>
 											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-right">
@@ -472,36 +473,44 @@ export default function VoyagerScrollyTelling() {
 							</div>
 
 
-							<p className="mt-5 max-w-[100%] m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-center mt-6 md:mt-12 leading-relaxed pr-7 md:pr-14">
+							<p className="mt-5 max-w-[100%] m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-right mt-6 md:mt-12 leading-relaxed pr-7 md:pr-14">
 									This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
 							</p>
 
 					</div>
 			</section>
+			
+			{/* MEMORY MAPPING SECTION */}
+      <section id="mapping" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+        <div data-stage className="flex py-16 md:py-32 px-7 md:px-14 flex-col items-start overflow-hidden">
 
-      <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
+            <div className="mb-4 ml-auto max-w-[1260px] text-right font-term pr-7 md:pr-14">
+							<div 
+								data-reveal="right" 
+								className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+							>
+								<span>Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</span>
+						
+							</div>
 
-            <div className="mb-4 ml-auto max-w-[560px] text-right font-term">
-              <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
-              <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase text-orange">Memory Mapping</h2>
+              <h2 className="m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange">Memory Mapping</h2>
             </div>
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6 md:gap-12 items-start">
+            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6 md:gap-12 items-start ">
 
                 <div className="order-2 md:order-1 flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
-                    <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-left" >
+                    <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-left" >
                         Think of a computer's memory like an empty plot of land. Memory mapping divides the land into permanent zones for specific jobs, like one zone for temporary data and another for software instructions.
                     </p>
-                    <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term text-left">
+                    <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-left">
                         On older computers like Voyager 1, this map is an unbreakable contract. If a piece of code belongs at address 100, it must stay exactly at address 100. The computer doesn't double-check its work; it blindly goes to the requested address, grabs whatever is sitting there, and tries to run it.
                     </p>
                 </div>
+							
+                <div className=" order-1 md:order-2 grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full">
 
-                <div className="order-1 md:order-2 grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full">
-
-                    <div className="w-full md:min-w-[190px] text-left font-mono">
+                    <div className="w-full md:min-w-[180px] text-left font-mono">
                         <p className="m-0 text-sm md:text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
                         <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
                         <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
@@ -509,11 +518,11 @@ export default function VoyagerScrollyTelling() {
                         <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
                     </div>
                     <MemoryGrid states={mappingStates(mapP)} />
-                    </div>
+									</div>
 
             </div>
 
-            <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-12 leading-relaxed text-ash/60">
+            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-left mt-12 leading-relaxed ">
                 Because the computer can't tell the difference between real instructions and random noise, a broken memory chip is incredibly dangerous. It doesn't just corrupt saved files; it completely breaks how the computer behaves.
             </p>
 
