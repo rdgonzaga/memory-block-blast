@@ -368,51 +368,67 @@ export default function VoyagerScrollyTelling() {
       <div className="mx-auto max-w-[1700px] px-7">        
       </div>
 
-        <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
-        
-        <div 
-            data-parallax
-            data-speed="-6"
-            className="absolute left-[-120px] top-[82%] -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
-        >
-            <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
-            
-            <img
-            src={saturnImg.src}
-            alt="Saturn"
-            width={saturnImg.width}
-            height={saturnImg.height}
-            loading="eager"
-            decoding="async"
-            className="w-full h-auto object-contain scale-95 translate-x-24"
-            style={{
-                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-                maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-            }}
-            />
-        </div>
+			{/* WHAT GOES ON SECTION */}
+			<section className="relative mx-auto max-w-[1700px] scroll-mt-20 px-2 pt-10 pb-[90px] font-term">
+				
+				<div className="max-w-[1600px] mx-auto relative rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16">
 
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.1fr_0.9fr] px-7 md:px-14">
-            
-            <div className="hidden md:block pointer-events-none" />
+					{/* Saturn Image*/}
+					<div 
+						data-reveal="left"
+						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-7%]"
+						style={{
+							WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%)",
+							maskImage: "linear-gradient(to right, transparent 0%, black 35%)",
+						}}
+					>
+						
+						<div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/25 to-transparent blur-3xl -z-10" />
+						
+						<img
+							src={saturnImg.src}
+							alt="Saturn"
+							width={saturnImg.width}
+							height={saturnImg.height}
+							loading="eager"
+							decoding="async"
+							className="h-auto w-full object-contain"
+						/>
+					</div>
 
-            <div className="text-right flex flex-col items-end relative z-10 font-term">
-            <p data-reveal="right" className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
-                But why was this so difficult to fix?
-            </p>
-            <h2 data-reveal="up" className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
-                What Goes On Inside Voyager 1?
-            </h2>
-            <p data-reveal="up" className="m-0 mb-6 mt-2.5 font-term text-base md:text-[24px] text-ash">
-                Understanding the Machine's Memory
-            </p>
-            <p data-reveal="right" className="m-0 mb-[22px] max-w-[100%] text-base md:text-[24px] leading-[1.8] text-ash/60">
-                Before we can diagnose what broke inside Voyager 1, we need to speak the same language as the engineers who fixed it. That language is the language of computer memory: how data, code, and instructions are defined, addressed, and accessed. 
-            </p>
+					{/* Right Content */}
+					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[60%] lg:w-[55%]">
+						
+						<div 
+							data-reveal="right" 
+							className="mb-6 flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+						>
+							{/* TO ADD: QUESTION MARK ICON */}
+							<span>What happened and why was it difficult to fix?</span>
+						</div>
 
-            </div>
-        </div>
-        </section>
+						<h2 
+							data-reveal="up" 
+							className="m-0 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase leading-[1.05] tracking-tight text-orange"
+						>
+							What Goes On<br />Inside Voyager 1?
+						</h2>
+
+						<p data-reveal="up" className="m-0 mt-3 mb-6 font-term text-base md:text-[18px] text-ash/60">
+							Understanding Computer Memory
+						</p>
+
+						<p 
+							data-reveal="right" 
+							className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash"
+						>
+							Before we can diagnose what broke inside Voyager 1, we need to speak the same language as the engineers who fixed it. That language is the language of computer memory: how data, code, and instructions are defined, addressed, and accessed.
+						</p>
+
+					</div>
+
+				</div>
+			</section>
 
       <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-10">
 
