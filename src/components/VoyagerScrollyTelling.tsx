@@ -522,19 +522,19 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
-				<p className="m-0 text-base md:text-xl text-ash/80">
-        But how does the computer actually know which memory address to read next? 
-				</p>
-			</section>
+      <section className="flex items-center justify-center px-7 py-12 text-center">
+        <p className="m-0 text-base md:text-xl text-ash/80">
+          But how does the computer actually know which memory address to read next? 
+        </p>
+      </section>
 
       {/* INSTRUCTION POINTER SECTION */}
-      <section id='instruc-pointer' className="relative mx-auto max-w-[1700px] px-7 md:px-14">
-        <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
-          <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-orange mb-4">
+      <section id='instruc-pointer' className="relative mx-auto max-w-[1700px] px-7 md:px-14 pt-20 md:pt-25 pb-16">
+        <div data-reveal="up" className="mx-auto flex flex-col items-center w-full  rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
+          <h3 className="m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange mb-4">
             The Instruction Pointer
           </h3>
-          <p className="m-0 text-[18px] leading-[1.7] text-ash/80 mb-5 max-w-[750px]">
+          <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-5 max-w-[750px]">
             Every computer has a memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. After the computer reads and does what the instruction says, the IP automatically moves to the very next line. Essentially, the order of instructions was:
           </p>
           <div className="max-w-[750px] w-full">
@@ -543,14 +543,14 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+     <section className="flex items-center justify-center px-7 py-32 md:py-32 text-center">
 				<p className="m-0 text-base md:text-xl text-ash/80">
           Now that we know about computer memory, mapping, addressing, and accessing, let’s go back to what went wrong in 2023… 
 				</p>
-			</section>
+			</section> 
 
       {/* ROOT CAUSE SECTION */}
-      <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16 font-term">
+      <section className="mx-auto max-w-[1000px] px-7 py-20 flex flex-col items-center text-center gap-16 font-term">
         
         <div className="mb-4 ml-auto max-w-[1260px] text-center font-term pr-7 md:pr-14">
 							<div 
