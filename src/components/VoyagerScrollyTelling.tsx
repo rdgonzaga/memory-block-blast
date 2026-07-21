@@ -6,6 +6,7 @@ import jupiterImg from '../assets/jupiter.webp';
 import saturnImg from '../assets/saturn.webp';
 import voyager1Img from '../assets/voyager1.webp';
 import earthImg from '../assets/earth_1.webp';
+import fdsChipImg from "../assets/fds-chip.webp";
 
 const MemoryMinigame = lazy(() => import('./MemoryMinigame.tsx'));
 
@@ -550,40 +551,56 @@ export default function VoyagerScrollyTelling() {
 			</section> 
 
       {/* ROOT CAUSE SECTION */}
-      <section className="mx-auto max-w-[1000px] px-7 py-20 flex flex-col items-center text-center gap-16 font-term">
+      <section id="root-cause" className="mx-auto max-w-[1700px] scroll-mt-20 px-7 md:px-14 pt-10 pb-[90px] font-term">
         
-        <div className="mb-4 ml-auto max-w-[1260px] text-center font-term pr-7 md:pr-14">
-							<div 
-								data-reveal="up" 
-								className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
-							>
-								<span>Why couldn’t they understand the data coming from the space probe?</span>
-						
-							</div>
+        <div className="flex flex-col items-center text-center mb-8">
+          <div 
+            data-reveal="up" 
+            className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-5 py-2 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+          >
+            <span>Why couldn’t they understand the data coming from the space probe?</span>            
+          </div>
 
-              <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase text-alert leading-[1.05]">
-                Root Cause:<br />A Dead Chip
-              </h2>
-            </div>
-
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[1700px]">
-          
-
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            After months of testing, engineers found the problem: a single memory chip inside the computer failed completely. Because the chip broke, the instructions stored on it became unreadable. This specific chip holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
-          </p>
-
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            That specific chip is the FDS which holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
-            <br/>
-            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
-          </p>
-
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
-          </p>
+          <h2 data-reveal="up" className="m-0 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase text-alert leading-[1.05]">
+            Root Cause: A Dead Chip
+          </h2>
         </div>
 
+        <div data-reveal="up" className="max-w-[1600px] mx-auto relative overflow-hidden rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-10 md:px-16 md:py-12 flex flex-col items-center text-center">
+
+          <p className="m-0 max-w-[1700px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash mb-8">
+            After months of testing, engineers found the problem: A piece of the spacecraft’s memory got physically damaged and corrupted. But the IP didn’t know that. When the computer started reading instructions from the broken chip, the supposed instructions weren’t executing—causing the discrepancy in the message being sent back to Earth.
+          </p>
+
+          <div className="w-full max-w-[1000px] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-14 my-2 text-center md:text-left">
+            
+            <div className="w-full md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden border border-white/10 bg-black/40 p-2 shadow-lg">
+                <img 
+                  src={fdsChipImg.src}
+                  alt="FDS Memory Chip Board" 
+                  width={fdsChipImg.width}
+                  height={fdsChipImg.height}
+                  loading="eager"
+                  decoding="async"
+                  className="w-full max-w-[420px] h-auto object-contain rounded"
+                />
+              </div>
+            </div>
+
+            <div className="w-full md:w-1/2 flex flex-col justify-center">
+              <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
+                This specific chip is the <span className="text-white font-semibold">Flight Data Subsystem (FDS)</span> which holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
+              </p>
+            </div>
+
+          </div>
+
+          <p className="m-0 max-w-[1700px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash mt-8">
+            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
+          </p>
+
+        </div>
       </section>
 
       {/* SOLUTION MECH SECTION */}
