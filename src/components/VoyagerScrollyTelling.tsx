@@ -604,47 +604,60 @@ export default function VoyagerScrollyTelling() {
       </section>
 
       {/* SOLUTION MECH SECTION */}
-      <section id="solution" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+      <section id="solution" className="relative mx-auto max-w-[1700px] px-7 md:px-14 pt-10 pb-12 font-term">
+        
+        <div className="flex flex-col items-center text-center mb-10">
+          <h2 data-reveal="up" className="m-0 !font-display text-[clamp(28px,3.5vw,52px)] font-bold uppercase text-orange leading-[1.1] max-w-[1200px]">
+            The Mechanism That Stitched Voyager 1 Back Together
+          </h2>
+        </div>
 
-        <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-orange mb-4">
-          THE MECHANISM THAT STITCHED VOYAGER 1 BACK TOGETHER
-        </h3>
-
-        <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+        <div data-reveal="up" className="mx-auto max-w-[1700px] flex flex-col items-center text-center gap-6">
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
             It’s impossible to send a mechanic 15 billion miles into deep space to swap out a broken part. The only option was a remote software repair. Since signals coming from Earth to the spacecraft take a long time to travel back and forth, the code had to work on the first try as trial and error would be too time-consuming.
           </p>
 
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
             Since there wasn't a contiguous memory space large enough to hold the rescued code, the engineers had to get creative. They chopped the instructions into smaller fragments and carefully tucked them into unused memory blocks across the computer's remaining working memory.
           </p>
 
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
             To do that, they had to implement specific jump commands that explicitly told the computer where to find the next instruction. By mapping out every step, they made sure the system could run the split code and get it working again.
           </p>
+        </div>
+
       </section>
 
-      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
-				<p className="m-0 text-base md:text-xl text-ash/80">
+      {/* TRANSITION TEXT */}
+      <section className="flex items-center justify-center px-7 py-20 md:py-28 text-center">
+        <p className="m-0 text-base md:text-xl text-ash/80">
           Let’s take a closer look at the concept behind NASA’s solution…
-				</p>
-			</section>
+        </p>
+      </section>
 
       {/* JMP INSTRUCTION SECTION */}
-      <section id="jump" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
-
-         <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
-          <h3 className="m-0 !font-display text-[26px] md:text-[30px] font-bold uppercase text-crt mb-6">
+      <section id="jump" className="relative mx-auto max-w-[1700px] px-7 md:px-14 pb-[90px] font-term">
+         <div 
+            data-reveal="scale" 
+            className="mx-auto w-full max-w-[1000px] flex flex-col items-center text-center rounded-[32px] border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-7 py-12 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]"
+          >
+          
+          <h3 className="m-0 !font-display text-[clamp(26px,3vw,40px)] font-bold uppercase text-crt mb-6">
             The Jump Instruction
           </h3>
-          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 mb-6 max-w-[750px]">
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash/90 mb-6">
             A jump instruction (JMP) is a command that directly overwrites the Instruction Pointer with a new address. Instead of advancing sequentially to the next chunk of memory, the processor instantly redirects its execution focus to whatever address the JMP specifies.
           </p>
-          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] italic text-ash/70 mb-6 max-w-[750px]">
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] italic text-crt/90 font-medium mb-6">
             It allows the processor to go back to or skip to another part of the system’s code.
           </p>
-          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 max-w-[750px]">
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash/90">
             This is the mechanism NASA engineers used to bridge fragmented code across non-contiguous memory regions.
           </p>
+          
         </div>
       </section>
 
@@ -659,16 +672,20 @@ export default function VoyagerScrollyTelling() {
         </div>
       </section>
 
-      <section className="flex min-h-[60vh] items-center justify-center px-7 py-16 text-center">
-        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
+      {/* MINIGAME TRANSITION TEXT */}
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[60vh] px-7 py-16 text-center">
+        <h2 
+          data-reveal="scale" 
+          className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange"
+        >
           Now it's your turn<br />to solve the problem!
         </h2>
 
-        <p className="m-0 text-base md:text-xl text-ash/80">
+        <p className="m-0 text-base md:text-xl text-ash/80 max-w-[1200px]">
           With your newfound knowledge of computer architecture, it's your turn to fix the problem NASA faced. Step into the role of an engineer and reallocate the memory blocks below.
-				</p>
-
+        </p>
       </section>
+
 
       <section id="finale" ref={finaleRef} className="mx-auto max-w-[1800px] px-7 py-20">
         {minigameVisible && (
@@ -678,13 +695,13 @@ export default function VoyagerScrollyTelling() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center font-term">
+      <section className="mx-auto max-w-[1200px] px-7 py-24 md:py-36 text-center font-term">
 
-        <p data-reveal="up" className="m-0 mb-[18px] text-base md:text-[24px] leading-[1.8] text-ash/60">
+        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">
           Voyager 1 continues its journey through interstellar space today. Its recovery was possible because engineers leveraged how computers are designed to process memory and execute instructions.    
         </p>
 
-        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">
+        <p data-reveal="up" className="mt-10 m-0 text-base md:text-[24px] leading-[1.8] text-ash">
           This repair proves that when hardware fails, knowledge prevails.        
         </p>
 
