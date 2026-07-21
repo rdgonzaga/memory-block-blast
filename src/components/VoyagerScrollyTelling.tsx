@@ -1,21 +1,3 @@
-/**
- * VoyagerScrollyTelling.tsx
- * --------------------------------------------------------------------------
- * The full scroll-driven narrative for the "Memory Block Blast" exhibit.
- *
- * Why GSAP ScrollTrigger (vs Framer Motion): this spec needs PINNED sections
- * (the title/background pins while text + the memory grid scrub past) AND true
- * scroll-scrubbed timelines. `pin: true` + `scrub: true` do that natively;
- * Framer's useScroll/useTransform is great for simple reveals but pinning long
- * scrubbed timelines is far cleaner in GSAP. All effects below are scrubbed —
- * nothing "fires once".
- *
- * Hydrate from the .mdx with: <VoyagerScrollyTelling client:load />
- *
- * NOTE: the locked ExhibitLayout.astro owns the <title>/<author>/<readingTime>
- * chrome + Tailwind/fonts. The page-specific Mission-Control HUD is rendered
- * HERE (a generic layout won't have it) and ticks live via an interval.
- */
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -24,12 +6,8 @@ import jupiterImg from '../assets/jupiter.webp';
 import saturnImg from '../assets/saturn.webp';
 import voyager1Img from '../assets/voyager1.webp';
 import earthImg from '../assets/earth_1.webp';
+import fdsChipImg from "../assets/fds-chip.webp";
 
-// Code-split: the finale minigame is ~900 lines of drag-and-drop logic that
-// nobody needs until they scroll to the bottom of the page. Loading it via
-// React.lazy + an IntersectionObserver gate (below) keeps its chunk out of
-// the initial client:load bundle entirely, matching the client:visible-style
-// deferred hydration this exhibit was designed around.
 const MemoryMinigame = lazy(() => import('./MemoryMinigame.tsx'));
 
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger);
@@ -49,6 +27,34 @@ const CELL_CLASS: Record<CellState, string> = {
   freed:     'border-white/10 bg-white/[0.02] text-ash/20',
   relocated: 'border border-crt bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.15)_2px,rgba(51,255,102,.15)_5px)] text-crt shadow-[0_0_10px_rgba(51,255,102,.4)]',
 };
+
+const FAILURE_FLOW = [
+  'The physical chip failed.',
+  'The “words” stored within that chip’s address range were no longer reliably readable.',
+  'The computer’s instruction pointer was directed to unreadable memory.',
+  'The system began treating broken data as real instructions, affecting core functionality.',
+];
+
+const IP_STEPS = [
+  'Read the instruction at line 100.',
+  'Do what line 100 says.',
+  'Move the bookmark to line 101.',
+  'Repeat.',
+];
+
+function NumberedList({ items, accent }: { items: string[]; accent: 'alert' | 'orange' }) {
+  const badge = accent === 'alert' ? 'border-alert/40 bg-alert/10 text-alert' : 'border-orange/40 bg-orange/10 text-orange';
+  return (
+    <ol className="m-0 flex flex-col gap-2.5 font-term text-sm md:text-[18px] leading-[1.7] text-ash">
+      {items.map((item, i) => (
+        <li key={item} className="flex items-start gap-3">
+          <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded border font-mono text-[12px] font-bold ${badge}`}>{i + 1}</span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 function MemoryGrid({ states }: { states: CellState[] }) {
   return (
@@ -89,110 +95,6 @@ function solutionStates(p: number): CellState[] {
   });
 }
 
-function MissionHud() {
-  const [km, setKm] = useState(24395000000); // Base: Jan 1, 2024
-  const [utcTime, setUtcTime] = useState("00:00:00");
-  const [year, setYear] = useState(2024);
-
-  useEffect(() => {
-    // Voyager 1 travels at ~17.0 km/s relative to the sun.
-    // Base Epoch: Jan 1, 2024 at 00:00:00 UTC = approx 24,395,000,000 km
-    const epoch = new Date('2024-01-01T00:00:00Z').getTime();
-    const baseKm = 24395000000;
-    const vKmPerSec = 17.0;
-
-    function tick() {
-      const now = new Date();
-      const elapsedSec = (now.getTime() - epoch) / 1000;
-      setKm(baseKm + elapsedSec * vKmPerSec);
-      setUtcTime(now.toISOString().substring(11, 19));
-      setYear(now.getUTCFullYear());
-    }
-
-    // Backgrounded tabs don't need a 100ms ticker running — pause it while
-    // hidden and resync immediately on return instead of burning CPU/battery
-    // updating a display nobody's looking at.
-    let id: ReturnType<typeof setInterval> | null = setInterval(tick, 100);
-
-    function handleVisibility() {
-      if (id !== null) {
-        clearInterval(id);
-        id = null;
-      }
-      if (!document.hidden) {
-        tick();
-        id = setInterval(tick, 100);
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    return () => {
-      if (id !== null) clearInterval(id);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, []);
-
-  const mi = km * 0.621371;
-
-  // Signal travels at the speed of light (299,792 km/s)
-  const lightSecondsOneWay = km / 299792;
-  const roundTripSecs = lightSecondsOneWay * 2;
-  
-  const pad = (v: number) => String(Math.floor(v)).padStart(2, '0');
-  const rtHours = pad(roundTripSecs / 3600);
-  const rtMinutes = pad((roundTripSecs % 3600) / 60);
-  const rtSeconds = pad(roundTripSecs % 60);
-
-  const owHours = (lightSecondsOneWay / 3600).toFixed(1);
-
-  // On phones the HUD collapses to a single slim navbar row: one value per
-  // cell, abbreviated, with the secondary lines hidden. The full 4-up readout
-  // returns at md+.
-  const cell = 'min-w-0 bg-black/85 px-1.5 py-1 sm:px-3.5 sm:py-2.5';
-  const label = 'm-0 text-[clamp(8px,2.3vw,13px)] uppercase tracking-[.1em] sm:tracking-[.16em] text-orange truncate';
-  const big = 'm-0 mt-0 leading-tight text-[clamp(11px,3.3vw,16px)] font-bold text-ghost truncate';
-  const sub = 'm-0 text-[12px] text-ash/40 hidden md:block';
-
-  return (
-    <header className="sticky top-0 z-40 border-b border-orange/35 bg-orange/20 backdrop-blur-md">
-      <p className="m-0 truncate border-b border-orange/20 bg-black/40 px-2 py-1 text-center font-mono text-[9px] uppercase tracking-[.18em] text-orange/80 sm:px-3.5 sm:text-[11px] sm:tracking-[.28em]">
-        Voyager 1 — Live Mission Telemetry
-      </p>
-      <div className="grid grid-cols-4 gap-px">
-      <div className={cell}>
-        <p className={label}><span className="md:hidden">▸ Dist</span><span className="hidden md:inline">▸ Current Distance</span></p>
-        <p className={big}>
-          <span className="md:hidden">{(mi / 1e9).toFixed(2)}B <span className="text-[8px] text-ash">mi</span></span>
-          <span className="hidden md:inline">{Math.floor(mi).toLocaleString('en-US')} <span className="text-[9px] text-ash">mi</span></span>
-        </p>
-        <p className={sub}>{Math.floor(km).toLocaleString('en-US')} km</p>
-      </div>
-      <div className={cell}>
-        <p className={label}><span className="md:hidden">⇄ Comm</span><span className="hidden md:inline">⇄ Comm Round-Trip</span></p>
-        <p className={big}>
-          <span className="md:hidden">{parseInt(rtHours, 10)}h {parseInt(rtMinutes, 10)}m</span>
-          <span className="hidden md:inline">{rtHours} hr {rtMinutes} min {rtSeconds} sec</span>
-        </p>
-        <p className={sub}>One-way ~{owHours} hours</p>
-      </div>
-      <div className={cell}>
-        <p className={label}><span className="md:hidden">⌁ Signal</span><span className="hidden md:inline">⌁ Signal Strength</span></p>
-        <p className={big}>-161.4 <span className="text-[8px] sm:text-[9px] text-ash">dBm</span></p>
-        <p className={sub}>DSN Canberra connected</p>
-      </div>
-      <div className={cell}>
-        <p className={label}><span className="md:hidden">◷ Time</span><span className="hidden md:inline">◷ Mission Control Time</span></p>
-        <p className={big}>
-          <span className="md:hidden">{utcTime.slice(0, 5)}</span>
-          <span className="hidden md:inline">{utcTime}</span>
-        </p>
-        <p className={sub}>JPL DSN {year} UTC</p>
-      </div>
-      </div>
-    </header>
-  );
-}
-
 export default function VoyagerScrollyTelling() {
   const root = useRef<HTMLDivElement>(null);
   const [addrP, setAddrP] = useState(0);
@@ -218,14 +120,8 @@ export default function VoyagerScrollyTelling() {
   }, []);
 
   useLayoutEffect(() => {
-    // Don't let a mobile browser's URL-bar show/hide fire a ScrollTrigger
-    // refresh mid-scroll — that's the main source of pin jumpiness on phones.
     ScrollTrigger.config({ ignoreMobileResize: true });
-
-    // Mobile stages are shorter (see the `pin` helper below), so they need a
-    // shorter scrub duration too or the freeze outlasts the content.
     const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-
     const ctx = gsap.context((self) => {
       const q = self.selector!;
 
@@ -233,11 +129,6 @@ export default function VoyagerScrollyTelling() {
         const section = q<HTMLElement>(sel)[0];
         if (!section) return;
         const stage = section.querySelector('[data-stage]') as HTMLElement;
-
-        // Pin the stage and scrub the grid on both desktop and mobile so the
-        // screen freezes while the memory grid animates. On mobile the stage
-        // is laid out so the grid sits at the top (visible during the freeze);
-        // ignoreMobileResize (set above) + anticipatePin keep it from jumping.
         ScrollTrigger.create({
           trigger: section,
           start: 'top top',
@@ -311,13 +202,14 @@ export default function VoyagerScrollyTelling() {
         />
       </div>
 
-      <MissionHud />
 
-      <section className="relative mx-auto max-w-[1800px] px-2 pt-20 pb-52">
+			{/* INDEX SECTION */}			
+      <section className="relative mx-auto max-w-[1700px] px-2 pt-20 pb-52">
+
         <div 
         data-parallax
         data-speed="-8"
-        className="absolute right-0 top-[66%] -z-10 w-[clamp(400px,40vw,750px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
+        className="hidden md:block absolute right-0 top-[20%] -z-10 w-[clamp(400px,40vw,650px)] -translate-y-1/2 pointer-events-none select-none opacity-80"
         >
         <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
         
@@ -331,227 +223,293 @@ export default function VoyagerScrollyTelling() {
             fetchPriority="high"
             className="w-full h-auto object-contain"
             style={{
-                WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
-                maskImage: "linear-gradient(to left, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
+                maskImage: "linear-gradient(to right, rgba(0,0,0,1) 45%, rgba(0,0,0,0) 100%)",
             }}
         />
         </div>
 
         <div 
         data-reveal="up" 
-        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
+        className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pb-[70px] flex flex-col items-start text-left">
 
           <div
           role="heading"
           aria-level={1} 
           data-reveal="mask" 
-          className="m-0 !font-display text-[clamp(65px,9vw,9vw)] font-bold uppercase leading-[.86] tracking-[-.02em] text-orange">
+          className="m-0 !font-display text-[clamp(65px,6vw,6vw)] font-bold uppercase leading-[.86] text-orange">
             Memory<br />Block<br />Blast
           </div>
-          <p className="mt-6 font-term text-[clamp(20px,3vw,34px)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
-          <p className="mt-5 m-0 max-w-[940px] font-term text-lg md:text-[28px] leading-relaxed text-ash/60">
+          <p className="mt-2 font-term text-[clamp(20px,34px,2vw)] tracking-wide text-ghost">Reallocating Voyager 1's Fragmented Memory Map</p>
+          <p className="mt-1 m-0 max-w-[940px] font-term text-lg text-[clamp(15px,1vw,24px)] leading-relaxed text-ash/60">
           Discover how NASA engineers leveraged 1970s hardware constraints, analyzed primitive memory maps, and executed a remote software reallocating workaround to rescue humanity's most distant emissary.
           </p>
         </div>
 
-        <div className="mx-auto mt-28 flex max-w-[560px] flex-col gap-3">
-          <a href="#finale"
-          className="
-          no-underline rounded-[10px]
-          border border-white/20 bg-black/60 px-5 py-3
-          text-center font-term text-sm md:text-lg tracking-wide text-ghost transition-colors
-          hover:border-orange hover:bg-orange/10 hover:text-orange">Launch Operations Mini-Game</a>
-          <a href="#what-is"
-          className="no-underline flex items-center justify-center gap-2.5 rounded-[10px] border border-white/20 bg-black/60 px-5 py-3 font-term text-sm md:text-lg tracking-wide text-ghost transition-colors hover:border-orange hover:bg-orange/10 hover:text-orange">Explore Story Timeline </a>
-        </div>
+				{/* IDX BUTTONS */}			
+        <div className="mx-auto mt-8 flex max-w-[560px] flex-col gap-5">
+					<a 
+						href="#finale"
+						className="
+							no-underline text-center font-term text-sm md:text-lg tracking-wide text-white transition-all
+							
+							/* Glassmorphism */
+							rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]
+							px-6 py-3.5
+							
+							/* Hover */
+							hover:border-white/40 hover:bg-white/10 hover:shadow-[0_4px_25px_rgba(255,255,255,0.1)]
+						"
+					>
+						Launch Simulation
+					</a>
+
+					<a 
+						href="#what-is"
+						className="
+							no-underline flex items-center justify-center gap-2.5 font-term text-sm md:text-lg tracking-wide text-white transition-all
+							
+							/* Glassmorphism */
+							rounded-full border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]
+							px-6 py-3.5
+							
+							/* Hover */
+							hover:border-white/40 hover:bg-white/10 hover:shadow-[0_4px_25px_rgba(255,255,255,0.1)]
+						"
+					>
+						Explore Story Timeline 
+					</a>
+				</div>
+
       </section>
 
-      <section id="what-is" className="mx-auto max-w-[1800px] scroll-mt-20  px-2 pt-10 pb-[90px]">
-        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,5vw,80px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
-        <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[24px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
+			{/* WHAT IS VOYAGER 1 SECTION */}
+      <section id="what-is" className="mx-auto max-w-[1700px] scroll-mt-20 px-2 pt-10 pb-[90px] font-term">
+				
+				<div className="max-w-[1600px] mx-auto relative overflow-hidden rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16">
+				
+        <h2 data-reveal="up" className="m-0 mb-1.5 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase text-orange px-7 md:px-14">What is Voyager 1?</h2>
+        <p data-reveal="up" className="m-0 mb-9 font-term text-base md:text-[18px] text-ash/60 px-7 md:px-14">OBJECT DESIGNATION: VOYAGER 1 · NASA/JPL · LAUNCHED 1977.09.05</p>
 
-        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 px-7 md:px-14">
+        <div className="flex flex-col md:flex-row items-start gap-8 px-7 md:px-14">
 
-          <div data-reveal="left" className="flex flex-col gap-5">
+					{/* TEXT FLEX BOX */}
+          <div data-reveal="up" className="flex flex-col gap-5 md:w-[60%]">
 
-            <p className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">On September 5, 1977, NASA launched a 722-kilogram aluminum chassis packed with 1970s-era silicon into the dark. No one who bolted it together expected to still be listening to it nearly half a century later.</p>
+            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">On September 5, 1977, NASA launched Voyager 1, a robot space probe with the primary goal of studying the planets in our solar system.</p>
 
-            <p className="m-0 text-base md:text-[24px] leading-[1.8] text-ash/60">They are still listening.</p>
+            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">After almost six decades of travel, Voyager 1 still remains the farthest human-made object ever to leave Earth.</p>
 
-            <p className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">Voyager 1 is the farthest human-made object ever to leave Earth — currently drifting through interstellar space at roughly 17 kilometers per second, placing it over 15 billion miles from the Sun.</p>
+						<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash">
+							Voyager 1 is the farthest human-made object ever to leave Earth—currently drifting through interstellar space at roughly 17 kilometers per second, placing it over 15 billion miles from the Sun.
+						</p>
 
           </div>
 
-            <div className="relative flex justify-center items-center w-full min-h-[400px] lg:min-h-[500px]">
-                <div
-                    data-reveal="right"
-                    className="w-[85%] max-w-[550px] aspect-square animate-slow-rotate">
+					{/* IMAGE FLEX BOX */}
+					<div className="relative flex justify-center md:justify-end items-start w-full -mt-10 md:-mt-28 md:w-[40%] ">
+							<div
+									data-reveal="right"
+									className="w-[80%] max-w-[550px] aspect-square animate-slow-rotate">
 
-                    <img
-                    src={voyager1Img.src}
-                    alt="Voyager 1 Probe"
-                    width={voyager1Img.width}
-                    height={voyager1Img.height}
-                    loading="eager"
-                    decoding="async"
-                    className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
-                    />
-                </div>
-            </div>
+									<img
+									src={voyager1Img.src}
+									alt="Voyager 1 Probe"
+									width={voyager1Img.width}
+									height={voyager1Img.height}
+									loading="eager"
+									decoding="async"
+									className="h-full w-full object-contain drop-shadow-[0_0_50px_rgba(255,165,0,0.15)]"
+									/>
+							</div>
+					</div>
+
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-2 px-7 md:px-14">
-          <div />
-          <p data-reveal="right" className="m-0 text-right text-base md:text-[24px] leading-[1.8] text-ash/60">You do not debug a computer from 15 billion miles away in real time. Every decision must be deliberate, pre-calculated, and correct on the first attempt.</p>
-        </div>
-
+			</div>
       </section>
 
-      <section className="flex min-h-[70vh] items-center justify-center px-7 py-16 text-center">
-        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert">In 2023,<br />Something Went Wrong...</h2>
-      </section>
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+				<h2 
+					data-reveal="scale" 
+					className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-alert"
+				>
+					In 2023,<br />Something Went Wrong...
+				</h2>
 
-      <div className="mx-auto max-w-[1080px] px-7">        
+				<p className="m-0 text-base md:text-xl text-ash/80">
+					The Voyager was sending gibberish data from outerspace!
+				</p>
+			</section>
+
+      <div className="mx-auto max-w-[1700px] px-7">        
       </div>
 
-        <section className="relative mx-auto max-w-[1800px] px-7 pt-[120px] pb-[90px]">
-        
-        <div 
-            data-parallax
-            data-speed="-6"
-            className="absolute left-[-120px] top-[82%] -z-10 w-[clamp(450px,48vw,850px)] -translate-y-[50%] pointer-events-none select-none opacity-90"
-        >
-            <div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/20 to-transparent filter blur-3xl" />
-            
-            <img
-            src={saturnImg.src}
-            alt="Saturn"
-            width={saturnImg.width}
-            height={saturnImg.height}
-            loading="eager"
-            decoding="async"
-            className="w-full h-auto object-contain scale-95 translate-x-24"
-            style={{
-                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-                maskImage: "linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)",
-            }}
-            />
-        </div>
+			{/* WHAT GOES ON SECTION */}
+			<section className="relative mx-auto max-w-[1700px] scroll-mt-20 px-2 pt-10 pb-[90px] font-term">
+				
+				<div className="max-w-[1600px] mx-auto relative rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-12 md:px-14 md:py-16 ">
 
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[1.1fr_0.9fr] px-7 md:px-14">
-            
-            <div className="hidden md:block pointer-events-none" />
+					{/* Saturn Image*/}
+					<div 
+						data-reveal="left"
+						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-4%] hidden md:block"
+						style={{
+							WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%)",
+							maskImage: "linear-gradient(to right, transparent 0%, black 35%)",
+						}}
+					>
+						
+						<div className="absolute inset-0 scale-125 rounded-full bg-radial from-orange/25 to-transparent blur-3xl -z-10" />
+						
+						<img
+							src={saturnImg.src}
+							alt="Saturn"
+							width={saturnImg.width}
+							height={saturnImg.height}
+							loading="eager"
+							decoding="async"
+							className="h-auto w-full object-contain"
+						/>
+					</div>
 
-            <div className="text-right flex flex-col items-end relative z-10">
-            <p data-reveal="right" className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
-                But why was this so difficult to fix?
+					{/* Right Content */}
+					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[75%] lg:w-[65%] px-7 md:px-14">
+						
+						<div 
+							data-reveal="right" 
+							className="mb-6 flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+						>
+							{/* TO ADD: QUESTION MARK ICON */}
+							<span>What happened and why was it difficult to fix?</span>
+						</div>
+
+						<h2 
+							data-reveal="up" 
+							className="m-0 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase leading-[1.05] tracking-tight text-orange"
+						>
+							What Goes On<br />Inside Voyager 1?
+						</h2>
+
+						<p data-reveal="up" className="m-0 mt-3 mb-6 font-term text-base md:text-[18px] text-ash/60">
+							Understanding Computer Memory
+						</p>
+
+						<p 
+							data-reveal="right" 
+							className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash"
+						>
+							Before we can diagnose what broke inside Voyager 1, we need to speak the same language as the engineers who fixed it. That language is the language of computer memory: how data, code, and instructions are defined, addressed, and accessed.
+						</p>
+
+					</div>
+
+				</div>
+			</section>
+
+			{/* WHAT IS COMPUTER MEMORY SECTION */}
+      <section className="relative mt-[112px] mx-auto max-w-[1700px] px-2 pt-20 pb-10">
+
+        <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left ">
+
+            <h3 data-reveal="left" className="m-0 mb-5 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange px-7 md:px-14">What is Computer Memory?</h3>
+
+            <p data-reveal="left" className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
+                Computer memory serves as the system's active workspace, holding the instructions and data required for immediate operation. Unlike modern computers with vast storage, Voyager 1’s 1970s hardware relies on a tiny, fixed set of memory slots to handle every calculation.
             </p>
-            <h2 data-reveal="up" className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
-                What Goes On Inside Voyager 1?
-            </h2>
-            <p data-reveal="up" className="m-0 mb-6 mt-2.5 font-term text-base md:text-[24px] text-ash">
-                Understanding Computer Memory
-            </p>
-            <p data-reveal="right" className="m-0 mb-[22px] max-w-[100%] text-base md:text-[24px] leading-[1.8] text-ash/60">
-                Before we can diagnose what broke inside Voyager 1, we need to speak the same language as the engineers who fixed it. That language is the language of computer memory: how data, code, and instructions are defined, addressed, and accessed. 
-            </p>
 
-            </div>
-        </div>
-        </section>
-
-      <section className="relative mt-[112px] mx-auto max-w-[1800px] px-2 pt-20 pb-10">
-
-        <div className="relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-gradient-to-b from-white/10 to-black/30 px-7 md:px-14 pt-16 pb-[70px] flex flex-col items-start text-left">
-
-            <p data-reveal="left" className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-justify leading-relaxed text-ash/60">
-                At its core, computer memory is a digital workspace. It acts as an active storage area for everything the computer needs to function right now: the instructions telling it what to do, and the data it needs to do it.
-            </p>
-
-            <p data-reveal="left" className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-justify leading-relaxed text-ash/60">
-                Think of memory like a long row of storage boxes. On Voyager 1's 1970s computer, each of these boxes holds a specific size of data called a word (which is exactly 16 bits of 1s and 0s). Unlike modern computers that count everything in smaller "bytes," Voyager measures every single calculation and storage slot using these larger "words."
-            </p>
-
-            <p data-reveal="left" className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-justify leading-relaxed text-ash/60">
-                Without this memory space, the computer has no instructions to follow and no data to process. The spacecraft essentially becomes lifeless. A nightmare scenario that became a reality for Voyager 1 in November 2023.
+            <p data-reveal="left" className="mt-5 m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
+                Without this functional memory space, the spacecraft loses its operational instructions and data, effectively rendering it lifeless.
             </p>
 
         </div>
 
       </section>
 
-        <section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
-            <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
-                
-                <div className="mb-6 md:mb-10 max-w-[750px] text-left">
-                    <p className="m-0 mb-2 text-base md:text-[24px] text-ash/60">
-                        If memory stores everything a computer needs, how does the processor know exactly where to find each instruction?
-                    </p>
-                    <h2 className="m-0 !font-display text-[clamp(26px,3.8vw,80px)] font-bold uppercase leading-[1.04] text-orange">
-                        Memory Addressing
-                    </h2>
-                </div>
+			{/* MEMORY ADDRESSING SECTION */}
+			<section id="addressing" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+					<div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden px-7 md:px-14">
+							
+							<div className="mb-6 md:mb-10 max-w-[1200px] text-left font-term">
+									<div 
+										data-reveal="left" 
+										className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+									>
+										<span>If memory stores everything a computer needs, how are instructions found in memory?</span>
+								
+									</div>
 
-                <div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-12 items-start">
+									<h2 className="mt-5 m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase leading-[1.04] text-orange">
+											Memory Addressing
+									</h2>
+							</div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full max-w-[900px]">
-                        <MemoryGrid states={addressingStates(addrP)} />
+							<div className="w-full grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 md:gap-12 items-start">
 
-                        <div className="w-full md:min-w-[190px] font-mono">
-                            <p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
-                            <p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
-                            <p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
-                            <p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
-                            <p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
-                            <div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]">
-                                <div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} />
-                            </div>
-                        </div>
-                    </div>
+									<div className="grid grid-cols-1 md:grid-cols-[1fr_auto] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full max-w-[900px]">
+											<MemoryGrid states={addressingStates(addrP)} />
 
-                    <div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4">
+											<div className="w-full md:min-w-[190px] font-mono">
+													<p className="m-0 text-[18px] uppercase tracking-[.16em] text-ash/50">Processor read</p>
+													<p className="m-0 mt-4 text-[15px] text-ash/60">ADDRESS</p>
+													<p className="m-0 text-[30px] font-bold text-orange">{addr(ptr)}</p>
+													<p className="m-0 mt-3.5 text-[15px] text-ash/60">DATA</p>
+													<p className="m-0 text-[30px] font-bold text-ghost">0x{HEX[ptr % HEX.length]}</p>
+													<div className="mt-[18px] h-1 overflow-hidden rounded bg-white/[0.08]">
+															<div className="h-full bg-orange" style={{ width: `${(addrP * 100).toFixed(0)}%` }} />
+													</div>
+											</div>
+									</div>
 
-                        <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-right" >
-                            Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like you would pull a specific folder from a numbered drawer in a filing cabinet.
-                        </p>
-                        <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term text-right">
-                            Voyager 1’s onboard computer is incredibly small by today's standards, with just 8,192 memory slots. When the spacecraft needs to know what to do next, it asks for the instructions stored in one of these specific slots, and the hardware instantly hands them over so the program can continue.
-                        </p>
-                    </div>
+									<div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4 pr-7 md:pr-14 mt-12">
 
-                </div>
+											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-right" >
+													Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like going to the library and fetching a book from a specific shelf.
+											</p>
+											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-right">
+													
+                          This acts as a catalogue for the processor to look for data and execute instructions.
 
+											</p>
+									</div>
+							</div>
+					</div>
+			</section>
+			
+			{/* MEMORY MAPPING SECTION */}
+      <section id="mapping" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+        <div data-stage className="flex py-16 md:py-32 px-7 md:px-14 flex-col items-start overflow-hidden">
 
-                <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-6 md:mt-12 leading-relaxed text-ash/60">
-                    This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
-                </p>
+            <div className="mb-4 ml-auto max-w-[1260px] text-right font-term pr-7 md:pr-14">
+							<div 
+								data-reveal="right" 
+								className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+							>
+								<span>Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</span>
+						
+							</div>
 
+              <h2 className="m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange">Memory Mapping</h2>
             </div>
-        </section>
 
-      <section id="mapping" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex py-16 md:py-32 flex-col items-start overflow-hidden">
-
-            <div className="mb-4 ml-auto max-w-[560px] text-right">
-              <p className="m-0 mb-2 text-[16spx] leading-[1.7] text-ash">Every instruction has an address, but what happens when some of those addresses suddenly become unavailable?</p>
-              <h2 className="m-0 !font-display text-[clamp(28px,4vw,48px)] font-bold uppercase tracking-wide text-orange">Memory Mapping</h2>
-            </div>
-
-            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6 md:gap-12 items-start">
+            <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-6 md:gap-12 items-start ">
 
                 <div className="order-2 md:order-1 flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
-                    <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term mb-8  text-left" >
-                        Think of a computer's memory like an empty plot of land. Memory mapping divides the land into permanent zones for specific jobs, like one zone for temporary data and another for software instructions.
+                    <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-left" >
+                        While addressing assigns data to individual slots, memory mapping defines how those slots are grouped into dedicated regions for specific jobs. Memory mapping allows computers to allocate specific memory blocks for storing data and specific software instructions. These pieces of data are mapped to memory addresses; this is how the CPU knows where to find them.
                     </p>
-                    <p className="m-0 text-base md:text-[24px] leading-relaxed text-ash/60 font-term text-left">
-                        VOn older computers like Voyager 1, this map is an unbreakable contract. If a piece of code belongs at address 100, it must stay exactly at address 100. The computer doesn't double-check its work; it blindly goes to the requested address, grabs whatever is sitting there, and tries to run it.
+                    <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-left">
+                        The computer doesn't actually try to check if the code still works; it just runs whatever is sitting at that address.
+                        <br/>
+                        Because the computer can't tell the difference between real and corrupted instructions, a broken memory chip is incredibly dangerous, as it will completely change how the entire system behaves.
+
                     </p>
                 </div>
+							
+                <div className=" order-1 md:order-2 grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full">
 
-                <div className="order-1 md:order-2 grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-4 md:gap-9 bg-white/[0.02] border border-white/[0.05] p-4 md:p-6 rounded-[20px] w-full">
-
-                    <div className="w-full md:min-w-[190px] text-left font-mono">
+                    <div className="w-full md:min-w-[180px] text-left font-mono">
                         <p className="m-0 text-sm md:text-[20px] uppercase tracking-[.16em] font-extrabold text-alert">Fault scan</p>
                         <p className="m-0 mt-4 text-[15px] text-ash/60">CORRUPTED BLOCKS</p>
                         <p className="m-0 text-[30px] font-bold text-alert">{String(lost).padStart(2, '0')}</p>
@@ -559,123 +517,175 @@ export default function VoyagerScrollyTelling() {
                         <p className="m-0 text-[15px] font-bold" style={{ color: lost === 0 ? '#F8F8FF' : '#E63946' }}>{lost === 0 ? 'NOMINAL' : lost < FRAG.length ? 'FAULT DETECTED' : 'CRITICAL'}</p>
                     </div>
                     <MemoryGrid states={mappingStates(mapP)} />
-                    </div>
+									</div>
 
             </div>
-
-            <p className="mt-5 m-0 max-w-[100%] font-term text-base md:text-[24px] text-center mt-12 leading-relaxed text-ash/60">
-                Because the computer can't tell the difference between real instructions and random noise, a broken memory chip is incredibly dangerous. It doesn't just corrupt saved files; it completely breaks how the computer behaves.
-            </p>
-
         </div>
       </section>
 
-      <section id="lost-in-translation" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex py-32 flex-col items-center text-center overflow-hidden">
-          
-
-          <div className="mb-14 max-w-[1000px]">
-            <h2 className="m-0 !font-display text-[clamp(32px,5vw,72px)] font-bold uppercase leading-[1.05] tracking-wide text-orange">
-              Lost in Translation in Deep Space
-            </h2>
-            <p className="m-0 mt-4 font-mono text-[18px] tracking-wider text-ghost/80 uppercase">
-              November 14, 2023 // Telemetry Stream Disruption
-            </p>
-          </div>
-
-          <div className="w-full max-w-[1200px] bg-white/[0.02] border border-white/[0.04] p-8 md:p-12 rounded-[24px] flex flex-col gap-8 text-center items-center">
-            
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash">
-              On November 14, 2023, Voyager 1’s data stream broke. The spacecraft hadn't died, and the signal hadn't weakened by distance. Instead of sending back science data, it simply began transmitting a repeating loop of total gibberish, sending an unreadable pattern of <span className="font-mono text-orange font-bold">1</span>s and <span className="font-mono text-orange font-bold">0</span>s.
-            </p>
-            
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash/60">
-              For the NASA engineers back on Earth, this was both a relief and a nightmare. The probe was clearly still alive and broadcasting its signal on time, but the data was completely meaningless.
-            </p>
-            
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash/60">
-              To make matters worse, Voyager 1 is over 15 billion miles away. At that immense distance, every single command sent to the spacecraft takes <span className="text-ghost font-bold">47 hours</span> just to complete a round trip, making any quick fix impossible.
-            </p>
-
-          </div>
-
-        </div>
+      <section className="flex items-center justify-center px-7 py-12 text-center">
+        <p className="m-0 text-base md:text-xl text-ash/80">
+          But how does the computer actually know which memory address to read next? 
+        </p>
       </section>
 
-      <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16">
-        
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px]">
-          <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase tracking-wide text-alert leading-[1.05]">
-            Root Cause:<br />A Dead Chip
-          </h2>
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            After months of testing, engineers found the problem: a single memory chip inside the computer failed completely. Because the chip broke, the instructions stored on it became unreadable.
-          </p>
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            The big issue was what those instructions did. This specific chip holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
-          </p>
-        </div>
-
-        <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
-          <h3 className="m-0 !font-display text-[26px] font-bold uppercase tracking-wide text-orange mb-4">
+      {/* INSTRUCTION POINTER SECTION */}
+      <section id='instruc-pointer' className="relative mx-auto max-w-[1700px] px-7 md:px-14 pt-20 md:pt-25 pb-16">
+        <div data-reveal="up" className="mx-auto flex flex-col items-center w-full  rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
+          <h3 className="m-0 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange mb-4">
             The Instruction Pointer
           </h3>
-          <p className="m-0 text-[18px] leading-[1.7] text-ash/80 mb-5 max-w-[750px]">
-            Every computer has a tiny, super-fast memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. Think of it like a bookmark in a book. After the computer reads and does what the instruction says, the IP automatically moves to the very next line.
+          <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-5 max-w-[750px]">
+            Every computer has a memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. After the computer reads and does what the instruction says, the IP automatically moves to the very next line. Essentially, the order of instructions was:
           </p>
-          <p className="m-0 text-[18px] leading-[1.7] text-ash/80 max-w-[750px]">
-            This regular loop is exactly what broke Voyager 1. A piece of the spacecraft's memory got physically damaged and corrupted. But the IP didn't know that. It just kept moving forward, line by line, right into the broken memory area, reading complete gibberish and running it like real code.
-          </p>
+          <div className="max-w-[750px] w-full">
+            <NumberedList items={IP_STEPS} accent="orange" />
+          </div>
         </div>
+      </section>
 
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px] pt-4">
-          <h2 className="m-0 !font-display text-[clamp(28px,3.5vw,44px)] font-bold uppercase tracking-wide text-orange leading-[1.05]">
-            Instruction Pointer Control<br />& Jump Remapping
+     <section className="flex items-center justify-center px-7 py-32 md:py-32 text-center">
+				<p className="m-0 text-base md:text-xl text-ash/80">
+          Now that we know about computer memory, mapping, addressing, and accessing, let’s go back to what went wrong in 2023… 
+				</p>
+			</section> 
+
+      {/* ROOT CAUSE SECTION */}
+      <section id="root-cause" className="mx-auto max-w-[1700px] scroll-mt-20 px-7 md:px-14 pt-10 pb-[90px] font-term">
+        
+        <div className="flex flex-col items-center text-center mb-8">
+          <div 
+            data-reveal="up" 
+            className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-5 py-2 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+          >
+            <span>Why couldn’t they understand the data coming from the space probe?</span>            
+          </div>
+
+          <h2 data-reveal="up" className="m-0 !font-display text-[clamp(30px,65px,65px)] font-bold uppercase text-alert leading-[1.05]">
+            Root Cause: A Dead Chip
           </h2>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            It’s impossible to send a mechanic 15 billion miles into deep space. The only option was a remote software repair, beamed across the solar system to a computer built in the early 1970s.
+        </div>
+
+        <div data-reveal="up" className="max-w-[1600px] mx-auto relative overflow-hidden rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] px-7 py-10 md:px-16 md:py-12 flex flex-col items-center text-center">
+
+          <p className="m-0 max-w-[1700px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash mb-8">
+            After months of testing, engineers found the problem: A piece of the spacecraft’s memory got physically damaged and corrupted. But the IP didn’t know that. When the computer started reading instructions from the broken chip, the supposed instructions weren’t executing—causing the discrepancy in the message being sent back to Earth.
           </p>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Since there wasn't a single open space in the healthy memory large enough to hold the rescued code, the engineers had to get creative. They chopped the vital telemetry instructions into smaller fragments and tucked them into tiny, unused gaps scattered throughout the computer's working memory.
+
+          <div className="w-full max-w-[1000px] flex flex-col md:flex-row items-center justify-center gap-8 md:gap-14 my-2 text-center md:text-left">
+            
+            <div className="w-full md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden border border-white/10 bg-black/40 p-2 shadow-lg">
+                <img 
+                  src={fdsChipImg.src}
+                  alt="FDS Memory Chip Board" 
+                  width={fdsChipImg.width}
+                  height={fdsChipImg.height}
+                  loading="eager"
+                  decoding="async"
+                  className="w-full max-w-[420px] h-auto object-contain rounded"
+                />
+              </div>
+            </div>
+
+            <div className="w-full md:w-1/2 flex flex-col justify-center">
+              <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
+                This specific chip is the <span className="text-white font-semibold">Flight Data Subsystem (FDS)</span> which holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
+              </p>
+            </div>
+
+          </div>
+
+          <p className="m-0 max-w-[1700px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash mt-8">
+            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
+          </p>
+
+        </div>
+      </section>
+
+      {/* SOLUTION MECH SECTION */}
+      <section id="solution" className="relative mx-auto max-w-[1700px] px-7 md:px-14 pt-10 pb-12 font-term">
+        
+        <div className="flex flex-col items-center text-center mb-10">
+          <h2 data-reveal="up" className="m-0 !font-display text-[clamp(28px,3.5vw,52px)] font-bold uppercase text-orange leading-[1.1] max-w-[1200px]">
+            The Mechanism That Stitched Voyager 1 Back Together
+          </h2>
+        </div>
+
+        <div data-reveal="up" className="mx-auto max-w-[1700px] flex flex-col items-center text-center gap-6">
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
+            It’s impossible to send a mechanic 15 billion miles into deep space to swap out a broken part. The only option was a remote software repair. Since signals coming from Earth to the spacecraft take a long time to travel back and forth, the code had to work on the first try as trial and error would be too time-consuming.
+          </p>
+
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
+            Since there wasn't a contiguous memory space large enough to hold the rescued code, the engineers had to get creative. They chopped the instructions into smaller fragments and carefully tucked them into unused memory blocks across the computer's remaining working memory.
+          </p>
+
+          <p className="m-0 text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash">
+            To do that, they had to implement specific jump commands that explicitly told the computer where to find the next instruction. By mapping out every step, they made sure the system could run the split code and get it working again.
           </p>
         </div>
 
-        <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
-          <h3 className="m-0 font-mono text-[26px] md:text-[30px] font-bold uppercase tracking-[.1em] text-crt mb-6">
-            The Jump Instruction (JMP)
+      </section>
+
+      {/* TRANSITION TEXT */}
+      <section className="flex items-center justify-center px-7 py-20 md:py-28 text-center">
+        <p className="m-0 text-base md:text-xl text-ash/80">
+          Let’s take a closer look at the concept behind NASA’s solution…
+        </p>
+      </section>
+
+      {/* JMP INSTRUCTION SECTION */}
+      <section id="jump" className="relative mx-auto max-w-[1700px] px-7 md:px-14 pb-[90px] font-term">
+         <div 
+            data-reveal="scale" 
+            className="mx-auto w-full max-w-[1000px] flex flex-col items-center text-center rounded-[32px] border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-7 py-12 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]"
+          >
+          
+          <h3 className="m-0 !font-display text-[clamp(26px,3vw,40px)] font-bold uppercase text-crt mb-6">
+            The Jump Instruction
           </h3>
-          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 mb-6 max-w-[750px]">
-            A jump instruction directly overwrites the Instruction Pointer with a new address. It does not move data; it simply redirects the processor’s attention.
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash/90 mb-6">
+            A jump instruction (JMP) is a command that directly overwrites the Instruction Pointer with a new address. Instead of advancing sequentially to the next chunk of memory, the processor instantly redirects its execution focus to whatever address the JMP specifies.
           </p>
-          <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 max-w-[750px]">
-            Each relocated fragment ends with a precisely calculated JMP pointing to the next fragment. The final fragment ends with a JMP back into the original post-corruption code. The processor never knows the code was moved. It just follows the digital breadcrumbs.
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] italic text-crt/90 font-medium mb-6">
+            It allows the processor to go back to or skip to another part of the system’s code.
           </p>
+          
+          <p className="m-0 max-w-[850px] text-base text-[clamp(15px,1vw,22px)] leading-[1.6] text-ash/90">
+            This is the mechanism NASA engineers used to bridge fragmented code across non-contiguous memory regions.
+          </p>
+          
         </div>
-
-        <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-alert/40 bg-alert/10 px-8 py-8">
-          <p className="m-0 text-[18px] leading-[1.7] font-term text-alert/90">
-            <strong className="tracking-wide">CRITICAL RISK:</strong> There was a 47-hour delay between sending a command and seeing the result. One miscalculated address. One word written to the wrong offset. One JMP pointing three words past its target. Any of these would send the IP into unmapped memory — and Voyager 1 would go dark permanently.
-          </p>
-        </div>
-
       </section>
 
       <section id="solution" className="relative">
         <div data-stage className="flex py-12 h-screen items-center overflow-hidden">
-          <div className="mx-auto w-full max-w-[1080px] px-7 text-center">
+          <div className="mx-auto w-full max-w-[1080px] px-7 text-center font-term">
             <p className="m-0 mb-2 text-[15px] leading-[1.7] text-ash">Losing part of memory doesn't always mean losing the entire program. Sometimes, there's another solution.</p>
-            <h2 className="m-0 mb-4 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase tracking-wide text-orange">NASA's Solution</h2>
+            <h2 className="m-0 mb-4 !font-display text-[clamp(30px,4.4vw,54px)] font-bold uppercase text-orange">NASA's Solution</h2>
             <div className="mx-auto max-w-[750px]"><MemoryGrid states={solutionStates(solP)} /></div>
-            <p className="mt-6 !font-display text-[30px] font-bold uppercase tracking-[.12em] text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>Code Reallocated</p>
+            <p className="mt-6 !font-display text-[30px] font-bold uppercase text-crt transition-opacity duration-300" style={{ opacity: solP > 0.92 ? 1 : 0 }}>Code Reallocated</p>
           </div>
         </div>
       </section>
 
-      <section className="flex min-h-[60vh] items-center justify-center px-7 py-16 text-center">
-        <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
+      {/* MINIGAME TRANSITION TEXT */}
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[60vh] px-7 py-16 text-center">
+        <h2 
+          data-reveal="scale" 
+          className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange"
+        >
           Now it's your turn<br />to solve the problem!
         </h2>
+
+        <p className="m-0 text-base md:text-xl text-ash/80 max-w-[1200px]">
+          With your newfound knowledge of computer architecture, it's your turn to fix the problem NASA faced. Step into the role of an engineer and reallocate the memory blocks below.
+        </p>
       </section>
+
 
       <section id="finale" ref={finaleRef} className="mx-auto max-w-[1800px] px-7 py-20">
         {minigameVisible && (
@@ -685,9 +695,16 @@ export default function VoyagerScrollyTelling() {
         )}
       </section>
 
-      <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center">
-        <p data-reveal="up" className="m-0 mb-[18px] text-base md:text-[24px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
-        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
+      <section className="mx-auto max-w-[1200px] px-7 py-24 md:py-36 text-center font-term">
+
+        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">
+          Voyager 1 continues its journey through interstellar space today. Its recovery was possible because engineers leveraged how computers are designed to process memory and execute instructions.    
+        </p>
+
+        <p data-reveal="up" className="mt-10 m-0 text-base md:text-[24px] leading-[1.8] text-ash">
+          This repair proves that when hardware fails, knowledge prevails.        
+        </p>
+
       </section>
 
       <div className="relative mt-10 h-[540px] ">
@@ -718,7 +735,7 @@ export default function VoyagerScrollyTelling() {
             
             <div className="pl-6 md:pl-14"> 
 
-            <h3 className="m-0 mt-10 mb-8 !font-display text-base md:text-[22px] font-bold uppercase tracking-wider text-orange">
+            <h3 className="m-0 mt-10 mb-8 !font-display text-base md:text-[22px] font-bold uppercase text-orange">
                 References
             </h3>            
 

@@ -8,10 +8,9 @@ readingTime: "10 minute read"
 
 import VoyagerScrollyTelling from '../components/VoyagerScrollyTelling.tsx';
 
-import '@fontsource/archivo-black';
-import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/roboto-mono';
 import '@fontsource/share-tech-mono';
+import '../styles/fonts.css';
 
 <style>
 {`
@@ -30,12 +29,61 @@ import '@fontsource/share-tech-mono';
     background: transparent !important;
     color: #F8F8FF !important;
   }
+
+    .header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    
+    max-width: 1600px !important;
+    width: 100% !important;
+    margin: 1rem auto !important;
+    padding: 0.8rem 1.5rem !important;
+
+    /* Glassmorphism Effect */
+    background: rgba(255, 255, 255, 0.04) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    
+    border-radius: 9999px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .header__titleblock {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    color: #ffffff !important;
+    }
+
+    .header__titleblock * {
+    color: #ffffff !important;
+    }
+
+    .header__subtitle {
+    color: rgba(255, 255, 255, 0.6) !important;
+    opacity: 1 !important;
+    }
+
+    .header .button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    padding: 0.35rem !important;
+    border-radius: 50% !important; /* Round icon button */
+    }
+
+    .header .button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
   .article h1:first-of-type,
   .article :global(h1:first-of-type) {
     display: block !important;
-  }
-  .header {
-    display: none !important;
   }
   .content__titlemeta {
     display: none !important;
@@ -47,7 +95,7 @@ import '@fontsource/share-tech-mono';
     padding: 0 !important;
   }
   .article h2, .article h3, .article h4, .article h5, .article h6 {
-    font-family: inherit !important;
+    font-family: inherit;
     border-bottom: none !important;
   }
   .content {
