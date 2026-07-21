@@ -6,24 +6,24 @@ In the final week before submission, our team focused on fixing mobile layouts, 
 
 ### Challenges
 
-* **Mobile Layout:** Getting the game to work on phones was super frustrating. Our original desktop grid layout looked completely broken and unusable on a vertical mobile screen.
-* **Performance:** The site lagged hard at first. The browser was trying to load all our heavy images and the entire React minigame at the same time, which tanked the initial load speed.
-* **Content Overload:** Our first drafts were way too long and full of unnecessary jargon. We realized that if we wanted people to actually learn about computer architecture, we had to cut it down. We spent a lot of time editing the paragraphs to make the narrative readable and straight to the point.
+* Getting the game to work on phones was super frustrating. Our original desktop grid layout looked completely broken and unusable on a vertical mobile screen.
+* The site lagged hard at first. The browser was trying to load all our heavy images and the entire React minigame at the same time, which tanked the initial load speed.
+* Our first drafts were way too long and full of unnecessary jargon. We realized that if we wanted people to actually learn about computer architecture, we had to cut it down. We spent a lot of time editing the paragraphs to make the narrative readable and straight to the point.
 
 ---
 
 ### Aha! Moments
 
-* **Game Fairness:** During playtesting, our friends kept getting frustrated because the random memory corruption would sometimes make the game impossible to win. We realized the game was punishing players unfairly. We needed to add a quick check to guarantee every round is actually winnable, and show a preview of upcoming blocks so players can plan.
-* **Less is More:** We realized that our load times are slow because of our massive and unoptimized images. Simply changing our image formats made the site load way faster.
+* During playtesting, our friends kept getting frustrated because the random memory corruption would sometimes make the game impossible to win. We realized the game was punishing players unfairly. We needed to add a quick check to guarantee every round is actually winnable, and show a preview of upcoming blocks so players can plan.
+* We realized that our load times are slow because of our massive and unoptimized images. Simply changing our image formats made the site load way faster.
 
 ---
 
 ### Technical Discussion
 
-* **Mobile Responsiveness & UI Refactor:** We refactored the board to dynamically reconfigure into a vertical 6x9 grid on mobile viewports while keeping the same array indexes and state management. We also fixed GSAP scroll-pinning bugs that caused the screen to jump around on phone browsers, and clamped our typography sizes to stop the page from overflowing horizontally.
-* **Game Fairness Engine:** We added a validation algorithm during the dealing phase. The game now verifies that every dealt memory fragment has at least one valid, unblocked placement on the board, preventing unwinnable drops. We also expanded the block queue UI so players can strategize.
-* **Optimization:** We converted all media to `.webp`, cutting image payload sizes by over 60%. More importantly, we wrapped the interactive minigame in `React.lazy` and `Suspense` boundaries. This means the initial narrative page loads instantly, and the heavy game bundle only loads when the user scrolls down to it.
+* We refactored the board to dynamically reconfigure into a vertical 6x9 grid on mobile viewports while keeping the same array indexes and state management. We also fixed GSAP scroll-pinning bugs that caused the screen to jump around on phone browsers, and clamped our typography sizes to stop the page from overflowing horizontally.
+* We added a validation algorithm during the dealing phase. The game now verifies that every dealt memory fragment has at least one valid, unblocked placement on the board, preventing unwinnable drops. We also expanded the block queue UI so players can strategize.
+* We converted all media to `.webp`, cutting image payload sizes by over 60%. More importantly, we wrapped the interactive minigame in `React.lazy` and `Suspense` boundaries. This means the initial narrative page loads instantly, and the heavy game bundle only loads when the user scrolls down to it.
 
 ---
 
