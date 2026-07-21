@@ -27,6 +27,17 @@ In the final week before submission, our team focused on fixing mobile layouts, 
 
 ---
 
+### Disclosure on the Use of AI
+
+During the development of this project, we utilized Large Language Models (LLMs) to assist with scaffolding, technical troubleshooting, and iterative coding:
+
+* **Anthropic Claude:** Utilized primarily during the early stages of development to brainstorm the overarching structure and generate the foundational layout design templates for the website.
+* **Google Gemini:** Utilized during active development to assist with complex programming tasks. This included refining the logic for the interactive drag-and-drop minigame. This was also used to revise the grammar, contents, and create placeholders text while designing the project.
+
+*Note: All AI-assisted designs and code snippets were thoroughly reviewed, modified, and tested by our group to ensure they aligned with our specific project requirements and academic standards.*
+
+---
+
 <br/>
 <br/>
 
@@ -83,16 +94,6 @@ Although the progress we’ve made in this submission is already good, there are
 5. Clean up unused components, functions, and comments;
 
 ---
-
-### Disclosure on the Use of AI
-
-During the development of this project, we utilized Large Language Models (LLMs) to assist with scaffolding, technical troubleshooting, and iterative coding:
-
-*   **Anthropic Claude:** Utilized primarily during the early stages of development to brainstorm the overarching structure and generate the foundational layout design templates for the website.
-*   **Google Gemini:** Utilized during active development to assist with complex programming tasks. This included refining the logic for the interactive drag-and-drop minigame. 
-
-*Note: All AI-assisted designs and code snippets were thoroughly reviewed, modified, and tested by our group to ensure they aligned with our specific project requirements and academic standards.*
-
 
 <br/>
 <br/>
