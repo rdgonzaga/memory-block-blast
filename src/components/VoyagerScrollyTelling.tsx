@@ -352,7 +352,7 @@ export default function VoyagerScrollyTelling() {
 					{/* Saturn Image*/}
 					<div 
 						data-reveal="left"
-						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-7%] hidden md:block"
+						className="pointer-events-none select-none absolute -left-16 md:-left-32 top-1/2 z-20 w-[60%] max-w-[850px] -translate-y-[35%] left-[-4%] md:left-[-4%] hidden md:block"
 						style={{
 							WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 35%)",
 							maskImage: "linear-gradient(to right, transparent 0%, black 35%)",
@@ -373,7 +373,7 @@ export default function VoyagerScrollyTelling() {
 					</div>
 
 					{/* Right Content */}
-					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[60%] lg:w-[55%] px-7 md:px-14">
+					<div className="relative z-10 flex flex-col items-end text-right md:ml-auto md:w-[75%] lg:w-[65%] px-7 md:px-14">
 						
 						<div 
 							data-reveal="right" 
@@ -414,11 +414,11 @@ export default function VoyagerScrollyTelling() {
             <h3 data-reveal="left" className="m-0 mb-5 !font-display text-[clamp(22px,2vw,2vw)] font-bold uppercase text-orange px-7 md:px-14">What is Computer Memory?</h3>
 
             <p data-reveal="left" className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
-                Computer memory serves as the system's active workspace, holding the instructions and data required for immediate operation. On Voyager 1's 1970s architecture, this memory is organized into "words"—16-bit units rather than modern bytes—which define every calculation.
+                Computer memory serves as the system's active workspace, holding the instructions and data required for immediate operation. Unlike modern computers with vast storage, Voyager 1’s 1970s hardware relies on a tiny, fixed set of memory slots to handle every calculation.
             </p>
 
             <p data-reveal="left" className="mt-5 m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash px-7 md:px-14">
-                Without this functional memory space, the spacecraft loses its operational instructions and data, effectively rendering it lifeless, which is a critical failure that occurred for Voyager 1 in November 2023.
+                Without this functional memory space, the spacecraft loses its operational instructions and data, effectively rendering it lifeless.
             </p>
 
         </div>
@@ -460,23 +460,18 @@ export default function VoyagerScrollyTelling() {
 											</div>
 									</div>
 
-									<div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4 pr-7 md:pr-14">
+									<div className="flex flex-col items-start text-left w-full max-w-[680px] pt-4 pr-7 md:pr-14 mt-12">
 
 											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-right" >
-													Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like you would pull a specific folder from a numbered drawer in a filing cabinet.
+													Every piece of information in a computer is stored in a specific location called a memory address. Instead of searching blindly for what it needs, the computer goes directly to this address, just like going to the library and fetching a book from a specific shelf.
 											</p>
 											<p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-right">
-													Voyager 1’s onboard computer is incredibly small by today's standards, with just 8,192 memory slots. When the spacecraft needs to know what to do next, it asks for the instructions stored in one of these specific slots, and the hardware instantly hands them over so the program can continue.
+													
+                          This acts as a catalogue for the processor to look for data and execute instructions.
+
 											</p>
 									</div>
-
 							</div>
-
-
-							<p className="mt-5 max-w-[100%] m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-right mt-6 md:mt-12 leading-relaxed pr-7 md:pr-14">
-									This process repeats thousands of times a second, but it only works if the physical hardware is completely undamaged. If a single memory chip breaks down over time, as it did during 2023, the system gets confused. It starts reading from the broken memory, following corrupted instructions, and sending gibberish back to Earth.
-							</p>
-
 					</div>
 			</section>
 			
@@ -501,10 +496,13 @@ export default function VoyagerScrollyTelling() {
                 <div className="order-2 md:order-1 flex flex-col items-start text-left w-full max-w-[680px] pt-4">
 
                     <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term mb-8 text-left" >
-                        Think of a computer's memory like an empty plot of land. Memory mapping divides the land into permanent zones for specific jobs, like one zone for temporary data and another for software instructions.
+                        While addressing assigns data to individual slots, memory mapping defines how those slots are grouped into dedicated regions for specific jobs. Memory mapping allows computers to allocate specific memory blocks for storing data and specific software instructions. These pieces of data are mapped to memory addresses; this is how the CPU knows where to find them.
                     </p>
                     <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash font-term text-left">
-                        On older computers like Voyager 1, this map is an unbreakable contract. If a piece of code belongs at address 100, it must stay exactly at address 100. The computer doesn't double-check its work; it blindly goes to the requested address, grabs whatever is sitting there, and tries to run it.
+                        The computer doesn't actually try to check if the code still works; it just runs whatever is sitting at that address.
+                        <br/>
+                        Because the computer can't tell the difference between real and corrupted instructions, a broken memory chip is incredibly dangerous, as it will completely change how the entire system behaves.
+
                     </p>
                 </div>
 							
@@ -521,146 +519,116 @@ export default function VoyagerScrollyTelling() {
 									</div>
 
             </div>
-
-            <p className="m-0 text-base text-[clamp(15px,1vw,24px)] leading-[1.8] text-ash text-left mt-12 leading-relaxed ">
-                Because the computer can't tell the difference between real instructions and random noise, a broken memory chip is incredibly dangerous. It doesn't just corrupt saved files; it completely breaks how the computer behaves.
-            </p>
-
         </div>
       </section>
 
-      <section id="lost-in-translation" className="relative mx-auto max-w-[1800px] px-7 md:px-14">
-        <div data-stage className="flex py-32 flex-col items-center text-center overflow-hidden">
-          
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+				<p className="m-0 text-base md:text-xl text-ash/80">
+        But how does the computer actually know which memory address to read next? 
+				</p>
+			</section>
 
-          <div className="mb-14 max-w-[1000px]">
-            <h2 className="m-0 !font-display text-[clamp(32px,5vw,72px)] font-bold uppercase leading-[1.05] text-orange">
-              Lost in Translation in Deep Space
-            </h2>
-            <p className="m-0 mt-4 font-mono text-[18px] tracking-wider text-ghost/80 uppercase">
-              November 14, 2023 // Telemetry Stream Disruption
-            </p>
-          </div>
-
-          <div className="w-full max-w-[1200px] bg-white/[0.02] border border-white/[0.04] p-8 md:p-12 rounded-[24px] flex flex-col gap-8 text-center items-center">
-            
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash">
-              On November 14, 2023, Voyager 1’s data stream broke.
-            </p>
-
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash/60">
-              The spacecraft hadn't died, and the signal hadn't weakened by distance. Instead of sending back science data, it simply began transmitting total gibberish nobody knew how to comprehend.
-            </p>
-
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash/60">
-              For the NASA engineers back on Earth, this was both a relief and a nightmare. The probe was clearly still alive and broadcasting its signal on time, but the data was completely meaningless.
-            </p>
-            
-            <p className="m-0 font-term text-base md:text-[24px] leading-relaxed text-ash/60">
-              To make matters worse, Voyager 1 is over 15 billion miles away. At that immense distance, every single command sent to the spacecraft takes <span className="text-ghost font-bold">47 hours</span> just to complete a round trip, making any quick fix impossible.
-            </p>
-
-          </div>
-
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16 font-term">
-        
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px]">
-          <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase text-alert leading-[1.05]">
-            Root Cause:<br />A Dead Chip
-          </h2>
-          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
-            After months of testing, engineers found the problem: a single memory chip inside the computer failed completely. Because the chip broke, the instructions stored on it became unreadable. This specific chip holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
-          </p>
-        </div>
-
-        <div data-reveal="up" className="flex flex-col items-start w-full max-w-[850px] rounded-xl border border-alert/30 bg-alert/5 px-8 py-8 text-left">
-          <p className="m-0 mb-4 font-mono text-[13px] uppercase tracking-[.14em] text-alert">The Failure Flow</p>
-          <NumberedList items={FAILURE_FLOW} accent="alert" />
-          <p className="m-0 mt-5 text-sm md:text-[18px] leading-[1.7] text-ash/80">
-            When the computer’s bookmark (the Instruction Pointer) moved into this chip's territory, the computer didn't know the chip was broken. It just blindly read the unreadable memory, treating the broken data as real instructions, and ran them. This caused the system to think it was still working properly, but in reality, it was sending gibberish back to Earth.
-          </p>
-        </div>
-
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px] pt-4">
-          <h2 className="m-0 !font-display text-[clamp(28px,3.5vw,44px)] font-bold uppercase text-orange leading-[1.05]">
-            Instruction Pointer Control<br />& Jump Remapping
-          </h2>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            It’s impossible to send a mechanic 15 billion miles into deep space to swap out a broken part. The only option was a remote software repair, beamed across the solar system to the spacecraft. With a 47-hour delay between sending a command and seeing the result, there was absolutely no room for error.
-          </p>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Since there wasn't a single open space in the healthy memory large enough to hold the rescued code, the engineers had to get creative. They chopped the vital instructions into smaller fragments and carefully tucked them into tiny, unused gaps scattered throughout the computer's working memory.
-          </p>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Finally, they had to leave digital “breadcrumbs” — specific jump commands that explicitly told the computer exactly where to find the next instruction. They manually calculated and mapped out every single step so the system could hop seamlessly from one relocated fragment to the next, restoring the flow of data without a single misstep.
-          </p>
-        </div>
-
+      {/* INSTRUCTION POINTER SECTION */}
+      <section id='instruc-pointer' className="relative mx-auto max-w-[1700px] px-7 md:px-14">
         <div data-reveal="up" className="flex flex-col items-center w-full max-w-[850px] rounded-xl border border-orange/20 bg-orange/5 px-8 py-10 backdrop-blur-sm">
           <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-orange mb-4">
             The Instruction Pointer
           </h3>
           <p className="m-0 text-[18px] leading-[1.7] text-ash/80 mb-5 max-w-[750px]">
-            Every computer has a tiny, super-fast memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. After the computer reads and does what the instruction says, the IP automatically moves to the very next line. Essentially, the order of instructions was:
+            Every computer has a memory slot called the Instruction Pointer (IP). Its only job is to point to the next instruction the computer needs to run. After the computer reads and does what the instruction says, the IP automatically moves to the very next line. Essentially, the order of instructions was:
           </p>
           <div className="max-w-[750px] w-full">
             <NumberedList items={IP_STEPS} accent="orange" />
           </div>
-          <p className="m-0 mt-5 text-[18px] leading-[1.7] text-ash/80 max-w-[750px]">
-            This regular loop is exactly what broke Voyager 1. A piece of the spacecraft's memory got physically damaged and corrupted. But the IP didn't know that. It just kept moving forward, line by line, right into the broken memory area. Once it got there, it started reading complete gibberish and trying to run it like real code. That confused the computer and completely killed Voyager 1's ability to send readable data back to Earth.
+        </div>
+      </section>
+
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+				<p className="m-0 text-base md:text-xl text-ash/80">
+          Now that we know about computer memory, mapping, addressing, and accessing, let’s go back to what went wrong in 2023… 
+				</p>
+			</section>
+
+      {/* ROOT CAUSE SECTION */}
+      <section className="mx-auto max-w-[1000px] px-7 py-32 flex flex-col items-center text-center gap-16 font-term">
+        
+        <div className="mb-4 ml-auto max-w-[1260px] text-center font-term pr-7 md:pr-14">
+							<div 
+								data-reveal="up" 
+								className="mb-4 flex w-fit items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-1.5 text-xs font-medium text-yellow-400/90 backdrop-blur-sm md:text-sm"
+							>
+								<span>Why couldn’t they understand the data coming from the space probe?</span>
+						
+							</div>
+
+              <h2 className="m-0 !font-display text-[clamp(32px,4vw,52px)] font-bold uppercase text-alert leading-[1.05]">
+                Root Cause:<br />A Dead Chip
+              </h2>
+            </div>
+
+        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[1700px]">
+          
+
+          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            After months of testing, engineers found the problem: a single memory chip inside the computer failed completely. Because the chip broke, the instructions stored on it became unreadable. This specific chip holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
+          </p>
+
+          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            That specific chip is the FDS which holds the code that packages up all of Voyager 1’s science data and prepares it to be sent back to Earth.
+            <br/>
+            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
+          </p>
+
+          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            When the computer started reading data from the broken chip, the supposed instructions weren't executed—causing the discrepancy in the message being sent back to Earth.
           </p>
         </div>
 
-        <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
+      </section>
+
+      {/* SOLUTION MECH SECTION */}
+      <section id="solution" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+
+        <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-orange mb-4">
+          THE MECHANISM THAT STITCHED VOYAGER 1 BACK TOGETHER
+        </h3>
+
+        <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            It’s impossible to send a mechanic 15 billion miles into deep space to swap out a broken part. The only option was a remote software repair. Since signals coming from Earth to the spacecraft take a long time to travel back and forth, the code had to work on the first try as trial and error would be too time-consuming.
+          </p>
+
+          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            Since there wasn't a contiguous memory space large enough to hold the rescued code, the engineers had to get creative. They chopped the instructions into smaller fragments and carefully tucked them into unused memory blocks across the computer's remaining working memory.
+          </p>
+
+          <p className="m-0 text-base md:text-[22px] leading-[1.8] text-ash">
+            To do that, they had to implement specific jump commands that explicitly told the computer where to find the next instruction. By mapping out every step, they made sure the system could run the split code and get it working again.
+          </p>
+      </section>
+
+      <section className="flex flex-col items-center justify-center gap-6 min-h-[70vh] px-7 py-16 text-center">
+				<p className="m-0 text-base md:text-xl text-ash/80">
+          Let’s take a closer look at the concept behind NASA’s solution…
+				</p>
+			</section>
+
+      {/* JMP INSTRUCTION SECTION */}
+      <section id="jump" className="relative mx-auto max-w-[1700px] px-7 md:px-14">
+
+         <div data-reveal="scale" className="w-full max-w-[950px] rounded-2xl border border-crt/40 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(51,255,102,.03)_2px,rgba(51,255,102,.03)_5px)] bg-black/80 px-8 py-14 md:px-16 md:py-16 backdrop-blur-md shadow-[0_0_30px_rgba(51,255,102,.08)]">
           <h3 className="m-0 !font-display text-[26px] md:text-[30px] font-bold uppercase text-crt mb-6">
             The Jump Instruction
           </h3>
           <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 mb-6 max-w-[750px]">
-            A jump instruction (JMP) is a command that directly overwrites the Instruction Pointer with a new address. Instead of advancing sequentially to the next word, the processor instantly redirects its execution focus to whatever address the JMP specifies.
+            A jump instruction (JMP) is a command that directly overwrites the Instruction Pointer with a new address. Instead of advancing sequentially to the next chunk of memory, the processor instantly redirects its execution focus to whatever address the JMP specifies.
           </p>
           <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] italic text-ash/70 mb-6 max-w-[750px]">
-            The JMP does not copy code. It simply redirects the processor’s attention to another part of the system’s code.
+            It allows the processor to go back to or skip to another part of the system’s code.
           </p>
           <p className="m-0 mx-auto text-[18px] md:text-[20px] leading-[1.8] text-ash/90 max-w-[750px]">
             This is the mechanism NASA engineers used to bridge fragmented code across non-contiguous memory regions.
           </p>
         </div>
-
-        <div data-reveal="up" className="flex flex-col items-center gap-6 max-w-[850px] pt-4">
-          <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-orange mb-1">
-            The Repair Strategy: Jump Remapping Across Fragments
-          </h3>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Once the damaged chip was identified and empty spots in memory were found, engineers created a plan: break the code into pieces. They chopped the corrupted block of software into smaller chunks, with each block cut to fit perfectly into the tiny free gaps remaining in the spacecraft's healthy memory.
-          </p>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Then came the delicate task of stitching it all back together. At the end of every piece, engineers attached a jump command pointing directly to where the next piece was hidden. The final piece was set to jump right back into the main program, making the broken software chain whole again.
-          </p>
-          <p className="m-0 text-sm md:text-[20px] leading-[1.8] text-ash">
-            Voyager 1's computer had no idea the code had even been moved. It simply followed the trail of addresses step by step — and every single step was perfectly mapped out.
-          </p>
-        </div>
-
-        <div data-reveal="up" className="flex flex-col items-center gap-5 max-w-[850px] pt-4">
-          <h3 className="m-0 !font-display text-[26px] font-bold uppercase text-alert mb-1">
-            Why This Was Extraordinarily Difficult
-          </h3>
-          <p className="m-0 text-sm md:text-[18px] leading-[1.8] text-ash/80">
-            On modern computers, software automatically handles where programs are stored in memory. Voyager 1 didn't have any of that smart software. Every single line of code had to be moved by hand:
-          </p>
-
-          <blockquote className="m-0 w-full rounded-r-xl border-l-4 border-alert bg-alert/10 px-8 py-6 text-left text-[18px] leading-[1.7] text-alert/90">
-            If the engineers got a single number wrong, saved code to the wrong spot, or told the computer to jump just three steps past its target, Voyager 1’s computer would crash — and the space probe would go dark forever.
-          </blockquote>
-
-          <p className="m-0 text-sm md:text-[18px] leading-[1.8] text-ash/60">
-            There was no undo button. There was no way to fix a mistake once it was sent. There was only exact math, double-checked by hand on Earth, beamed across 15 billion miles of deep space, and trusted to work on a 47-year-old machine no human will ever touch again.
-          </p>
-        </div>
-
       </section>
 
       <section id="solution" className="relative">
@@ -678,6 +646,11 @@ export default function VoyagerScrollyTelling() {
         <h2 data-reveal="scale" className="m-0 !font-display text-[clamp(28px,5vw,62px)] font-bold uppercase leading-[1.05] text-orange">
           Now it's your turn<br />to solve the problem!
         </h2>
+
+        <p className="m-0 text-base md:text-xl text-ash/80">
+          With your newfound knowledge of computer architecture, it's your turn to fix the problem NASA faced. Step into the role of an engineer and reallocate the memory blocks below.
+				</p>
+
       </section>
 
       <section id="finale" ref={finaleRef} className="mx-auto max-w-[1800px] px-7 py-20">
@@ -689,8 +662,15 @@ export default function VoyagerScrollyTelling() {
       </section>
 
       <section className="mx-auto max-w-[1600px] px-7 pt-8 text-center font-term">
-        <p data-reveal="up" className="m-0 mb-[18px] text-base md:text-[24px] leading-[1.8] text-ash/60">Voyager 1 continues its journey through interstellar space today. Its recovery wasn't possible because engineers replaced broken hardware — it was possible because they understood how computers organize memory and execute instructions.</p>
-        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">Great engineering isn't always about more advanced technology. Sometimes, a deeper understanding of the fundamentals is what makes the difference.</p>
+
+        <p data-reveal="up" className="m-0 mb-[18px] text-base md:text-[24px] leading-[1.8] text-ash/60">
+          Voyager 1 continues its journey through interstellar space today. Its recovery was possible because engineers leveraged how computers are designed to process memory and execute instructions.    
+        </p>
+
+        <p data-reveal="up" className="m-0 text-base md:text-[24px] leading-[1.8] text-ash">
+          This repair proves that when hardware fails, knowledge prevails.        
+        </p>
+
       </section>
 
       <div className="relative mt-10 h-[540px] ">
